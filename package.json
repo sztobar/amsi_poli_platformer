@@ -1,0 +1,32 @@
+{
+  "name": "amsi_poli_platformer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "build": "./node_modules/.bin/browserify src/main.js -o dist/build.js",
+    "watch": "./node_modules/.bin/watchify src/main.js -o dist/build.js",
+    "serve": "./node_modules/.bin/parallelshell \"npm run watch\" \"npm run browser-sync\"",
+    "browser-sync": "./node_modules/.bin/browser-sync start --server --files dist/build.js --startPath ./dist/index.html",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sztobar/amsi_poli_platformer.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sztobar/amsi_poli_platformer/issues"
+  },
+  "homepage": "https://github.com/sztobar/amsi_poli_platformer#readme",
+  "devDependencies": {
+    "browser-sync": "^2.10.0",
+    "browserify": "^12.0.1",
+    "parallelshell": "^2.0.0",
+    "watchify": "^3.6.1"
+  },
+  "dependencies": {
+    "phaser": "^2.4.4"
+  }
+}
