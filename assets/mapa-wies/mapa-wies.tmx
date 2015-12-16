@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="left-down" width="240" height="40" tilewidth="32" tileheight="32" nextobjectid="12">
+ <tileset firstgid="1" name="wies-trawa" tilewidth="32" tileheight="32" tilecount="1">
+  <image source="wies-trawa.png" width="32" height="32"/>
+ </tileset>
+ <tileset firstgid="2" name="wies-grunt" tilewidth="32" tileheight="32" tilecount="1">
+  <image source="wies-grunt.png" width="32" height="32"/>
+ </tileset>
+ <tileset firstgid="3" name="wies-trawa-lewa" tilewidth="32" tileheight="32" tilecount="1">
+  <image source="wies-trawa-lewa.png" width="32" height="32"/>
+ </tileset>
+ <tileset firstgid="4" name="wies-trawa-prawa" tilewidth="32" tileheight="32" tilecount="1">
+  <image source="wies-trawa-prawa.png" width="32" height="32"/>
+ </tileset>
+ <tileset firstgid="5" name="wies-trawa-obie" tilewidth="32" tileheight="32" tilecount="1">
+  <image source="wies-trawa-obie.png" width="32" height="32"/>
+ </tileset>
+ <imagelayer name="Warstwa Obrazka 1">
+  <image source="wies-tlo.png"/>
+ </imagelayer>
+ <imagelayer name="Kopia Warstwa Obrazka 1" x="6400">
+  <image source="wies-tlo.png"/>
+ </imagelayer>
+ <imagelayer name="Kopia Warstwa Obrazka 1" x="5120">
+  <image source="wies-tlo.png"/>
+ </imagelayer>
+ <imagelayer name="Kopia Warstwa Obrazka 1" x="3840">
+  <image source="wies-tlo.png"/>
+ </imagelayer>
+ <imagelayer name="Kopia Warstwa Obrazka 1" x="2560">
+  <image source="wies-tlo.png"/>
+ </imagelayer>
+ <imagelayer name="Kopia Warstwa Obrazka 1" x="1280">
+  <image source="wies-tlo.png"/>
+ </imagelayer>
+ <layer name="Warstwa Kafelków 1" width="240" height="40">
+  <data encoding="base64" compression="zlib">
+   eJztnNmO3DAMBDfJ5v9/OWsgBgSOjhZ12VIVwJfYssUmO/LIs/P1BQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAp/HnJ379j+/Fc4FnE/ZKGErf2LHhmL99p3kUv00ApLC9UtM3njEQJ/y/EE0hJLdO5vwbW5fDUP3LWhwn51n8ey7Wr7meyPWNJ1qwPt/V93d9ZmgK76OmJ2b5t8aLu/q41rf49zyuHnmif8P5effLnkoqJ+XzBv6FC+8z2Wz/7tinvTXcRRfQUNfcN/v3Kc/QsbUW/4IXj3ff6N9VKHuB+Bdqudej1p54m39Hr8NP8Cv+PYuT/NuD3H7Taq+u0OXNe4cruPrHq1lq/cG/Oqv9+DT/ztR+NaV3BSVfhp9Xe3OSf2N1+BaPr/Yj/l2HonfKw3avqYXUGn6Kf715jch5dCjvllviFP9ez66q5tZbsX3iUeDfvfw7I06gVpPbw6l3PJ7PwKXnRnWe3pxa+6BXD3nzGpHzDrE799qbw9MvtR5W9K+p1+w+6NVD3rxG5LxDPJGWfV4PKR1UvZTv0Sr619Rrdh/06iFvXiNy3iFWc/d+jV/tuxj1e+jhfezfcIbXyu13xu7XS/+a82f3Qa8e8uY1Iucd4umkvreaQs3Z/pv1Yuycmnt49K85f3Yf9Oohb14jct4hehH77S77HOz5fa/UvFv2gTznhDmM0r/m/Nl90KuHvHmNyHmHaKH02z+l2ih48yid69Glt3ftfWrOn90HvXrIm9eInHeI1vfHit6p2lykPrumxqg9pM4td86M78Srcy5p2XMeMVrGKtdRjo/QnyjrnapNqV41NbOoc1vdL+qcvbp49bO0jFWuoxyfUQ/iU+9UbUr1qqmZRZ3b6n5R5+zVxaufpWWsch3l+Ix6EJ96p2pTqldNzSzq3Fb3izpnry5e/SwtY5XrKMdn1IP41DtVm1K9ampmUee2ul/UOXt18epnaRmrXEc5PqMeb4p/0SAYmg==
+  </data>
+ </layer>
+</map>
