@@ -2,7 +2,7 @@ var preload = require('./preload');
 var IMAGES = require('./images');
 var player = require('./player');
 
-var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
+var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update, render: render });
 
 var platforms;
 var cursors;
@@ -11,13 +11,27 @@ var stars;
 var score = 0;
 var scoreText;
 
-function create() {
+var obstaclesLayer;
 
+function create() {
+    
     //  We're going to be using physics, so enable the Arcade Physics system
     game.physics.startSystem(Phaser.Physics.ARCADE);
 
+    // load tiled map
+    var map = game.add.tilemap('level');
+    map.addTilesetImage('tileset', 'tiles');
+    game.add.sprite(0, 0, 'background');
+    obstaclesLayer = map.createLayer('tileset');
+    obstaclesLayer.resizeWorld();
+    map.setCollisionBetween(0, 10);
+    game.physics.enable(obstaclesLayer, Phaser.Physics.ARCADE);
+    obstaclesLayer.body.immovable = true;
+    
+    
+    
     //  A simple background for our game
-    game.add.sprite(0, 0, IMAGES.SKY);
+    // game.add.sprite(0, 0, IMAGES.SKY);
 
     //  The platforms group contains the ground and the 2 ledges we can jump on
     platforms = game.add.group();
@@ -76,6 +90,8 @@ function update() {
     //  Collide the player and the stars with the platforms
     game.physics.arcade.collide(playerSprite, platforms);
     game.physics.arcade.collide(stars, platforms);
+    game.physics.arcade.collide(stars, obstaclesLayer);
+    game.physics.arcade.collide(playerSprite, obstaclesLayer);
 
     //  Checks to see if the player overlaps with any of the stars, if he does call the collectStar function
     game.physics.arcade.overlap(playerSprite, stars, collectStar, null, this);
@@ -94,3 +110,8 @@ function collectStar (playerSprite, star) {
 
 }
 
+function render() {
+  
+    game.debug.bodyInfo(player.getSprite(), 32, 500);
+  
+}

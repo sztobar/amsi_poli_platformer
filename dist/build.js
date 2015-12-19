@@ -12,7 +12,7 @@ var preload = require('./preload');
 var IMAGES = require('./images');
 var player = require('./player');
 
-var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
+var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update, render: render });
 
 var platforms;
 var cursors;
@@ -21,13 +21,27 @@ var stars;
 var score = 0;
 var scoreText;
 
-function create() {
+var obstaclesLayer;
 
+function create() {
+    
     //  We're going to be using physics, so enable the Arcade Physics system
     game.physics.startSystem(Phaser.Physics.ARCADE);
 
+    // load tiled map
+    var map = game.add.tilemap('level');
+    map.addTilesetImage('tileset', 'tiles');
+    game.add.sprite(0, 0, 'background');
+    obstaclesLayer = map.createLayer('tileset');
+    obstaclesLayer.resizeWorld();
+    map.setCollisionBetween(0, 10);
+    game.physics.enable(obstaclesLayer, Phaser.Physics.ARCADE);
+    obstaclesLayer.body.immovable = true;
+    
+    
+    
     //  A simple background for our game
-    game.add.sprite(0, 0, IMAGES.SKY);
+    // game.add.sprite(0, 0, IMAGES.SKY);
 
     //  The platforms group contains the ground and the 2 ledges we can jump on
     platforms = game.add.group();
@@ -86,6 +100,8 @@ function update() {
     //  Collide the player and the stars with the platforms
     game.physics.arcade.collide(playerSprite, platforms);
     game.physics.arcade.collide(stars, platforms);
+    game.physics.arcade.collide(stars, obstaclesLayer);
+    game.physics.arcade.collide(playerSprite, obstaclesLayer);
 
     //  Checks to see if the player overlaps with any of the stars, if he does call the collectStar function
     game.physics.arcade.overlap(playerSprite, stars, collectStar, null, this);
@@ -104,7 +120,11 @@ function collectStar (playerSprite, star) {
 
 }
 
-
+function render() {
+  
+    game.debug.bodyInfo(player.getSprite(), 32, 500);
+  
+}
 },{"./images":2,"./player":4,"./preload":5}],4:[function(require,module,exports){
 var preload = require('./preload');
 var IMAGES = require('./IMAGES');
@@ -116,10 +136,12 @@ var cursors;
 
 exports.create = function(game) {
     // The playerSprite and its settings
-    playerSprite = game.add.sprite(32, game.world.height - 150, IMAGES.PLAYER);
+    playerSprite = game.add.sprite(32, 32, IMAGES.PLAYER);
 
     //  We need to enable physics on the playerSprite
     game.physics.arcade.enable(playerSprite);
+
+    game.camera.follow(playerSprite);
 
     //  playerSprite physics properties. Give the little guy a slight bounce.
     playerSprite.body.bounce.y = 0.2;
@@ -182,6 +204,14 @@ function preload(game) {
     game.load.image(IMAGES.STAR, path + 'star.png');
     game.load.spritesheet(IMAGES.PLAYER, path + 'dude.png', 32, 48);
     game.load.image(IMAGES.FIREBALL, path + 'fireball.png');
+
+      
+    game.load.tilemap('level', '../assets/mapa-wies/mapa-wies2.json', null, Phaser.Tilemap.TILED_JSON);
+
+    //  Next we load the tileset. This is just an image, loaded in via the normal way we load images:
+
+    game.load.image('tiles', '../assets/mapa-wies/tileset.png');
+    game.load.image('background', '../assets/mapa-wies/wies-tlo.png');
 
 } 
 

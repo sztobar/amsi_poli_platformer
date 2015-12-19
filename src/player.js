@@ -8,10 +8,12 @@ var cursors;
 
 exports.create = function(game) {
     // The playerSprite and its settings
-    playerSprite = game.add.sprite(32, game.world.height - 150, IMAGES.PLAYER);
+    playerSprite = game.add.sprite(32, 32, IMAGES.PLAYER);
 
     //  We need to enable physics on the playerSprite
     game.physics.arcade.enable(playerSprite);
+
+    game.camera.follow(playerSprite);
 
     //  playerSprite physics properties. Give the little guy a slight bounce.
     playerSprite.body.bounce.y = 0.2;
