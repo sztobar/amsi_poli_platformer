@@ -6,7 +6,7 @@ function preload(game) {
     game.load.image(IMAGES.SKY, path + 'sky.png');
     game.load.image(IMAGES.GROUND, path + 'platform.png');
     game.load.image(IMAGES.STAR, path + 'star.png');
-    game.load.spritesheet(IMAGES.PLAYER, path + 'wippler.png', 32, 48);
+    game.load.spritesheet(IMAGES.PLAYER, path + 'braun.png', 32, 48);
     game.load.image(IMAGES.FIREBALL, path + 'fireball.png');
 
       
