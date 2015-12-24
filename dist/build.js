@@ -36,7 +36,8 @@ function create() {
     obstaclesLayer.resizeWorld();
     map.setCollisionBetween(0, 10);
     game.physics.enable(obstaclesLayer, Phaser.Physics.ARCADE);
-    obstaclesLayer.body.immovable = true;
+	//obstaclesLayer.enableBody = true;
+    //obstaclesLayer.body.immovable = true;
     
     
     
@@ -44,26 +45,26 @@ function create() {
     // game.add.sprite(0, 0, IMAGES.SKY);
 
     //  The platforms group contains the ground and the 2 ledges we can jump on
-    platforms = game.add.group();
+    //platforms = game.add.group();
 
     //  We will enable physics for any object that is created in this group
-    platforms.enableBody = true;
+    // platforms.enableBody = true;
 
     // Here we create the ground.
-    var ground = platforms.create(0, game.world.height - 64, IMAGES.GROUND);
+    // var ground = platforms.create(0, game.world.height - 64, IMAGES.GROUND);
 
     //  Scale it to fit the width of the game (the original sprite is 400x32 in size)
-    ground.scale.setTo(2, 2);
+    //  ground.scale.setTo(2, 2);
 
     //  This stops it from falling away when you jump on it
-    ground.body.immovable = true;
+    //  ground.body.immovable = true;
 
     //  Now let's create two ledges
-    var ledge = platforms.create(400, 400, IMAGES.GROUND);
-    ledge.body.immovable = true;
+    //  var ledge = platforms.create(400, 400, IMAGES.GROUND);
+    //  ledge.body.immovable = true;
 
-    ledge = platforms.create(-150, 250, IMAGES.GROUND);
-    ledge.body.immovable = true;
+    //  ledge = platforms.create(-150, 250, IMAGES.GROUND);
+    //  ledge.body.immovable = true;
     
     player.create(game);
     //  Finally some stars to collect
@@ -76,7 +77,7 @@ function create() {
     for (var i = 0; i < 12; i++)
     {
         //  Create a star inside of the 'stars' group
-        var star = stars.create(i * 70, 0, IMAGES.STAR);
+        var star = stars.create(i * 70 + 120, 800, IMAGES.STAR);
 
         //  Let gravity do its thing
         star.body.gravity.y = 300;
@@ -89,7 +90,7 @@ function create() {
     scoreText = game.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
 
     //  Our controls.
-    cursors = game.input.keyboard.createCursorKeys();
+    // cursors = game.input.keyboard.createCursorKeys();
     
 }
 
@@ -98,8 +99,8 @@ function update() {
     var playerSprite = player.getSprite();
 
     //  Collide the player and the stars with the platforms
-    game.physics.arcade.collide(playerSprite, platforms);
-    game.physics.arcade.collide(stars, platforms);
+    //game.physics.arcade.collide(playerSprite, platforms);
+    //game.physics.arcade.collide(stars, platforms);
     game.physics.arcade.collide(stars, obstaclesLayer);
     game.physics.arcade.collide(playerSprite, obstaclesLayer);
 
@@ -187,7 +188,7 @@ exports.updateMovement = function() {
     }
     
     //  Allow the player to jump if they are touching the ground.
-    if (cursors.up.isDown && playerSprite.body.touching.down)
+    if (cursors.up.isDown && playerSprite.body.blocked.down)
     {
         playerSprite.body.velocity.y = -350;
     }
@@ -202,7 +203,7 @@ function preload(game) {
     game.load.image(IMAGES.SKY, path + 'sky.png');
     game.load.image(IMAGES.GROUND, path + 'platform.png');
     game.load.image(IMAGES.STAR, path + 'star.png');
-    game.load.spritesheet(IMAGES.PLAYER, path + 'braun.png', 32, 48);
+    game.load.spritesheet(IMAGES.PLAYER, path + 'liroy.png', 32, 48);
     game.load.image(IMAGES.FIREBALL, path + 'fireball.png');
 
       

@@ -59,7 +59,7 @@ exports.updateMovement = function() {
     }
     
     //  Allow the player to jump if they are touching the ground.
-    if (cursors.up.isDown && playerSprite.body.touching.down)
+    if (cursors.up.isDown && playerSprite.body.blocked.down)
     {
         playerSprite.body.velocity.y = -350;
     }
