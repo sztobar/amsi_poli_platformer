@@ -1,5 +1,6 @@
 var preload = require('./preload');
 var IMAGES = require('./images');
+var enemy = require('./enemy');
 var player = require('./player');
 
 var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update, render: render });
@@ -57,12 +58,13 @@ function create() {
     //  ledge.body.immovable = true;
     
     player.create(game);
+    enemy.create(game);
     //  Finally some stars to collect
     stars = game.add.group();
 
     //  We will enable physics for any star that is created in this group
     stars.enableBody = true;
-
+	
     //  Here we'll create 12 of them evenly spaced apart
     for (var i = 0; i < 12; i++)
     {
@@ -87,17 +89,20 @@ function create() {
 function update() {
     
     var playerSprite = player.getSprite();
+    var enemySprite = enemy.getSprite();
 
     //  Collide the player and the stars with the platforms
     //game.physics.arcade.collide(playerSprite, platforms);
     //game.physics.arcade.collide(stars, platforms);
     game.physics.arcade.collide(stars, obstaclesLayer);
     game.physics.arcade.collide(playerSprite, obstaclesLayer);
+    game.physics.arcade.collide(enemySprite, obstaclesLayer);
 
     //  Checks to see if the player overlaps with any of the stars, if he does call the collectStar function
     game.physics.arcade.overlap(playerSprite, stars, collectStar, null, this);
 
     player.updateMovement();
+    enemy.updateMovement();
 }
 
 function collectStar (playerSprite, star) {

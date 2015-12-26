@@ -1,15 +1,71 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 exports.PLAYER = 'dude';
+exports.ENEMY = 'swinia';
 exports.SKY = 'sky';
 exports.GROUND = 'ground';
 exports.STAR = 'star'
 exports.FIREBALL = 'fireball'
  
 },{}],2:[function(require,module,exports){
+var preload = require('./preload');
+var IMAGES = require('./IMAGES');
+
+
+
+var enemySprite;
+var right = true;
+
+exports.create = function(game) {
+    // The enemySprite and its settings
+    enemySprite = game.add.sprite(60, 60, IMAGES.ENEMY);
+
+    //  We need to enable physics on the enemySprite
+    game.physics.arcade.enable(enemySprite);
+
+    //game.camera.follow(enemySprite);
+
+    //  enemySprite physics properties. Give the little guy a slight bounce.
+    enemySprite.body.bounce.y = 0.1;
+    enemySprite.body.gravity.y = 350;
+    enemySprite.body.collideWorldBounds = true;
+
+    //  Our two animations, walking left and right.
+    enemySprite.animations.add('left', [0, 1, 2, 3], 10, true);
+    enemySprite.animations.add('right', [4,5, 6, 7], 10, true);
+
+};
+
+exports.getSprite = function() {
+    return enemySprite;
+}
+
+exports.updateMovement = function() {
+	if (enemySprite.body.blocked.right)
+	{
+		right = false;
+	}
+	else if (enemySprite.body.blocked.left)
+	{
+		right = true;
+	}
+	
+    if (right)
+    {
+        enemySprite.body.velocity.x = 200;
+		enemySprite.animations.play('right');
+    } 
+    else 
+    {
+        enemySprite.body.velocity.x = -200;
+		enemySprite.animations.play('left');
+    } 
+}
+},{"./IMAGES":1,"./preload":6}],3:[function(require,module,exports){
 arguments[4][1][0].apply(exports,arguments)
-},{"dup":1}],3:[function(require,module,exports){
+},{"dup":1}],4:[function(require,module,exports){
 var preload = require('./preload');
 var IMAGES = require('./images');
+var enemy = require('./enemy');
 var player = require('./player');
 
 var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update, render: render });
@@ -67,12 +123,13 @@ function create() {
     //  ledge.body.immovable = true;
     
     player.create(game);
+    enemy.create(game);
     //  Finally some stars to collect
     stars = game.add.group();
 
     //  We will enable physics for any star that is created in this group
     stars.enableBody = true;
-
+	
     //  Here we'll create 12 of them evenly spaced apart
     for (var i = 0; i < 12; i++)
     {
@@ -97,17 +154,20 @@ function create() {
 function update() {
     
     var playerSprite = player.getSprite();
+    var enemySprite = enemy.getSprite();
 
     //  Collide the player and the stars with the platforms
     //game.physics.arcade.collide(playerSprite, platforms);
     //game.physics.arcade.collide(stars, platforms);
     game.physics.arcade.collide(stars, obstaclesLayer);
     game.physics.arcade.collide(playerSprite, obstaclesLayer);
+    game.physics.arcade.collide(enemySprite, obstaclesLayer);
 
     //  Checks to see if the player overlaps with any of the stars, if he does call the collectStar function
     game.physics.arcade.overlap(playerSprite, stars, collectStar, null, this);
 
     player.updateMovement();
+    enemy.updateMovement();
 }
 
 function collectStar (playerSprite, star) {
@@ -126,7 +186,7 @@ function render() {
     game.debug.bodyInfo(player.getSprite(), 32, 500);
   
 }
-},{"./images":2,"./player":4,"./preload":5}],4:[function(require,module,exports){
+},{"./enemy":2,"./images":3,"./player":5,"./preload":6}],5:[function(require,module,exports){
 var preload = require('./preload');
 var IMAGES = require('./IMAGES');
 
@@ -194,7 +254,7 @@ exports.updateMovement = function() {
     }
 
 }
-},{"./IMAGES":1,"./preload":5}],5:[function(require,module,exports){
+},{"./IMAGES":1,"./preload":6}],6:[function(require,module,exports){
 var IMAGES = require('./IMAGES');
 var path = '../assets/images/';
 
@@ -204,6 +264,7 @@ function preload(game) {
     game.load.image(IMAGES.GROUND, path + 'platform.png');
     game.load.image(IMAGES.STAR, path + 'glos.png');
     game.load.spritesheet(IMAGES.PLAYER, path + 'liroy.png', 32, 48);
+    game.load.spritesheet(IMAGES.ENEMY, path + 'swinia.png', 59, 36);
     game.load.image(IMAGES.FIREBALL, path + 'fireball.png');
 
       
@@ -218,4 +279,4 @@ function preload(game) {
 
 module.exports = preload;
 
-},{"./IMAGES":1}]},{},[3]);
+},{"./IMAGES":1}]},{},[4]);
