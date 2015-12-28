@@ -1,4 +1,3 @@
-var preload = require('./preload');
 var IMAGES = require('./IMAGES');
 
 
