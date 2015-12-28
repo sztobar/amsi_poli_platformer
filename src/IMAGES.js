@@ -1,6 +1,6 @@
-exports.PLAYER = 'dude';
+exports.PLAYER = 'player';
 exports.SKY = 'sky';
 exports.GROUND = 'ground';
 exports.STAR = 'star'
-exports.FIREBALL = 'fireball'
+exports.PROJECTILE = 'projectile'
  

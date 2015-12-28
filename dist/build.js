@@ -1,220 +1,347 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-exports.PLAYER = 'dude';
+/* global Phaser */
+var path = '../assets/images/';
+
+function Boot (game){};
+
+Boot.prototype = {
+	preload: function(){
+		// preload the loading indicator first before anything else
+		this.load.image('preloaderBar', path + 'loading-bar.png');
+	},
+	create: function(){
+		// set scale options
+		// this.input.maxPointers = 1;
+		this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+		this.scale.pageAlignHorizontally = true;
+		this.scale.pageAlignVertically = true;
+		// start the Preloader state
+		this.state.start('Preloader');
+	}
+};
+
+module.exports = Boot;
+},{}],2:[function(require,module,exports){
+exports.LEFT = 0;
+exports.RIGHT = 1;
+},{}],3:[function(require,module,exports){
+exports.PLAYER = 'player';
 exports.SKY = 'sky';
 exports.GROUND = 'ground';
 exports.STAR = 'star'
-exports.FIREBALL = 'fireball'
+exports.PROJECTILE = 'projectile'
  
-},{}],2:[function(require,module,exports){
-arguments[4][1][0].apply(exports,arguments)
-},{"dup":1}],3:[function(require,module,exports){
-var preload = require('./preload');
+},{}],4:[function(require,module,exports){
+/* global _ */
+/* global PIXI */
+/* global Phaser */
 var IMAGES = require('./images');
-var player = require('./player');
+var Player = require('./Player');
+var TiledLevel = require('./TiledLevel');
 
-var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update, render: render });
+function Level1(game) {
+	this._player = null;
+	this._platformsGroup = null;
+  this._obstaclesLayer = null;
+}
 
-var platforms;
-var cursors;
-
-var stars;
-var score = 0;
-var scoreText;
-
-var obstaclesLayer;
-
-function create() {
+Level1.prototype = {
+  create: function() {
+    this.physics.startSystem(Phaser.Physics.ARCADE);
+    this.tiledMap = new TiledLevel(this.game, 'level1');
     
-    //  We're going to be using physics, so enable the Arcade Physics system
-    game.physics.startSystem(Phaser.Physics.ARCADE);
-
-    // load tiled map
-    var map = game.add.tilemap('level');
-    map.addTilesetImage('tileset', 'tiles');
-    game.add.sprite(0, 0, 'background');
-    obstaclesLayer = map.createLayer('tileset');
-    obstaclesLayer.resizeWorld();
-    map.setCollisionBetween(0, 10);
-    game.physics.enable(obstaclesLayer, Phaser.Physics.ARCADE);
-    obstaclesLayer.body.immovable = true;
+    window.player = this._player = new Player(this, this.tiledMap.levelStart.x, this.tiledMap.levelStart.y);
     
-    
-    
-    //  A simple background for our game
-    // game.add.sprite(0, 0, IMAGES.SKY);
-
-    //  The platforms group contains the ground and the 2 ledges we can jump on
-    platforms = game.add.group();
-
-    //  We will enable physics for any object that is created in this group
-    platforms.enableBody = true;
-
-    // Here we create the ground.
-    var ground = platforms.create(0, game.world.height - 64, IMAGES.GROUND);
-
-    //  Scale it to fit the width of the game (the original sprite is 400x32 in size)
-    ground.scale.setTo(2, 2);
-
-    //  This stops it from falling away when you jump on it
-    ground.body.immovable = true;
-
-    //  Now let's create two ledges
-    var ledge = platforms.create(400, 400, IMAGES.GROUND);
-    ledge.body.immovable = true;
-
-    ledge = platforms.create(-150, 250, IMAGES.GROUND);
-    ledge.body.immovable = true;
-    
-    player.create(game);
     //  Finally some stars to collect
-    stars = game.add.group();
-
+    this._starsGroup = this.add.group();
     //  We will enable physics for any star that is created in this group
-    stars.enableBody = true;
-
+    this._starsGroup.enableBody = true;
     //  Here we'll create 12 of them evenly spaced apart
     for (var i = 0; i < 12; i++)
     {
         //  Create a star inside of the 'stars' group
-        var star = stars.create(i * 70, 0, IMAGES.STAR);
-
+        var star = this._starsGroup.create(i * 70, 0, IMAGES.STAR);
         //  Let gravity do its thing
         star.body.gravity.y = 300;
-
-        //  This just gives each star a slightly random bounce value
-        star.body.bounce.y = 0.7 + Math.random() * 0.2;
     }
-
     //  The score
-    scoreText = game.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
-
-    //  Our controls.
-    cursors = game.input.keyboard.createCursorKeys();
-    
-}
-
-function update() {
-    
-    var playerSprite = player.getSprite();
-
+    this._score = 0;
+    this._scoreText = this.add.text(16, 16, 'score: ' + this._score, { fontSize: '32px', fill: '#000' });
+    this._scoreText.fixedToCamera = true;
+  
+    this._debugMode = false;
+    var spaceKey = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
+    spaceKey.onUp.add(this.toggleDebugMode, this);
+  },
+  update: function() {
     //  Collide the player and the stars with the platforms
-    game.physics.arcade.collide(playerSprite, platforms);
-    game.physics.arcade.collide(stars, platforms);
-    game.physics.arcade.collide(stars, obstaclesLayer);
-    game.physics.arcade.collide(playerSprite, obstaclesLayer);
+    this.physics.arcade.collide(this._starsGroup, this.tiledMap.propsLayer);
+    this.physics.arcade.collide(this._player.sprite, this.tiledMap.propsLayer);
+    this.physics.arcade.collide(this._player.projectilesGroup, this.tiledMap.propsLayer, function(p) { p.kill(); });
+    this.physics.arcade.collide(this._player.sprite, this.tiledMap.levelEnd, this.endLevel, null, this);
 
     //  Checks to see if the player overlaps with any of the stars, if he does call the collectStar function
-    game.physics.arcade.overlap(playerSprite, stars, collectStar, null, this);
+    this.physics.arcade.overlap(this._player.sprite, this._starsGroup, this.collectStar, null, this);
 
-    player.updateMovement();
-}
-
-function collectStar (playerSprite, star) {
-    
+    this._player.update();
+  },
+  collectStar: function (playerSprite, star) {
     // Removes the star from the screen
     star.kill();
 
     //  Add and update the score
-    score += 10;
-    scoreText.text = 'Score: ' + score;
-
+    this._score += 10;
+    this._scoreText.text = 'score: ' + this._score;
+  },
+  render: function() {
+    if (this._debugMode) {
+      this.game.debug.body(this._player.sprite);
+      this.game.debug.text('Active Projectiles: ' + this._player.projectilesGroup.total, 32, 432); 
+      this.game.debug.text('DEBUG MODE', 32, 464); 
+    }
+  },
+  endLevel: function() {
+    console.log('level 1 end');
+    // TODO add level 2
+		// this.state.start('Level2');
+  },
+  toggleDebugMode: function() {
+    this._debugMode = !this._debugMode;
+    this.tiledMap.propsLayer.visible = this._debugMode; 
+  }
 }
 
-function render() {
-  
-    game.debug.bodyInfo(player.getSprite(), 32, 500);
-  
-}
-},{"./images":2,"./player":4,"./preload":5}],4:[function(require,module,exports){
-var preload = require('./preload');
+module.exports = Level1;
+},{"./Player":5,"./TiledLevel":7,"./images":8}],5:[function(require,module,exports){
+/* global Phaser */
+/* global PIXI */
 var IMAGES = require('./IMAGES');
+var DIRECTIONS = require('./DIRECTIONS');
 
+var FIRE_RATE = 250;
 
+var VELOCITY = 250;
+var JUMP_SPEED = 300;
+var PROJECTILE_VELOCITY = VELOCITY * 2;
 
-var playerSprite;
-var cursors;
+function Player(game, x, y) {
+  this._game = game;
+  
+  // The playerSprite and its settings
+  this.sprite = game.add.sprite(x, y, IMAGES.PLAYER);
+  
+  //  We need to enable physics on the playerSprite
+  game.physics.arcade.enable(this.sprite);
+  this.sprite.position.y -= this.sprite.height;
+  this.sprite.body.setSize(32, 32, 0, this.sprite.height - 32);
+  game.camera.follow(this.sprite);
+  
+  //  playerSprite physics properties. Give the little guy a slight bounce.
+  this.sprite.body.bounce.y = 0;
+  this.sprite.body.gravity.y = 600;
+  this.sprite.body.collideWorldBounds = true;
 
-exports.create = function(game) {
-    // The playerSprite and its settings
-    playerSprite = game.add.sprite(32, 32, IMAGES.PLAYER);
+  this.direction = DIRECTIONS.LEFT;
+  //  Our two animations, walking left and right.
+  this.sprite.animations.add('left', [0, 1, 2, 3], 10, true);
+  this.sprite.animations.add('right', [5, 6, 7, 8], 10, true);
+  
+  this._jumpKey = game.input.keyboard.addKey(Phaser.KeyCode.X);
+  this._jumpKey.onDown.add(this.handleJumpKeyDown, this);
+  this._jumpKey.onUp.add(this.handleJumpKeyUp, this);
+  
+  this._shootKey = game.input.keyboard.addKey(Phaser.KeyCode.Z);
+  this._shootKey.onDown.add(this.handleShootKeyDown, this);
+  this._shootKey.onUp.add(this.handleShootKeyUp, this);
+  
+  this._leftKey = game.input.keyboard.addKey(Phaser.KeyCode.LEFT);
+  this._rightKey = game.input.keyboard.addKey(Phaser.KeyCode.RIGHT);
+  //  Stop the following keys from propagating up to the browser
+  game.input.keyboard.addKeyCapture([ Phaser.Keyboard.LEFT, Phaser.Keyboard.RIGHT ]);
 
-    //  We need to enable physics on the playerSprite
-    game.physics.arcade.enable(playerSprite);
+  this.projectilesGroup = game.add.group();
+  this.projectilesGroup.enableBody = true;
+  this.projectilesGroup.physicsBodyType = Phaser.Physics.ARCADE;
+  this.projectilesGroup.createMultiple(5, IMAGES.PROJECTILE);
+  this.projectilesGroup.setAll('anchor.x', 0.5);
+  this.projectilesGroup.setAll('anchor.y', 0.5);
+  this._nextFire = 0;
+}
 
-    game.camera.follow(playerSprite);
+Player.prototype = {
+  update: function() {
+  
+    //  Reset the players velocity (movement)
+    this.sprite.body.velocity.x = 0;
 
-    //  playerSprite physics properties. Give the little guy a slight bounce.
-    playerSprite.body.bounce.y = 0.2;
-    playerSprite.body.gravity.y = 300;
-    playerSprite.body.collideWorldBounds = true;
+    if (this._leftKey.isDown) {
+      //  Move to the left
+      this.sprite.body.velocity.x = -VELOCITY;
+      this.sprite.animations.play('left');
+      this.direction = DIRECTIONS.LEFT;
+    } else if (this._rightKey.isDown) {
+      //  Move to the right
+      this.sprite.body.velocity.x = VELOCITY;
+      this.sprite.animations.play('right');
+      this.direction = DIRECTIONS.RIGHT;
+    } else {
+      //  Stand still
+      this.sprite.animations.stop();
+      this.sprite.frame = 4;
+    }
+    
+    
+    if (this.sprite.body.onFloor()) {
+      this._jumps = 2;
+    }
+    
+    if (this._jumps > 0 && this._makeJump) {
+      this.sprite.body.velocity.y = -JUMP_SPEED;
+      this._makeJump = false;
+      this._jumps--;
+    }
+    
 
-    //  Our two animations, walking left and right.
-    playerSprite.animations.add('left', [0, 1, 2, 3], 10, true);
-    playerSprite.animations.add('right', [5, 6, 7, 8], 10, true);
+    if (this._makeShoot && this._game.time.now > this._nextFire && this.projectilesGroup.countDead() > 0) {
+      this._nextFire = this._game.time.now + FIRE_RATE;
 
-    cursors = game.input.keyboard.createCursorKeys();
+      var projectile = this.projectilesGroup.getFirstDead();
+
+      projectile.reset(this.sprite.position.x + this.sprite.width/2, this.sprite.position.y + this.sprite.height/2);
+      if (this.direction === DIRECTIONS.RIGHT) {
+        projectile.body.velocity.x = PROJECTILE_VELOCITY;
+      } else {
+        projectile.body.velocity.x = -PROJECTILE_VELOCITY;        
+      }
+    }
+    
+    var cameraView = this._game.world.camera.view;
+    this.projectilesGroup.children.forEach(function(projectile) {
+      if (projectile.alive && !cameraView.intersects(projectile)) {
+        projectile.kill();
+      }
+      projectile.rotation += 0.25;
+    });
+  },
+  handleJumpKeyDown() {
+    this._makeJump = true;
+  },
+  handleJumpKeyUp() {
+    this._makeJump = false;
+  },
+  handleShootKeyDown() {
+    this._makeShoot = true;
+  },
+  handleShootKeyUp() {
+    this._makeShoot = false;
+  }
 };
 
-exports.getSprite = function() {
-    return playerSprite;
-}
-
-exports.updateMovement = function() {
-    
-    //  Reset the players velocity (movement)
-    playerSprite.body.velocity.x = 0;
-
-    if (cursors.left.isDown)
-    {
-        //  Move to the left
-        playerSprite.body.velocity.x = -150;
-
-        playerSprite.animations.play('left');
-    }
-    else if (cursors.right.isDown)
-    {
-        //  Move to the right
-        playerSprite.body.velocity.x = 150;
-
-        playerSprite.animations.play('right');
-    }
-    else
-    {
-        //  Stand still
-        playerSprite.animations.stop();
-
-        playerSprite.frame = 4;
-    }
-    
-    //  Allow the player to jump if they are touching the ground.
-    if (cursors.up.isDown && playerSprite.body.touching.down)
-    {
-        playerSprite.body.velocity.y = -350;
-    }
-
-}
-},{"./IMAGES":1,"./preload":5}],5:[function(require,module,exports){
+module.exports = Player;
+},{"./DIRECTIONS":2,"./IMAGES":3}],6:[function(require,module,exports){
+/* global Phaser */
 var IMAGES = require('./IMAGES');
 var path = '../assets/images/';
 
-function preload(game) {
+var GAME_WIDTH = exports.GAME_WIDTH = 640;
+var GAME_HEIGHT = exports.GAME_HEIGHT = 960;
 
-    game.load.image(IMAGES.SKY, path + 'sky.png');
-    game.load.image(IMAGES.GROUND, path + 'platform.png');
-    game.load.image(IMAGES.STAR, path + 'star.png');
-    game.load.spritesheet(IMAGES.PLAYER, path + 'dude.png', 32, 48);
-    game.load.image(IMAGES.FIREBALL, path + 'fireball.png');
+module.exports = Preloader; 
+
+function Preloader(game){
+};
+
+Preloader.prototype = {
+	preload: function() {
+    
+		// set background color and preload image
+		this.stage.backgroundColor = '#B4D9E7';
+		this.preloadBar = this.add.sprite((GAME_WIDTH-311)/2, (GAME_HEIGHT-27)/2, 'preloaderBar');
+		this.load.setPreloadSprite(this.preloadBar);
+    
+
+    this.load.image(IMAGES.SKY, path + 'sky.png');
+    this.load.image(IMAGES.GROUND, path + 'platform.png');
+    this.load.image(IMAGES.STAR, path + 'star.png');
+    this.load.spritesheet(IMAGES.PLAYER, path + 'dude.png', 32, 48);
+    this.load.image(IMAGES.PROJECTILE, path + 'projectile.png');
 
       
-    game.load.tilemap('level', '../assets/mapa-wies/mapa-wies2.json', null, Phaser.Tilemap.TILED_JSON);
+    this.load.tilemap('level1', '../assets/mapa-wies/mapa-wies.json', null, Phaser.Tilemap.TILED_JSON);
 
     //  Next we load the tileset. This is just an image, loaded in via the normal way we load images:
+    this.load.image('tiles', '../assets/mapa-wies/tileset.png');
+    this.load.image('tiles-props', '../assets/images/tiles-props.png');
+    this.load.image('background', '../assets/mapa-wies/wies-tlo.png');
+    
+	},
+	create: function(){
+		// start the MainMenu state
+		this.state.start('Level1');
+	}
+};
+},{"./IMAGES":3}],7:[function(require,module,exports){
+/* global Phaser */
+/* global _ */
+/* global PIXI */
 
-    game.load.image('tiles', '../assets/mapa-wies/tileset.png');
-    game.load.image('background', '../assets/mapa-wies/wies-tlo.png');
+var OBSTACLE_TILE = 17;
+var PLATFORM_TILE = 18;
 
-} 
+function TiledLevel(game, name) {
+  this.game = game;
+  this.tilemap = this.game.add.tilemap(name);
+  
+  this.tilemap.addTilesetImage('tileset', 'tiles');
+  this.tilemap.addTilesetImage('tiles-props', 'tiles-props');
+  
+  this.backgroundSprite = this.game.add.sprite(0, -100, 'background');
+  this.backgroundSprite.fixedToCamera = true;
+  this.backgroundSprite.scale = new PIXI.Point(0.5, 0.5);
+  
+  this.obstaclesLayer = this.tilemap.createLayer('tileset');
+  this.obstaclesLayer.resizeWorld();
+  
+  this.propsLayer = this.tilemap.createLayer('tileset properties');
+  // comment below to see tiles properties
+  this.propsLayer.visible = false;
+  
+  this.tilemap.setLayer(this.propsLayer);
+  
+  this.levelStart = _.find(this.tilemap.objects.objects, function(obj) { return obj.name === 'start' });
+  var endObject = _.find(this.tilemap.objects.objects, function(obj) { return obj.name === 'end' });
+  this.levelEnd = game.add.sprite(endObject.x, endObject.y);
+  game.physics.arcade.enable(this.levelEnd);
+  this.levelEnd.anchor.y = 1;
+  this.levelEnd.enableBody = true;
+  this.levelEnd.body.immovable = true;
+  
+  var layer = this.propsLayer.layer;
+  for (var y = 0; y < layer.height; y++) {
+    for (var x = 0; x < layer.width; x++) {
+      var tile = layer.data[y][x];
 
-module.exports = preload;
+      if (tile && tile.index === PLATFORM_TILE) {
+        tile.setCollision(false, false, true, false);
+      }
+    }
+  }
+  
+  this.tilemap.setCollisionByIndex(OBSTACLE_TILE);
+}
 
-},{"./IMAGES":1}]},{},[3]);
+module.exports = TiledLevel;
+},{}],8:[function(require,module,exports){
+arguments[4][3][0].apply(exports,arguments)
+},{"dup":3}],9:[function(require,module,exports){
+/* global Phaser */
+var Boot = require('./Boot');
+var Preloader = require('./Preloader');
+var Level1 = require('./Level1');
+
+var game = new Phaser.Game(640, 480, Phaser.AUTO, 'game');
+game.state.add('Boot', Boot);
+game.state.add('Preloader', Preloader);
+game.state.add('Level1', Level1);
+game.state.start('Boot');
+},{"./Boot":1,"./Level1":4,"./Preloader":6}]},{},[9]);

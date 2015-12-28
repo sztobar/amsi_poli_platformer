@@ -27,6 +27,7 @@
     "watchify": "^3.6.1"
   },
   "dependencies": {
+    "lodash": "^3.10.1",
     "phaser": "^2.4.4"
   }
 }
