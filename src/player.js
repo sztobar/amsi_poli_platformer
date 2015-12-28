@@ -86,7 +86,6 @@ Player.prototype = {
       this._jumps--;
     }
     
-
     if (this._makeShoot && this._game.time.now > this._nextFire && this.projectilesGroup.countDead() > 0) {
       this._nextFire = this._game.time.now + FIRE_RATE;
 
@@ -98,6 +97,7 @@ Player.prototype = {
       } else {
         projectile.body.velocity.x = -PROJECTILE_VELOCITY;        
       }
+    //  Allow the player to jump if they are touching the ground.
     }
     
     var cameraView = this._game.world.camera.view;

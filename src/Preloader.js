@@ -21,9 +21,11 @@ Preloader.prototype = {
 
     this.load.image(IMAGES.SKY, path + 'sky.png');
     this.load.image(IMAGES.GROUND, path + 'platform.png');
-    this.load.image(IMAGES.STAR, path + 'star.png');
-    this.load.spritesheet(IMAGES.PLAYER, path + 'dude.png', 32, 48);
+    this.load.spritesheet(IMAGES.PLAYER, path + 'liroy.png', 32, 48);
     this.load.image(IMAGES.PROJECTILE, path + 'projectile.png');
+    this.load.image(IMAGES.STAR, path + 'glos.png');
+    this.load.spritesheet(IMAGES.ENEMY, path + 'swinia.png', 59, 36);
+    this.load.image(IMAGES.FIREBALL, path + 'fireball.png');
 
       
     this.load.tilemap('level1', '../assets/mapa-wies/mapa-wies.json', null, Phaser.Tilemap.TILED_JSON);

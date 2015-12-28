@@ -4,6 +4,7 @@
 var IMAGES = require('./images');
 var Player = require('./Player');
 var TiledLevel = require('./TiledLevel');
+var enemy = require('./enemy');
 
 function Level1(game) {
 	this._player = null;
@@ -16,7 +17,9 @@ Level1.prototype = {
     this.physics.startSystem(Phaser.Physics.ARCADE);
     this.tiledMap = new TiledLevel(this.game, 'level1');
     
+    // window.player for debugging purpose
     window.player = this._player = new Player(this, this.tiledMap.levelStart.x, this.tiledMap.levelStart.y);
+    this._enemy = enemy.create(this);
     
     //  Finally some stars to collect
     this._starsGroup = this.add.group();
@@ -40,6 +43,10 @@ Level1.prototype = {
     spaceKey.onUp.add(this.toggleDebugMode, this);
   },
   update: function() {
+    var enemySprite = enemy.getSprite();
+    this.physics.arcade.collide(enemySprite, this.tiledMap.propsLayer);
+    enemy.updateMovement();
+    
     //  Collide the player and the stars with the platforms
     this.physics.arcade.collide(this._starsGroup, this.tiledMap.propsLayer);
     this.physics.arcade.collide(this._player.sprite, this.tiledMap.propsLayer);

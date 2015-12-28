@@ -26,11 +26,13 @@ exports.LEFT = 0;
 exports.RIGHT = 1;
 },{}],3:[function(require,module,exports){
 exports.PLAYER = 'player';
+exports.ENEMY = 'swinia';
 exports.SKY = 'sky';
 exports.GROUND = 'ground';
 exports.STAR = 'star'
 exports.PROJECTILE = 'projectile'
  
+
 },{}],4:[function(require,module,exports){
 /* global _ */
 /* global PIXI */
@@ -38,6 +40,7 @@ exports.PROJECTILE = 'projectile'
 var IMAGES = require('./images');
 var Player = require('./Player');
 var TiledLevel = require('./TiledLevel');
+var enemy = require('./enemy');
 
 function Level1(game) {
 	this._player = null;
@@ -50,7 +53,9 @@ Level1.prototype = {
     this.physics.startSystem(Phaser.Physics.ARCADE);
     this.tiledMap = new TiledLevel(this.game, 'level1');
     
+    // window.player for debugging purpose
     window.player = this._player = new Player(this, this.tiledMap.levelStart.x, this.tiledMap.levelStart.y);
+    this._enemy = enemy.create(this);
     
     //  Finally some stars to collect
     this._starsGroup = this.add.group();
@@ -74,6 +79,10 @@ Level1.prototype = {
     spaceKey.onUp.add(this.toggleDebugMode, this);
   },
   update: function() {
+    var enemySprite = enemy.getSprite();
+    this.physics.arcade.collide(enemySprite, this.tiledMap.propsLayer);
+    enemy.updateMovement();
+    
     //  Collide the player and the stars with the platforms
     this.physics.arcade.collide(this._starsGroup, this.tiledMap.propsLayer);
     this.physics.arcade.collide(this._player.sprite, this.tiledMap.propsLayer);
@@ -112,7 +121,7 @@ Level1.prototype = {
 }
 
 module.exports = Level1;
-},{"./Player":5,"./TiledLevel":7,"./images":8}],5:[function(require,module,exports){
+},{"./Player":5,"./TiledLevel":7,"./enemy":8,"./images":9}],5:[function(require,module,exports){
 /* global Phaser */
 /* global PIXI */
 var IMAGES = require('./IMAGES');
@@ -201,7 +210,6 @@ Player.prototype = {
       this._jumps--;
     }
     
-
     if (this._makeShoot && this._game.time.now > this._nextFire && this.projectilesGroup.countDead() > 0) {
       this._nextFire = this._game.time.now + FIRE_RATE;
 
@@ -213,6 +221,7 @@ Player.prototype = {
       } else {
         projectile.body.velocity.x = -PROJECTILE_VELOCITY;        
       }
+    //  Allow the player to jump if they are touching the ground.
     }
     
     var cameraView = this._game.world.camera.view;
@@ -238,6 +247,7 @@ Player.prototype = {
 };
 
 module.exports = Player;
+
 },{"./DIRECTIONS":2,"./IMAGES":3}],6:[function(require,module,exports){
 /* global Phaser */
 var IMAGES = require('./IMAGES');
@@ -262,9 +272,11 @@ Preloader.prototype = {
 
     this.load.image(IMAGES.SKY, path + 'sky.png');
     this.load.image(IMAGES.GROUND, path + 'platform.png');
-    this.load.image(IMAGES.STAR, path + 'star.png');
-    this.load.spritesheet(IMAGES.PLAYER, path + 'dude.png', 32, 48);
+    this.load.spritesheet(IMAGES.PLAYER, path + 'liroy.png', 32, 48);
     this.load.image(IMAGES.PROJECTILE, path + 'projectile.png');
+    this.load.image(IMAGES.STAR, path + 'glos.png');
+    this.load.spritesheet(IMAGES.ENEMY, path + 'swinia.png', 59, 36);
+    this.load.image(IMAGES.FIREBALL, path + 'fireball.png');
 
       
     this.load.tilemap('level1', '../assets/mapa-wies/mapa-wies.json', null, Phaser.Tilemap.TILED_JSON);
@@ -332,8 +344,61 @@ function TiledLevel(game, name) {
 
 module.exports = TiledLevel;
 },{}],8:[function(require,module,exports){
+var IMAGES = require('./IMAGES');
+
+
+
+var enemySprite;
+var right = true;
+
+exports.create = function(game) {
+    // The enemySprite and its settings
+    enemySprite = game.add.sprite(60, 60, IMAGES.ENEMY);
+
+    //  We need to enable physics on the enemySprite
+    game.physics.arcade.enable(enemySprite);
+
+    //game.camera.follow(enemySprite);
+
+    //  enemySprite physics properties. Give the little guy a slight bounce.
+    enemySprite.body.bounce.y = 0.1;
+    enemySprite.body.gravity.y = 350;
+    enemySprite.body.collideWorldBounds = true;
+
+    //  Our two animations, walking left and right.
+    enemySprite.animations.add('left', [0, 1, 2, 3], 10, true);
+    enemySprite.animations.add('right', [4,5, 6, 7], 10, true);
+
+};
+
+exports.getSprite = function() {
+    return enemySprite;
+}
+
+exports.updateMovement = function() {
+	if (enemySprite.body.blocked.right)
+	{
+		right = false;
+	}
+	else if (enemySprite.body.blocked.left)
+	{
+		right = true;
+	}
+	
+    if (right)
+    {
+        enemySprite.body.velocity.x = 200;
+		enemySprite.animations.play('right');
+    } 
+    else 
+    {
+        enemySprite.body.velocity.x = -200;
+		enemySprite.animations.play('left');
+    } 
+}
+},{"./IMAGES":3}],9:[function(require,module,exports){
 arguments[4][3][0].apply(exports,arguments)
-},{"dup":3}],9:[function(require,module,exports){
+},{"dup":3}],10:[function(require,module,exports){
 /* global Phaser */
 var Boot = require('./Boot');
 var Preloader = require('./Preloader');
@@ -344,4 +409,5 @@ game.state.add('Boot', Boot);
 game.state.add('Preloader', Preloader);
 game.state.add('Level1', Level1);
 game.state.start('Boot');
-},{"./Boot":1,"./Level1":4,"./Preloader":6}]},{},[9]);
+
+},{"./Boot":1,"./Level1":4,"./Preloader":6}]},{},[10]);
