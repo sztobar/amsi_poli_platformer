@@ -21,7 +21,7 @@ exports.create = function(game) {
 
     //  Our two animations, walking left and right.
     enemySprite.animations.add('left', [0, 1, 2, 3], 10, true);
-    enemySprite.animations.add('right', [4,5, 6, 7], 10, true);
+    enemySprite.animations.add('right', [4, 5, 6, 7], 10, true);
 
 };
 
@@ -41,12 +41,12 @@ exports.updateMovement = function() {
 	
     if (right)
     {
-        enemySprite.body.velocity.x = 200;
+        enemySprite.body.velocity.x = 100;
 		enemySprite.animations.play('right');
     } 
     else 
     {
-        enemySprite.body.velocity.x = -200;
+        enemySprite.body.velocity.x = -100;
 		enemySprite.animations.play('left');
     } 
 }
