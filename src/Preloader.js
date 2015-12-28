@@ -24,7 +24,7 @@ Preloader.prototype = {
     this.load.spritesheet(IMAGES.PLAYER, path + 'liroy.png', 32, 48);
     this.load.image(IMAGES.PROJECTILE, path + 'projectile.png');
     this.load.image(IMAGES.STAR, path + 'glos.png');
-    this.load.spritesheet(IMAGES.ENEMY, path + 'swinia.png', 59, 36);
+    this.load.spritesheet(IMAGES.ENEMY, path + 'farmer.png', 60, 48);
     this.load.image(IMAGES.FIREBALL, path + 'fireball.png');
 
       
