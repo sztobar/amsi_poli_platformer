@@ -1,5 +1,8 @@
 # amsi_poli_platformer
 
+Po każdym pullu wypada wpisać w konsoli: ```npm install```
+=========================================
+
 Co jest potrzebne do zbudowania aplikacji
 =========================================
 
