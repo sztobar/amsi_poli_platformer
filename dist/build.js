@@ -154,6 +154,9 @@ function Player(game, x, y) {
   //  Our two animations, walking left and right.
   this.sprite.animations.add('left', [0, 1, 2, 3], 10, true);
   this.sprite.animations.add('right', [5, 6, 7, 8], 10, true);
+  this.sprite.animations.add('death', [4, 9, 10, 11], 10, true);
+  this.sprite.animations.add('shootleft', [12], 10, true);
+  this.sprite.animations.add('shootright', [13], 10, true);
   
   this._jumpKey = game.input.keyboard.addKey(Phaser.KeyCode.X);
   this._jumpKey.onDown.add(this.handleJumpKeyDown, this);
