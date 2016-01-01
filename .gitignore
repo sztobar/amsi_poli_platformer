@@ -2,4 +2,4 @@
 npm-debug.log
 ~$backlog.xlsx
 ~$lityczna platformówka - kwestie fabularne.docx
-/dist
+dist\build.js
