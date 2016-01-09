@@ -25,7 +25,11 @@ module.exports = Boot;
 exports.LEFT = 0;
 exports.RIGHT = 1;
 },{}],3:[function(require,module,exports){
-exports.PLAYER = 'player';
+exports.PLAYER_1 = 'player_1';
+exports.PLAYER_2 = 'player_2';
+exports.PLAYER_3 = 'player_3';
+exports.PLAYER_4 = 'player_4';
+
 exports.ENEMY = 'swinia';
 exports.SKY = 'sky';
 exports.GROUND = 'ground';
@@ -137,7 +141,7 @@ function Player(game, x, y) {
   this._game = game;
   
   // The playerSprite and its settings
-  this.sprite = game.add.sprite(x, y, IMAGES.PLAYER);
+  this.sprite = game.add.sprite(x, y, IMAGES.PLAYER_1);
   
   //  We need to enable physics on the playerSprite
   game.physics.arcade.enable(this.sprite);
@@ -170,6 +174,11 @@ function Player(game, x, y) {
   this._rightKey = game.input.keyboard.addKey(Phaser.KeyCode.RIGHT);
   //  Stop the following keys from propagating up to the browser
   game.input.keyboard.addKeyCapture([ Phaser.Keyboard.LEFT, Phaser.Keyboard.RIGHT ]);
+  
+  this._1Key = game.input.keyboard.addKey(Phaser.KeyCode.ONE);
+  this._2Key = game.input.keyboard.addKey(Phaser.KeyCode.TWO);
+  this._3Key = game.input.keyboard.addKey(Phaser.KeyCode.THREE);
+  this._4Key = game.input.keyboard.addKey(Phaser.KeyCode.FOUR);
 
   this.projectilesGroup = game.add.group();
   this.projectilesGroup.enableBody = true;
@@ -234,6 +243,19 @@ Player.prototype = {
       }
       projectile.rotation += 0.25;
     });
+    
+    if (this._1Key.isDown) {
+      this.sprite.loadTexture(IMAGES.PLAYER_1, this.sprite.frame);
+    }
+    if (this._2Key.isDown) {
+      this.sprite.loadTexture(IMAGES.PLAYER_2, this.sprite.frame);
+    }
+    if (this._3Key.isDown) {
+      this.sprite.loadTexture(IMAGES.PLAYER_3, this.sprite.frame);
+    }
+    if (this._4Key.isDown) {
+      this.sprite.loadTexture(IMAGES.PLAYER_4, this.sprite.frame);
+    }
   },
   handleJumpKeyDown() {
     this._makeJump = true;
@@ -275,7 +297,12 @@ Preloader.prototype = {
 
     this.load.image(IMAGES.SKY, path + 'sky.png');
     this.load.image(IMAGES.GROUND, path + 'platform.png');
-    this.load.spritesheet(IMAGES.PLAYER, path + 'wippler.png', 32, 48);
+    
+    this.load.spritesheet(IMAGES.PLAYER_1, path + 'wippler.png', 32, 48);
+    this.load.spritesheet(IMAGES.PLAYER_2, path + 'braun.png', 32, 48);
+    this.load.spritesheet(IMAGES.PLAYER_3, path + 'macierewicz.png', 32, 48);
+    this.load.spritesheet(IMAGES.PLAYER_4, path + 'liroy.png', 32, 48);
+    
     this.load.image(IMAGES.PROJECTILE, path + 'projectile.png');
     this.load.image(IMAGES.STAR, path + 'glos.png');
     this.load.spritesheet(IMAGES.ENEMY, path + 'farmer.png', 60, 48);
