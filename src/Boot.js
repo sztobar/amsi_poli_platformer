@@ -15,7 +15,7 @@ Boot.prototype = {
 		this.scale.pageAlignHorizontally = true;
 		this.scale.pageAlignVertically = true;
 		// start the Preloader state
-		this.state.start('Preloader');
+		this.state.start('MainMenu');
 	}
 };
 

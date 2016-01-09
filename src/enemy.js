@@ -1,7 +1,5 @@
 var IMAGES = require('./IMAGES');
 
-
-
 var enemySprite;
 var right = true;
 

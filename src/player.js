@@ -1,7 +1,8 @@
 /* global Phaser */
 /* global PIXI */
-var IMAGES = require('./IMAGES');
-var DIRECTIONS = require('./DIRECTIONS');
+var config = require('./config');
+var IMAGES = config.images;
+var DIRECTIONS = config.directions;
 
 var FIRE_RATE = 250;
 
