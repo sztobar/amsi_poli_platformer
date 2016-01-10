@@ -1,5 +1,5 @@
 /* global Phaser */
-var path = '../assets/images/';
+var path = '../../assets/images/';
 
 function Boot (game){};
 

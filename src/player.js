@@ -10,9 +10,9 @@ var PROJECTILE_VELOCITY = VELOCITY * 2;
 
 function Player(game, x, y) {
   this._game = game;
-  
+
   // The playerSprite and its settings
-  this.sprite = game.add.sprite(x, y, IMAGES.PLAYER);
+  this.sprite = game.add.sprite(x, y, IMAGES['PLAYER_'+ this._game.game.currentSelectHero]);
   
   //  We need to enable physics on the playerSprite
   game.physics.arcade.enable(this.sprite);
@@ -45,6 +45,11 @@ function Player(game, x, y) {
   this._rightKey = game.input.keyboard.addKey(Phaser.KeyCode.RIGHT);
   //  Stop the following keys from propagating up to the browser
   game.input.keyboard.addKeyCapture([ Phaser.Keyboard.LEFT, Phaser.Keyboard.RIGHT ]);
+  
+  this._1Key = game.input.keyboard.addKey(Phaser.KeyCode.ONE);
+  this._2Key = game.input.keyboard.addKey(Phaser.KeyCode.TWO);
+  this._3Key = game.input.keyboard.addKey(Phaser.KeyCode.THREE);
+  this._4Key = game.input.keyboard.addKey(Phaser.KeyCode.FOUR);
 
   this.projectilesGroup = game.add.group();
   this.projectilesGroup.enableBody = true;
@@ -109,6 +114,19 @@ Player.prototype = {
       }
       projectile.rotation += 0.25;
     });
+    
+    if (this._1Key.isDown) {
+      this.sprite.loadTexture(IMAGES.PLAYER_1, this.sprite.frame);
+    }
+    if (this._2Key.isDown) {
+      this.sprite.loadTexture(IMAGES.PLAYER_2, this.sprite.frame);
+    }
+    if (this._3Key.isDown) {
+      this.sprite.loadTexture(IMAGES.PLAYER_3, this.sprite.frame);
+    }
+    if (this._4Key.isDown) {
+      this.sprite.loadTexture(IMAGES.PLAYER_4, this.sprite.frame);
+    }
   },
   handleJumpKeyDown : function() {
     this._makeJump = true;

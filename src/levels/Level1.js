@@ -1,10 +1,10 @@
 /* global _ */
 /* global PIXI */
 /* global Phaser */
-var IMAGES = require('./config').images;
-var Player = require('./player');
-var TiledLevel = require('./TiledLevel');
-var enemy = require('./enemy');
+var IMAGES = require('./../config').images;
+var Player = require('./../player');
+var TiledLevel = require('./../TiledLevel');
+var enemy = require('./../enemy');
 
 function Level1(game) {
 	this._player = null;
