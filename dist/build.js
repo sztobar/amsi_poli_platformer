@@ -250,6 +250,7 @@ function Player(game, x, y) {
   this._game = game;
 
   // The playerSprite and its settings
+  console.log('Loaded', 'PLAYER_'+ this._game.game.currentSelectHero);
   this.sprite = game.add.sprite(x, y, IMAGES['PLAYER_'+ this._game.game.currentSelectHero]);
   
   //  We need to enable physics on the playerSprite
@@ -411,6 +412,7 @@ function MainMenu(game){
 };
 var nBack_frames =  0;
 var style = { font: "bold 32px Arial", fill: "#ecf0f1", boundsAlignH: "center", boundsAlignV: "middle" };
+var selectedStyle = { font: "bold 32px Arial", fill: "#ff3333", boundsAlignH: "center", boundsAlignV: "middle" };
 var currentlySelected = -1;
 var menuTexts = [];
 MainMenu.prototype = {
@@ -420,8 +422,12 @@ MainMenu.prototype = {
 
     create: function() {
 
-        this._upKey = this.game.input.keyboard.addKey(Phaser.KeyCode.UP);
-        this._downKey = this.game.input.keyboard.addKey(Phaser.KeyCode.DOWN);
+        this._upKey = this.game.input.keyboard.addKey(Phaser.Keyboard.UP);
+        this._downKey = this.game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
+        this._acceptKey = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+        this._downKey.onDown.add(this.changeMenuPos, this);
+        this._upKey.onDown.add(this.changeMenuPos, this);
+        this._acceptKey.onDown.add(this.changeMenuPos, this);
 
         //Defined Menu
         var menu = [
@@ -447,6 +453,25 @@ MainMenu.prototype = {
                 currentlySelected = -1;
             }
         }
+
+        menuTexts[0].setStyle(selectedStyle);
+        currentlySelected = 0;
+
+    },
+
+    changeMenuPos: function(){
+        if (this._upKey.isDown) {
+            menuTexts[currentlySelected].setStyle(style);
+            currentlySelected = currentlySelected == 0 ? menuTexts.length - 1  : currentlySelected - 1  ;
+            menuTexts[currentlySelected].setStyle(selectedStyle);
+
+        } else if (this._downKey.isDown) {
+            menuTexts[currentlySelected].setStyle(style);
+            currentlySelected = currentlySelected +1 >= menuTexts.length ? 0 : currentlySelected + 1  ;
+            menuTexts[currentlySelected].setStyle(selectedStyle);
+        } else if (this._acceptKey.isDown) {
+            menuTexts[currentlySelected].events.onInputDown.dispatch();
+        }
     },
 
     openPlayerSelection : function(){
@@ -464,6 +489,8 @@ module.exports = PlayerSelection;
 
 var IMAGES = require('./../config').images;
 var path = '../../assets/images/';
+var borderSprite, playerTab, currentPosX = 0, currentPosY = 0;
+var sizeAvatar = 150;
 
 function PlayerSelection(game){
 
@@ -471,10 +498,10 @@ function PlayerSelection(game){
 
 PlayerSelection.prototype = {
     preload: function() {
-        this.load.spritesheet(IMAGES.PLAYER_1_AV, path + 'PlayerAvatars/player_1.png', 150, 150);
-        this.load.spritesheet(IMAGES.PLAYER_2_AV, path + 'PlayerAvatars/player_2.png', 150, 150);
-        this.load.spritesheet(IMAGES.PLAYER_3_AV, path + 'PlayerAvatars/player_3.png', 150, 150);
-        this.load.spritesheet(IMAGES.PLAYER_4_AV, path + 'PlayerAvatars/player_4.png', 150, 150)
+        this.load.spritesheet(IMAGES.PLAYER_1_AV, path + 'PlayerAvatars/player_1.png', sizeAvatar, sizeAvatar);
+        this.load.spritesheet(IMAGES.PLAYER_2_AV, path + 'PlayerAvatars/player_2.png', sizeAvatar, sizeAvatar);
+        this.load.spritesheet(IMAGES.PLAYER_3_AV, path + 'PlayerAvatars/player_3.png', sizeAvatar, sizeAvatar);
+        this.load.spritesheet(IMAGES.PLAYER_4_AV, path + 'PlayerAvatars/player_4.png', sizeAvatar, sizeAvatar);
 
     },
     create: function() {
@@ -484,40 +511,76 @@ PlayerSelection.prototype = {
         ).anchor.set(0.5);;
 
 
+        this._upKey = this.game.input.keyboard.addKey(Phaser.Keyboard.UP);
+        this._downKey = this.game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
+        this._leftKey = this.game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
+        this._rightKey = this.game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
+        this._acceptKey = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+        this._downKey.onDown.add(this.changeMenuPos, this);
+        this._upKey.onDown.add(this.changeMenuPos, this);
+        this._rightKey.onDown.add(this.changeMenuPos, this);
+        this._leftKey.onDown.add(this.changeMenuPos, this);
+        this._acceptKey.onDown.add(this.changeMenuPos, this);
 
-        var sprite_av1 = this.game.add.sprite(100,  110, IMAGES.PLAYER_1_AV);
-        sprite_av1.inputEnabled = true;
-        sprite_av1.events.onInputDown.add(function(){
-            console.log(1);
-            self.loadGame(1);
-        }, this);
+        playerTab = [
+            [1,3],
+            [2,4]
+        ];
 
-        var sprite_av2 = this.game.add.sprite(390, 110, IMAGES.PLAYER_2_AV);
-        sprite_av2.inputEnabled = true;
-        sprite_av2.events.onInputDown.add(function(){
-            console.log(2);
-            self.loadGame(2);
-        }, this);
+        borderSprite = this.game.add.graphics( 166 , 96 );
+        borderSprite.beginFill(0xFF3333, 1);
+        borderSprite.bounds = new PIXI.Rectangle(0, 0, sizeAvatar + 8, sizeAvatar + 8 );
+        borderSprite.drawRect(0, 0, sizeAvatar + 8, sizeAvatar + 8);
 
-        var sprite_av3 = this.game.add.sprite(100,  300, IMAGES.PLAYER_3_AV);
-        sprite_av3.inputEnabled = true;
-        sprite_av3.events.onInputDown.add(function(){
-            console.log(3);
-            self.loadGame(3);
-        }, this);
+        for(var row = 0; row < playerTab.length; row++){
+            for(var col = 0; col < playerTab[row].length; col++){
+                var sprite = this.game.add.sprite(col*(sizeAvatar+20) + 170, row*(sizeAvatar+20) + 100, IMAGES['PLAYER_' + playerTab[row][col] + '_AV']);
+                sprite.inputEnabled = true;
+                sprite.input.useHandCursor = true;
+                sprite.champSelectedY = col;
+                sprite.champSelectedX = row;
+                sprite.events.onInputDown.add(this.clickPlayer, this);
+            }
+        }
 
-        var sprite_av4 = this.game.add.sprite(390, 300, IMAGES.PLAYER_4_AV);
-        sprite_av4.inputEnabled = true;
-        sprite_av4.events.onInputDown.add(function(){
-            console.log(4);
-            self.loadGame(4);
-        }, this);
+
+
+
+
     },
+    changeMenuPos: function(){
+        if (this._upKey.isDown) {
+            currentPosY = 0 <= currentPosY - 1 ? currentPosY - 1: playerTab.length - 1;
+        } else if (this._downKey.isDown) {
+            currentPosY = playerTab.length > currentPosY + 1 ? currentPosY + 1 : 0;
+        } else if (this._leftKey.isDown) {
+            currentPosX = 0 <= currentPosX - 1 ? currentPosX - 1: playerTab[currentPosY].length - 1;
+        } else if (this._rightKey.isDown) {
+            currentPosX = playerTab[currentPosY].length > currentPosX + 1 ? currentPosX + 1: 0;
+        }
+        else if (this._acceptKey.isDown) {
+            this.loadGame();
+        }
+        this.setNewPosition();
+    },
+
+    setNewPosition : function(){
+        borderSprite.x = currentPosX *(sizeAvatar+20) + 166;
+        borderSprite.y = currentPosY *(sizeAvatar+20) + 96;
+    },
+
     update: function() {
 
     },
-    loadGame : function(hero_num){
-        this.game.currentSelectHero = hero_num;
+    clickPlayer : function(spriteE){
+        currentPosX = spriteE.champSelectedX;
+        currentPosY = spriteE.champSelectedY;
+        this.setNewPosition();
+        this.loadGame();
+
+    },
+    loadGame : function(){
+        this.game.currentSelectHero = playerTab[currentPosY][currentPosX];
         this.game.state.start('Preloader');
     }
 };

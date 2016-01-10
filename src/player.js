@@ -12,6 +12,7 @@ function Player(game, x, y) {
   this._game = game;
 
   // The playerSprite and its settings
+  console.log('Loaded', 'PLAYER_'+ this._game.game.currentSelectHero);
   this.sprite = game.add.sprite(x, y, IMAGES['PLAYER_'+ this._game.game.currentSelectHero]);
   
   //  We need to enable physics on the playerSprite
