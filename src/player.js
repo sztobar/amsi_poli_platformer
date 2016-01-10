@@ -3,9 +3,7 @@
 var config = require('./config');
 var IMAGES = config.images;
 var DIRECTIONS = config.directions;
-
 var FIRE_RATE = 250;
-
 var VELOCITY = 250;
 var JUMP_SPEED = 300;
 var PROJECTILE_VELOCITY = VELOCITY * 2;
@@ -112,16 +110,16 @@ Player.prototype = {
       projectile.rotation += 0.25;
     });
   },
-  handleJumpKeyDown() {
+  handleJumpKeyDown : function() {
     this._makeJump = true;
   },
-  handleJumpKeyUp() {
+  handleJumpKeyUp : function() {
     this._makeJump = false;
   },
-  handleShootKeyDown() {
+  handleShootKeyDown : function() {
     this._makeShoot = true;
   },
-  handleShootKeyUp() {
+  handleShootKeyUp : function(){
     this._makeShoot = false;
   }
 };

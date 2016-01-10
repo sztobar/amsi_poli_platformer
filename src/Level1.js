@@ -2,7 +2,7 @@
 /* global PIXI */
 /* global Phaser */
 var IMAGES = require('./config').images;
-var Player = require('./Player');
+var Player = require('./player');
 var TiledLevel = require('./TiledLevel');
 var enemy = require('./enemy');
 

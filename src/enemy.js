@@ -1,4 +1,4 @@
-var IMAGES = require('./IMAGES');
+var IMAGES = require('./config').images;
 
 var enemySprite;
 var right = true;

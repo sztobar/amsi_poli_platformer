@@ -1,5 +1,5 @@
 /* global Phaser */
-var IMAGES = require('./IMAGES');
+var IMAGES = require('./config').images;
 var path = '../assets/images/';
 
 var GAME_WIDTH = exports.GAME_WIDTH = 640;

@@ -11,10 +11,11 @@ module.exports =
     directions : {
        LEFT :       0,
        RIGHT :      1
+    },
+    gameSize: {
+        width: 640,
+        height: 960
     }
-
-
-
-}
+};
 
  
