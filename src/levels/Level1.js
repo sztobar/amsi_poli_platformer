@@ -5,6 +5,7 @@ var IMAGES = require('./../config').images;
 var Player = require('./../player');
 var TiledLevel = require('./../TiledLevel');
 var enemy = require('./../enemy');
+var pauseUtils = require('./../Pause');
 
 function Level1(game) {
 	this._player = null;
@@ -37,8 +38,16 @@ Level1.prototype = {
     this._score = 0;
     this._scoreText = this.add.text(16, 16, 'score: ' + this._score, { fontSize: '32px', fill: '#000' });
     this._scoreText.fixedToCamera = true;
-  
+
     this._debugMode = false;
+
+    //Pause handling
+    var pauseKey = this.input.keyboard.addKey(Phaser.KeyCode.P);
+    pauseKey.onUp.add(function(){
+      pauseUtils.pause(this.game);
+    }, this);
+
+
     var spaceKey = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
     spaceKey.onUp.add(this.toggleDebugMode, this);
   },

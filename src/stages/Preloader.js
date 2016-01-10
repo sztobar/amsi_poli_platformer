@@ -1,3 +1,4 @@
+/* global PIXI */
 /* global Phaser */
 var IMAGES = require('./../config').images;
 var path = '../../assets/images/';

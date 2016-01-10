@@ -1,4 +1,32 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+
+module.exports = {
+
+
+    unpause: function(game){
+        // Only act if paused
+        if(game.paused){
+            game.paused = false;
+        }
+    },
+
+    pause : function(game){
+        if(!game.paused) {
+            game.paused = true;
+            var menu = game.add.graphics(0, 0);
+            menu.inputEnabled = true;
+            menu.beginFill(0x000000, 1);
+            menu.bounds = new PIXI.Rectangle(0, 0, 300, 200);
+            menu.drawRect(0, 0, 300, 200);
+            return menu;
+        } else {
+            this.unpause(game);
+        }
+
+    }
+
+};
+},{}],2:[function(require,module,exports){
 /* global Phaser */
 /* global _ */
 /* global PIXI */
@@ -49,7 +77,7 @@ function TiledLevel(game, name) {
 }
 
 module.exports = TiledLevel;
-},{}],2:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 module.exports =
 {
     images : {
@@ -80,7 +108,7 @@ module.exports =
 
  
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 var IMAGES = require('./config').images;
 
 var enemySprite;
@@ -131,7 +159,7 @@ exports.updateMovement = function() {
 		enemySprite.animations.play('left');
     } 
 }
-},{"./config":2}],4:[function(require,module,exports){
+},{"./config":3}],5:[function(require,module,exports){
 /* global _ */
 /* global PIXI */
 /* global Phaser */
@@ -139,6 +167,7 @@ var IMAGES = require('./../config').images;
 var Player = require('./../player');
 var TiledLevel = require('./../TiledLevel');
 var enemy = require('./../enemy');
+var pauseUtils = require('./../Pause');
 
 function Level1(game) {
 	this._player = null;
@@ -171,8 +200,16 @@ Level1.prototype = {
     this._score = 0;
     this._scoreText = this.add.text(16, 16, 'score: ' + this._score, { fontSize: '32px', fill: '#000' });
     this._scoreText.fixedToCamera = true;
-  
+
     this._debugMode = false;
+
+    //Pause handling
+    var pauseKey = this.input.keyboard.addKey(Phaser.KeyCode.P);
+    pauseKey.onUp.add(function(){
+      pauseUtils.pause(this.game);
+    }, this);
+
+
     var spaceKey = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
     spaceKey.onUp.add(this.toggleDebugMode, this);
   },
@@ -219,7 +256,7 @@ Level1.prototype = {
 }
 
 module.exports = Level1;
-},{"./../TiledLevel":1,"./../config":2,"./../enemy":3,"./../player":6}],5:[function(require,module,exports){
+},{"./../Pause":1,"./../TiledLevel":2,"./../config":3,"./../enemy":4,"./../player":7}],6:[function(require,module,exports){
 /* global Phaser */
 var Boot = require('./stages/Boot'),
     Preloader = require('./stages/Preloader'),
@@ -235,7 +272,7 @@ game.state.add('PlayerSelection', PlayerSelection);
 game.state.add('Level1', Level1);
 game.state.start('Boot');
 
-},{"./levels/Level1":4,"./stages/Boot":7,"./stages/MainMenu":8,"./stages/PlayerSelection":9,"./stages/Preloader":10}],6:[function(require,module,exports){
+},{"./levels/Level1":5,"./stages/Boot":8,"./stages/MainMenu":9,"./stages/PlayerSelection":10,"./stages/Preloader":11}],7:[function(require,module,exports){
 /* global Phaser */
 /* global PIXI */
 var config = require('./config');
@@ -383,7 +420,7 @@ Player.prototype = {
 
 module.exports = Player;
 
-},{"./config":2}],7:[function(require,module,exports){
+},{"./config":3}],8:[function(require,module,exports){
 /* global Phaser */
 var path = '../../assets/images/';
 
@@ -406,7 +443,7 @@ Boot.prototype = {
 };
 
 module.exports = Boot;
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 module.exports = MainMenu;
 function MainMenu(game){
 };
@@ -484,7 +521,7 @@ MainMenu.prototype = {
 
     }
 };
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 module.exports = PlayerSelection;
 
 var IMAGES = require('./../config').images;
@@ -584,7 +621,8 @@ PlayerSelection.prototype = {
         this.game.state.start('Preloader');
     }
 };
-},{"./../config":2}],10:[function(require,module,exports){
+},{"./../config":3}],11:[function(require,module,exports){
+/* global PIXI */
 /* global Phaser */
 var IMAGES = require('./../config').images;
 var path = '../../assets/images/';
@@ -633,4 +671,4 @@ Preloader.prototype = {
 		this.state.start('Level1');
 	}
 };
-},{"./../config":2}]},{},[5]);
+},{"./../config":3}]},{},[6]);
