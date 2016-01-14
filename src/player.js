@@ -29,7 +29,7 @@ function Player(game, x, y) {
   this.direction = DIRECTIONS.LEFT;
   //  Our two animations, walking left and right.
   this.sprite.animations.add('left', [0, 1, 2, 3], 10, true);
-  this.sprite.animations.add('right', [5, 6, 7, 8], 10, true);
+  this.sprite.animations.add('right', [9, 10, 11, 12, 13], 3, true);
   this.sprite.animations.add('death', [4, 9, 10, 11], 10, true);
   this.sprite.animations.add('shootleft', [12], 10, true);
   this.sprite.animations.add('shootright', [13], 10, true);
