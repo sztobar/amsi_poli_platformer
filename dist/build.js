@@ -671,4 +671,7 @@ Preloader.prototype = {
 		this.state.start('Level1');
 	}
 };
-},{"./../config":3}]},{},[6]);
+},{"./../config":3}]},{},[6])
+
+
+//# sourceMappingURL=build.js.map
