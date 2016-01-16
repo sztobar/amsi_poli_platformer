@@ -40,7 +40,15 @@ function gulpBundle(builder) {
 
 
 gulp.task('watch', function () {
-  return gulpBundle(watchify(browserify(opts)));
+  var bundle = watchify(browserify(opts));
+  var stream = gulpBundle(bundle);
+  
+  bundle.on('update', function() {
+    return gulpBundle(bundle);
+  }); // on any dep update, runs the bundler
+  bundle.on('log', gutil.log); // output build logs to terminal
+  
+  return stream;
 });
 
 gulp.task('build', function () {
