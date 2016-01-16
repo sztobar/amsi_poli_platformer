@@ -304,7 +304,7 @@ function Player(game, x, y) {
   this.direction = DIRECTIONS.LEFT;
   //  Our two animations, walking left and right.
   this.sprite.animations.add('left', [0, 1, 2, 3], 10, true);
-  this.sprite.animations.add('right', [9, 10, 11, 12, 13], 3, true);
+  this.sprite.animations.add('right', [5, 6, 7, 8], 10, true);
   this.sprite.animations.add('death', [4, 9, 10, 11], 10, true);
   this.sprite.animations.add('shootleft', [12], 10, true);
   this.sprite.animations.add('shootright', [13], 10, true);
@@ -647,14 +647,14 @@ Preloader.prototype = {
     this.load.image(IMAGES.SKY, path + 'sky.png');
     this.load.image(IMAGES.GROUND, path + 'platform.png');
     
-    this.load.spritesheet(IMAGES.PLAYER_1, path + 'wippler.png', 32, 48);
-    this.load.spritesheet(IMAGES.PLAYER_2, path + 'macierewicz.png', 32, 48);
-    this.load.spritesheet(IMAGES.PLAYER_3, path + 'braun.png', 32, 48);
-    this.load.spritesheet(IMAGES.PLAYER_4, path + 'kaczynski.png', 32, 48);
+    this.load.spritesheet(IMAGES.PLAYER_1, path + 'sprites/wippler.png', 32, 48);
+    this.load.spritesheet(IMAGES.PLAYER_2, path + 'sprites/macierewicz.png', 32, 48);
+    this.load.spritesheet(IMAGES.PLAYER_3, path + 'sprites/braun.png', 32, 48);
+    this.load.spritesheet(IMAGES.PLAYER_4, path + 'sprites/liroy.png', 32, 48);
     
     this.load.image(IMAGES.PROJECTILE, path + 'projectile.png');
-    this.load.image(IMAGES.STAR, path + 'glos.png');
-    this.load.spritesheet(IMAGES.ENEMY, path + 'farmer.png', 60, 48);
+    this.load.image(IMAGES.STAR, path + 'sprites/glos.png');
+    this.load.spritesheet(IMAGES.ENEMY, path + 'sprites/farmer.png', 60, 48);
     this.load.image(IMAGES.FIREBALL, path + 'fireball.png');
 
       

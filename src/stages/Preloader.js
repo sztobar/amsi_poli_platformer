@@ -26,7 +26,7 @@ Preloader.prototype = {
     this.load.spritesheet(IMAGES.PLAYER_1, path + 'wippler.png', 32, 48);
     this.load.spritesheet(IMAGES.PLAYER_2, path + 'macierewicz.png', 32, 48);
     this.load.spritesheet(IMAGES.PLAYER_3, path + 'braun.png', 32, 48);
-    this.load.spritesheet(IMAGES.PLAYER_4, path + 'kaczynski.png', 32, 48);
+    this.load.spritesheet(IMAGES.PLAYER_4, path + 'liroy.png', 32, 48);
     
     this.load.image(IMAGES.PROJECTILE, path + 'projectile.png');
     this.load.image(IMAGES.STAR, path + 'glos.png');
