@@ -22,18 +22,7 @@ Level1.prototype = {
     window.player = this._player = new Player(this, this.tiledMap.levelStart.x, this.tiledMap.levelStart.y);
     this._enemy = enemy.create(this);
     
-    //  Finally some stars to collect
-    this._starsGroup = this.add.group();
-    //  We will enable physics for any star that is created in this group
-    this._starsGroup.enableBody = true;
-    //  Here we'll create 12 of them evenly spaced apart
-    for (var i = 0; i < 12; i++)
-    {
-        //  Create a star inside of the 'stars' group
-        var star = this._starsGroup.create(i * 70, 0, IMAGES.STAR);
-        //  Let gravity do its thing
-        star.body.gravity.y = 300;
-    }
+    this.pointsGroup = this.tiledMap.createPointsGroup();
     //  The score
     this._score = 0;
     this._scoreText = this.add.text(16, 16, 'score: ' + this._score, { fontSize: '32px', fill: '#000' });
@@ -57,13 +46,12 @@ Level1.prototype = {
     enemy.updateMovement();
     
     //  Collide the player and the stars with the platforms
-    this.physics.arcade.collide(this._starsGroup, this.tiledMap.propsLayer);
     this.physics.arcade.collide(this._player.sprite, this.tiledMap.propsLayer);
     this.physics.arcade.collide(this._player.projectilesGroup, this.tiledMap.propsLayer, function(p) { p.kill(); });
     this.physics.arcade.collide(this._player.sprite, this.tiledMap.levelEnd, this.endLevel, null, this);
 
     //  Checks to see if the player overlaps with any of the stars, if he does call the collectStar function
-    this.physics.arcade.overlap(this._player.sprite, this._starsGroup, this.collectStar, null, this);
+    this.physics.arcade.overlap(this._player.sprite, this.pointsGroup, this.collectStar, null, this);
 
     this._player.update();
   },
