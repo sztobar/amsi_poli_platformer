@@ -1,9 +1,12 @@
 /* global Phaser */
 /* global _ */
 /* global PIXI */
+var IMAGES = require('./config').images;
+var _ = require('lodash');
 
 var OBSTACLE_TILE = 17;
 var PLATFORM_TILE = 18;
+var POINT_TILE = 24;
 
 function TiledLevel(game, name) {
   this.game = game;
@@ -45,6 +48,20 @@ function TiledLevel(game, name) {
   }
   
   this.tilemap.setCollisionByIndex(OBSTACLE_TILE);
+}
+
+TiledLevel.prototype = {
+  createPointsGroup: function() {
+    var group  = this.game.add.group();
+    group.enableBody = true;
+    _.forEach(this.tilemap.objects.objects, function(obj) {
+      if (obj.gid === POINT_TILE) {
+        var point = group.create(obj.x, obj.y, IMAGES.STAR);
+        point.anchor.y = 1;
+      }
+    });
+    return group;
+  }
 }
 
 module.exports = TiledLevel;
