@@ -32,6 +32,8 @@ Preloader.prototype = {
     this.load.image(IMAGES.STAR, path + 'glos.png');
     this.load.spritesheet(IMAGES.ENEMY, path + 'farmer.png', 60, 48);
     this.load.image(IMAGES.FIREBALL, path + 'fireball.png');
+    
+    this.load.spritesheet(IMAGES.SCORE, path + 'score.png');
 
       
     this.load.tilemap('level1', './../../assets/mapa-wies/mapa-wies.json', null, Phaser.Tilemap.TILED_JSON);

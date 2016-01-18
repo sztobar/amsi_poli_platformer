@@ -12467,7 +12467,8 @@ module.exports =
         PLAYER_1_AV : 'player_1av',
         PLAYER_2_AV : 'player_2av',
         PLAYER_3_AV : 'player_3av',
-        PLAYER_4_AV : 'player_4av'
+        PLAYER_4_AV : 'player_4av',
+        SCORE       : 'score'
     },
     directions : {
        LEFT :       0,
@@ -12536,11 +12537,12 @@ exports.updateMovement = function() {
 /* global _ */
 /* global PIXI */
 /* global Phaser */
-var IMAGES = require('./../config').images;
-var Player = require('./../player');
-var TiledLevel = require('./../TiledLevel');
-var enemy = require('./../enemy');
-var pauseUtils = require('./../Pause');
+var IMAGES = require('../config').images;
+var Player = require('../player');
+var TiledLevel = require('../TiledLevel');
+var enemy = require('../enemy');
+var pauseUtils = require('../Pause');
+var Score = require('../score');
 
 function Level1(game) {
 	this._player = null;
@@ -12560,8 +12562,9 @@ Level1.prototype = {
     this.pointsGroup = this.tiledMap.createPointsGroup();
     //  The score
     this._score = 0;
-    this._scoreText = this.add.text(16, 16, 'score: ' + this._score, { fontSize: '32px', fill: '#000' });
-    this._scoreText.fixedToCamera = true;
+    this._scoreText = new Score(this);
+    // this._scoreText = this.add.text(16, 16, 'score: ' + this._score, { fontSize: '32px', fill: '#000' });
+    // this._scoreText.fixedToCamera = true;
 
     this._debugMode = false;
 
@@ -12596,7 +12599,8 @@ Level1.prototype = {
 
     //  Add and update the score
     this._score += 10;
-    this._scoreText.text = 'score: ' + this._score;
+    this._scoreText.update('' + this._score);
+    // this._scoreText.text = 'score: ' + this._score;
   },
   render: function() {
     if (this._debugMode) {
@@ -12617,7 +12621,7 @@ Level1.prototype = {
 }
 
 module.exports = Level1;
-},{"./../Pause":2,"./../TiledLevel":3,"./../config":4,"./../enemy":5,"./../player":8}],7:[function(require,module,exports){
+},{"../Pause":2,"../TiledLevel":3,"../config":4,"../enemy":5,"../player":8,"../score":9}],7:[function(require,module,exports){
 /* global Phaser */
 var Boot = require('./stages/Boot'),
     Preloader = require('./stages/Preloader'),
@@ -12633,7 +12637,7 @@ game.state.add('PlayerSelection', PlayerSelection);
 game.state.add('Level1', Level1);
 game.state.start('Boot');
 
-},{"./levels/Level1":6,"./stages/Boot":9,"./stages/MainMenu":10,"./stages/PlayerSelection":11,"./stages/Preloader":12}],8:[function(require,module,exports){
+},{"./levels/Level1":6,"./stages/Boot":10,"./stages/MainMenu":11,"./stages/PlayerSelection":12,"./stages/Preloader":13}],8:[function(require,module,exports){
 /* global Phaser */
 /* global PIXI */
 var config = require('./config');
@@ -12783,6 +12787,39 @@ module.exports = Player;
 
 },{"./config":4}],9:[function(require,module,exports){
 /* global Phaser */
+var IMAGES = require('./config').images;
+var CHAR_WIDTH = 200;
+var CHAR_HEIGHT = 200;
+
+function Score(game) {
+  this.game = game;
+  this.font = this.game.add.retroFont(IMAGES.SCORE, CHAR_WIDTH, CHAR_HEIGHT, '0123456789', 3);
+  this.update('0');
+     
+  var x = this.game.camera.view.width - 70;
+  this.image = this.game.add.image(x, 16, this.font, 0);
+  this.image.fixedToCamera = true;
+  this.image.anchor.set(1, 0);
+  this.image.scale.set(0.25);
+  this.image.alpha = 0.9;
+  
+  this.icon = this.game.add.image(x + 52, 16, IMAGES.STAR);
+  this.icon.fixedToCamera = true;
+  this.icon.anchor.set(1, 0);
+  this.icon.scale.set(2);
+  this.icon.smoothed = false;
+  this.icon.alpha = 0.9;
+}
+
+Score.prototype = {
+  update: function(text) {
+    this.font.setText(text, false, 0, 0, Phaser.RetroFont.ALIGN_RIGHT);
+  }
+};
+
+module.exports = Score;
+},{"./config":4}],10:[function(require,module,exports){
+/* global Phaser */
 var path = '../../assets/images/';
 
 function Boot (game){};
@@ -12804,7 +12841,7 @@ Boot.prototype = {
 };
 
 module.exports = Boot;
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 module.exports = MainMenu;
 function MainMenu(game){
 };
@@ -12882,7 +12919,7 @@ MainMenu.prototype = {
 
     }
 };
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 module.exports = PlayerSelection;
 
 var IMAGES = require('./../config').images;
@@ -12982,7 +13019,7 @@ PlayerSelection.prototype = {
         this.game.state.start('Preloader');
     }
 };
-},{"./../config":4}],12:[function(require,module,exports){
+},{"./../config":4}],13:[function(require,module,exports){
 /* global PIXI */
 /* global Phaser */
 var IMAGES = require('./../config').images;
@@ -13017,6 +13054,8 @@ Preloader.prototype = {
     this.load.image(IMAGES.STAR, path + 'glos.png');
     this.load.spritesheet(IMAGES.ENEMY, path + 'farmer.png', 60, 48);
     this.load.image(IMAGES.FIREBALL, path + 'fireball.png');
+    
+    this.load.spritesheet(IMAGES.SCORE, path + 'score.png');
 
       
     this.load.tilemap('level1', './../../assets/mapa-wies/mapa-wies.json', null, Phaser.Tilemap.TILED_JSON);

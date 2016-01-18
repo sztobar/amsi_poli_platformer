@@ -14,7 +14,8 @@ module.exports =
         PLAYER_1_AV : 'player_1av',
         PLAYER_2_AV : 'player_2av',
         PLAYER_3_AV : 'player_3av',
-        PLAYER_4_AV : 'player_4av'
+        PLAYER_4_AV : 'player_4av',
+        SCORE       : 'score'
     },
     directions : {
        LEFT :       0,
