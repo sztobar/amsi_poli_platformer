@@ -1,11 +1,12 @@
 /* global _ */
 /* global PIXI */
 /* global Phaser */
-var IMAGES = require('./../config').images;
-var Player = require('./../player');
-var TiledLevel = require('./../TiledLevel');
-var enemy = require('./../enemy');
-var pauseUtils = require('./../Pause');
+var IMAGES = require('../config').images;
+var Player = require('../player');
+var TiledLevel = require('../TiledLevel');
+var enemy = require('../enemy');
+var pauseUtils = require('../Pause');
+var Score = require('../score');
 
 function Level1(game) {
 	this._player = null;
@@ -25,8 +26,9 @@ Level1.prototype = {
     this.pointsGroup = this.tiledMap.createPointsGroup();
     //  The score
     this._score = 0;
-    this._scoreText = this.add.text(16, 16, 'score: ' + this._score, { fontSize: '32px', fill: '#000' });
-    this._scoreText.fixedToCamera = true;
+    this._scoreText = new Score(this);
+    // this._scoreText = this.add.text(16, 16, 'score: ' + this._score, { fontSize: '32px', fill: '#000' });
+    // this._scoreText.fixedToCamera = true;
 
     this._debugMode = false;
 
@@ -61,7 +63,8 @@ Level1.prototype = {
 
     //  Add and update the score
     this._score += 10;
-    this._scoreText.text = 'score: ' + this._score;
+    this._scoreText.update('' + this._score);
+    // this._scoreText.text = 'score: ' + this._score;
   },
   render: function() {
     if (this._debugMode) {
