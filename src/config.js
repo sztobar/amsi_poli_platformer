@@ -15,7 +15,8 @@ module.exports =
         PLAYER_2_AV : 'player_2av',
         PLAYER_3_AV : 'player_3av',
         PLAYER_4_AV : 'player_4av',
-        SCORE       : 'score'
+        SCORE       : 'score',
+        HEART       : 'heart'
     },
     directions : {
        LEFT :       0,
@@ -24,7 +25,13 @@ module.exports =
     gameSize: {
         width: 640,
         height: 960
+    },
+    tiles: {
+      OBSTACLE: 17,
+      PLATFORM: 18,
+      SPIKE: 21,
+      TRAP: 22,
+      CHECKPOINT: 23,
+      POINT: 24
     }
 };
-
- 

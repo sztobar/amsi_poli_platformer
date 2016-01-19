@@ -11,6 +11,7 @@ var PROJECTILE_VELOCITY = VELOCITY * 2;
 function Player(game, x, y) {
   this._game = game;
 
+  this._checkpoint = new Phaser.PIXI.Point(x, y);
   // The playerSprite and its settings
   console.log('Loaded', 'PLAYER_'+ this._game.game.currentSelectHero);
   this.sprite = game.add.sprite(x, y, IMAGES['PLAYER_'+ this._game.game.currentSelectHero]);
@@ -140,6 +141,12 @@ Player.prototype = {
   },
   handleShootKeyUp : function(){
     this._makeShoot = false;
+  },
+  resetToCheckpoint: function() {
+    this.sprite.body.position.set(this._checkpoint.x, this._checkpoint.y - this.sprite.body.height);
+  },
+  setCheckpoint: function(x, y) {
+    this._checkpoint.set(x, y);
   }
 };
 
