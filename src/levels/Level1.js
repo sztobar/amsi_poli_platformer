@@ -28,10 +28,10 @@ Level1.prototype = {
     this._enemy = enemy.create(this);
     
     this.pointsGroup = this.tiledMap.createPointsGroup();
+    this.checkpointsGroup = this.tiledMap.createCheckpointsGroup();
 
     //  The score
-    this._score = 0;
-    this._scoreText = new Score(this);
+    this._score = new Score(this);
 
     //  Player life
     this._life = new Life(this);
@@ -55,24 +55,20 @@ Level1.prototype = {
 
     this.physics.arcade.collide(this._player.sprite, this.tiledMap.propsLayer, null, isObstacleTiles);
     this.physics.arcade.collide(this._player.projectilesGroup, this.tiledMap.propsLayer, function(p) { p.kill(); }, isObstacleTiles);
-    
-    this.physics.arcade.collide(this._player.sprite, this.tiledMap.propsLayer, this.onCheckpointCollide, isCheckpointTile, this);
 
-    this.physics.arcade.collide(this._player.sprite, this.tiledMap.propsLayer, this.onTrapCollide, isTrapTiles, this);
+    this.physics.arcade.overlap(this._player.sprite, this.tiledMap.propsLayer, this.onTrapCollide, isTrapTiles, this);
 
-    //  Checks to see if the player overlaps with any of the stars, if he does call the collectStar function
     this.physics.arcade.overlap(this._player.sprite, this.pointsGroup, this.collectStar, null, this);
+    
+    this.physics.arcade.overlap(this._player.sprite, this.checkpointsGroup, this.onCheckpointCollide, null, this);
 
     this._player.update();
   },
   collectStar: function (playerSprite, star) {
     // Removes the star from the screen
     star.kill();
-
-    //  Add and update the score
-    this._score += 10;
-    this._scoreText.update('' + this._score);
-    // this._scoreText.text = 'score: ' + this._score;
+    // update score
+    this._score.inc(10);
   },
   render: function() {
     if (this._debugMode) {
@@ -87,24 +83,18 @@ Level1.prototype = {
 		// this.state.start('Level2');
   },
   onTrapCollide: function() {
+    if (this._player.immovable) { return; }
     var lifeCount = this._life.dec();
     if (lifeCount === 0) {
+      // od dead reset life counter and subtract points
       this._life.setCount(3);
+      this._score.dec(50);
     }
-    this._player.resetToCheckpoint();
-  },
-  // TODO: spikes should bounce player off not teleport him to checkpoint
-  onSpikesCollide: function() {
-    var lifeCount = this._life.dec();
-    if (lifeCount === 0) {
-      this._life.setCount(3);
-    }
-    this.player.bounce();
+    this._player.die();
   },
   onCheckpointCollide: function(player, checkpoint) {
-    this._player.setCheckpoint(checkpoint.worldX, checkpoint.worldY);
-    // TODO: proper tile removal
-    this.tiledMap.tilemap.removeTile(checkpoint.x, checkpoint.y, this.tiledMap.propsLayer);
+    this._player.setCheckpoint(checkpoint.position.x, checkpoint.position.y + checkpoint.height);
+    checkpoint.kill();
   }, 
   toggleDebugMode: function() {
     this._debugMode = !this._debugMode;
@@ -121,10 +111,8 @@ function isObstacleTiles(point, tile) {
 }
 
 function isTrapTiles(point, tile) {
-  return tile.index === TILES.TRAP ||
-    tile.index === TILES.SPIKE;
-}
-
-function isCheckpointTile(point, tile) {
-  return tile.index === TILES.CHECKPOINT;
+  return (
+    tile.index === TILES.TRAP ||
+    tile.index === TILES.SPIKE
+  );
 }

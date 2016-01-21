@@ -31,9 +31,12 @@ function Player(game, x, y) {
   //  Our two animations, walking left and right.
   this.sprite.animations.add('left', [0, 1, 2, 3], 10, true);
   this.sprite.animations.add('right', [5, 6, 7, 8], 10, true);
-  this.sprite.animations.add('death', [4, 9, 10, 11], 10, true);
+  
   this.sprite.animations.add('shootleft', [12], 10, true);
   this.sprite.animations.add('shootright', [13], 10, true);
+  
+  var deathAnimation = this.sprite.animations.add('death', [4, 9, 10, 11], 10);
+  deathAnimation.onComplete.add(this.afterDeath, this);
   
   this._jumpKey = game.input.keyboard.addKey(Phaser.KeyCode.X);
   this._jumpKey.onDown.add(this.handleJumpKeyDown, this);
@@ -60,6 +63,7 @@ function Player(game, x, y) {
   this.projectilesGroup.setAll('anchor.x', 0.5);
   this.projectilesGroup.setAll('anchor.y', 0.5);
   this._nextFire = 0;
+  this.immovable = false;
 }
 
 Player.prototype = {
@@ -67,6 +71,10 @@ Player.prototype = {
   
     //  Reset the players velocity (movement)
     this.sprite.body.velocity.x = 0;
+    
+    if (this.immovable) {
+      return;
+    } 
 
     if (this._leftKey.isDown) {
       //  Move to the left
@@ -129,6 +137,7 @@ Player.prototype = {
     if (this._4Key.isDown) {
       this.sprite.loadTexture(IMAGES.PLAYER_4, this.sprite.frame);
     }
+    
   },
   handleJumpKeyDown : function() {
     this._makeJump = true;
@@ -143,10 +152,21 @@ Player.prototype = {
     this._makeShoot = false;
   },
   resetToCheckpoint: function() {
-    this.sprite.body.position.set(this._checkpoint.x, this._checkpoint.y - this.sprite.body.height);
+    this.sprite.position.set(this._checkpoint.x, this._checkpoint.y - this.sprite.body.height - 5);
+    var that = this;
+    setTimeout(function() {
+      that.immovable = false;
+    });
   },
   setCheckpoint: function(x, y) {
     this._checkpoint.set(x, y);
+  },
+  die: function() {
+    this.immovable = true;
+    this.sprite.animations.play('death');
+  },
+  afterDeath: function() {
+    this.resetToCheckpoint();
   }
 };
 
