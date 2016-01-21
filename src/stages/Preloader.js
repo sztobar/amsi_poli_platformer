@@ -44,6 +44,7 @@ Preloader.prototype = {
     this.load.image('tiles-props', './../../assets/images/tiles-props.png');
     this.load.image('background', './../../assets/mapa-wies/wies-tlo.png');
 
+    this.load.spritesheet(IMAGES.TILES_PROPS, './../../assets/images/tiles-props.png', 32, 32);
 	},
 	create: function(){
 		// start the MainMenu state

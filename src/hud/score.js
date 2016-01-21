@@ -6,7 +6,8 @@ var CHAR_HEIGHT = 200;
 function Score(game) {
   this.game = game;
   this.font = this.game.add.retroFont(IMAGES.SCORE, CHAR_WIDTH, CHAR_HEIGHT, '0123456789', 3);
-  this.update('0');
+  this._counter = 0;
+  this.update();
 
   var x = this.game.camera.view.width - 70;
   this.image = this.game.add.image(x, 16, this.font, 0);
@@ -24,8 +25,17 @@ function Score(game) {
 }
 
 Score.prototype = {
-  update: function(text) {
-    this.font.setText(text, false, 0, 0, Phaser.RetroFont.ALIGN_RIGHT);
+  update: function() {
+    this.font.setText('' + this._counter, false, 0, 0, Phaser.RetroFont.ALIGN_RIGHT);
+  },
+  inc: function(n) {
+    this._counter += n;
+    this.update();
+  },
+  dec: function(n) {
+    this._counter -= n;
+    this._counter = Math.max(0, this._counter);
+    this.update();
   }
 };
 

@@ -12429,26 +12429,24 @@ function TiledLevel(game, name) {
         tile.setCollision(false, false, true, false);
       } else if (tile.index === TILES.SPIKE ||
           tile.index === TILES.TRAP ||
-          tile.index === TILES.CHECKPOINT ||
           tile.index === TILES.OBSTACLE) {
         tile.setCollision(true, true, true, true);
       }
     }
   }
-
-  // this.tilemap.setCollisionByIndex(TILES.OBSTACLE);
 }
 
 TiledLevel.prototype = {
   createPointsGroup: function() {
     var group  = this.game.add.group();
     group.enableBody = true;
-    _.forEach(this.tilemap.objects.objects, function(obj) {
-      if (obj.gid === TILES.POINT) {
-        var point = group.create(obj.x, obj.y, IMAGES.STAR);
-        point.anchor.y = 1;
-      }
-    });
+    this.tilemap.createFromObjects('objects', TILES.POINT, IMAGES.STAR, -1, true, false, group, Phaser.Sprite, true);
+    return group;
+  },
+  createCheckpointsGroup: function() {
+    var group  = this.game.add.group();
+    group.enableBody = true;
+    this.tilemap.createFromObjects('objects', TILES.CHECKPOINT, IMAGES.TILES_PROPS, 6, true, false, group, Phaser.Sprite, true);
     return group;
   },
   getTrapTiles: function(onCollideCb, onCollideCtx) {
@@ -12491,7 +12489,8 @@ module.exports =
         PLAYER_3_AV : 'player_3av',
         PLAYER_4_AV : 'player_4av',
         SCORE       : 'score',
-        HEART       : 'heart'
+        HEART       : 'heart',
+        TILES_PROPS : 'tiles_props'
     },
     directions : {
        LEFT :       0,
@@ -12628,7 +12627,8 @@ var CHAR_HEIGHT = 200;
 function Score(game) {
   this.game = game;
   this.font = this.game.add.retroFont(IMAGES.SCORE, CHAR_WIDTH, CHAR_HEIGHT, '0123456789', 3);
-  this.update('0');
+  this._counter = 0;
+  this.update();
 
   var x = this.game.camera.view.width - 70;
   this.image = this.game.add.image(x, 16, this.font, 0);
@@ -12646,8 +12646,17 @@ function Score(game) {
 }
 
 Score.prototype = {
-  update: function(text) {
-    this.font.setText(text, false, 0, 0, Phaser.RetroFont.ALIGN_RIGHT);
+  update: function() {
+    this.font.setText('' + this._counter, false, 0, 0, Phaser.RetroFont.ALIGN_RIGHT);
+  },
+  inc: function(n) {
+    this._counter += n;
+    this.update();
+  },
+  dec: function(n) {
+    this._counter -= n;
+    this._counter = Math.max(0, this._counter);
+    this.update();
   }
 };
 
@@ -12684,10 +12693,10 @@ Level1.prototype = {
     this._enemy = enemy.create(this);
     
     this.pointsGroup = this.tiledMap.createPointsGroup();
+    this.checkpointsGroup = this.tiledMap.createCheckpointsGroup();
 
     //  The score
-    this._score = 0;
-    this._scoreText = new Score(this);
+    this._score = new Score(this);
 
     //  Player life
     this._life = new Life(this);
@@ -12711,24 +12720,20 @@ Level1.prototype = {
 
     this.physics.arcade.collide(this._player.sprite, this.tiledMap.propsLayer, null, isObstacleTiles);
     this.physics.arcade.collide(this._player.projectilesGroup, this.tiledMap.propsLayer, function(p) { p.kill(); }, isObstacleTiles);
-    
-    this.physics.arcade.collide(this._player.sprite, this.tiledMap.propsLayer, this.onCheckpointCollide, isCheckpointTile, this);
 
-    this.physics.arcade.collide(this._player.sprite, this.tiledMap.propsLayer, this.onTrapCollide, isTrapTiles, this);
+    this.physics.arcade.overlap(this._player.sprite, this.tiledMap.propsLayer, this.onTrapCollide, isTrapTiles, this);
 
-    //  Checks to see if the player overlaps with any of the stars, if he does call the collectStar function
     this.physics.arcade.overlap(this._player.sprite, this.pointsGroup, this.collectStar, null, this);
+    
+    this.physics.arcade.overlap(this._player.sprite, this.checkpointsGroup, this.onCheckpointCollide, null, this);
 
     this._player.update();
   },
   collectStar: function (playerSprite, star) {
     // Removes the star from the screen
     star.kill();
-
-    //  Add and update the score
-    this._score += 10;
-    this._scoreText.update('' + this._score);
-    // this._scoreText.text = 'score: ' + this._score;
+    // update score
+    this._score.inc(10);
   },
   render: function() {
     if (this._debugMode) {
@@ -12743,24 +12748,18 @@ Level1.prototype = {
 		// this.state.start('Level2');
   },
   onTrapCollide: function() {
+    if (this._player.immovable) { return; }
     var lifeCount = this._life.dec();
     if (lifeCount === 0) {
+      // od dead reset life counter and subtract points
       this._life.setCount(3);
+      this._score.dec(50);
     }
-    this._player.resetToCheckpoint();
-  },
-  // TODO: spikes should bounce player off not teleport him to checkpoint
-  onSpikesCollide: function() {
-    var lifeCount = this._life.dec();
-    if (lifeCount === 0) {
-      this._life.setCount(3);
-    }
-    this.player.bounce();
+    this._player.die();
   },
   onCheckpointCollide: function(player, checkpoint) {
-    this._player.setCheckpoint(checkpoint.worldX, checkpoint.worldY);
-    // TODO: proper tile removal
-    this.tiledMap.tilemap.removeTile(checkpoint.x, checkpoint.y, this.tiledMap.propsLayer);
+    this._player.setCheckpoint(checkpoint.position.x, checkpoint.position.y + checkpoint.height);
+    checkpoint.kill();
   }, 
   toggleDebugMode: function() {
     this._debugMode = !this._debugMode;
@@ -12777,13 +12776,12 @@ function isObstacleTiles(point, tile) {
 }
 
 function isTrapTiles(point, tile) {
-  return tile.index === TILES.TRAP ||
-    tile.index === TILES.SPIKE;
+  return (
+    tile.index === TILES.TRAP ||
+    tile.index === TILES.SPIKE
+  );
 }
 
-function isCheckpointTile(point, tile) {
-  return tile.index === TILES.CHECKPOINT;
-}
 },{"../Pause":2,"../TiledLevel":3,"../config":4,"../enemy":5,"../hud/life":6,"../hud/score":7,"../player":10}],9:[function(require,module,exports){
 /* global Phaser */
 var Boot = require('./stages/Boot'),
@@ -12834,9 +12832,12 @@ function Player(game, x, y) {
   //  Our two animations, walking left and right.
   this.sprite.animations.add('left', [0, 1, 2, 3], 10, true);
   this.sprite.animations.add('right', [5, 6, 7, 8], 10, true);
-  this.sprite.animations.add('death', [4, 9, 10, 11], 10, true);
+  
   this.sprite.animations.add('shootleft', [12], 10, true);
   this.sprite.animations.add('shootright', [13], 10, true);
+  
+  var deathAnimation = this.sprite.animations.add('death', [4, 9, 10, 11], 10);
+  deathAnimation.onComplete.add(this.afterDeath, this);
   
   this._jumpKey = game.input.keyboard.addKey(Phaser.KeyCode.X);
   this._jumpKey.onDown.add(this.handleJumpKeyDown, this);
@@ -12863,6 +12864,7 @@ function Player(game, x, y) {
   this.projectilesGroup.setAll('anchor.x', 0.5);
   this.projectilesGroup.setAll('anchor.y', 0.5);
   this._nextFire = 0;
+  this.immovable = false;
 }
 
 Player.prototype = {
@@ -12870,6 +12872,10 @@ Player.prototype = {
   
     //  Reset the players velocity (movement)
     this.sprite.body.velocity.x = 0;
+    
+    if (this.immovable) {
+      return;
+    } 
 
     if (this._leftKey.isDown) {
       //  Move to the left
@@ -12932,6 +12938,7 @@ Player.prototype = {
     if (this._4Key.isDown) {
       this.sprite.loadTexture(IMAGES.PLAYER_4, this.sprite.frame);
     }
+    
   },
   handleJumpKeyDown : function() {
     this._makeJump = true;
@@ -12946,10 +12953,21 @@ Player.prototype = {
     this._makeShoot = false;
   },
   resetToCheckpoint: function() {
-    this.sprite.body.position.set(this._checkpoint.x, this._checkpoint.y - this.sprite.body.height);
+    this.sprite.position.set(this._checkpoint.x, this._checkpoint.y - this.sprite.body.height - 5);
+    var that = this;
+    setTimeout(function() {
+      that.immovable = false;
+    });
   },
   setCheckpoint: function(x, y) {
     this._checkpoint.set(x, y);
+  },
+  die: function() {
+    this.immovable = true;
+    this.sprite.animations.play('death');
+  },
+  afterDeath: function() {
+    this.resetToCheckpoint();
   }
 };
 
@@ -13203,6 +13221,7 @@ Preloader.prototype = {
     this.load.image('tiles-props', './../../assets/images/tiles-props.png');
     this.load.image('background', './../../assets/mapa-wies/wies-tlo.png');
 
+    this.load.spritesheet(IMAGES.TILES_PROPS, './../../assets/images/tiles-props.png', 32, 32);
 	},
 	create: function(){
 		// start the MainMenu state

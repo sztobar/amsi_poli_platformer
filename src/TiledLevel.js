@@ -44,26 +44,24 @@ function TiledLevel(game, name) {
         tile.setCollision(false, false, true, false);
       } else if (tile.index === TILES.SPIKE ||
           tile.index === TILES.TRAP ||
-          tile.index === TILES.CHECKPOINT ||
           tile.index === TILES.OBSTACLE) {
         tile.setCollision(true, true, true, true);
       }
     }
   }
-
-  // this.tilemap.setCollisionByIndex(TILES.OBSTACLE);
 }
 
 TiledLevel.prototype = {
   createPointsGroup: function() {
     var group  = this.game.add.group();
     group.enableBody = true;
-    _.forEach(this.tilemap.objects.objects, function(obj) {
-      if (obj.gid === TILES.POINT) {
-        var point = group.create(obj.x, obj.y, IMAGES.STAR);
-        point.anchor.y = 1;
-      }
-    });
+    this.tilemap.createFromObjects('objects', TILES.POINT, IMAGES.STAR, -1, true, false, group, Phaser.Sprite, true);
+    return group;
+  },
+  createCheckpointsGroup: function() {
+    var group  = this.game.add.group();
+    group.enableBody = true;
+    this.tilemap.createFromObjects('objects', TILES.CHECKPOINT, IMAGES.TILES_PROPS, 6, true, false, group, Phaser.Sprite, true);
     return group;
   },
   getTrapTiles: function(onCollideCb, onCollideCtx) {
