@@ -1,10 +1,11 @@
 module.exports = MainMenu;
 function MainMenu(game){
+    this.currentlySelected = 0;
 };
 var nBack_frames =  0;
 var style = { font: "bold 32px Arial", fill: "#ecf0f1", boundsAlignH: "center", boundsAlignV: "middle" };
 var selectedStyle = { font: "bold 32px Arial", fill: "#ff3333", boundsAlignH: "center", boundsAlignV: "middle" };
-var currentlySelected = -1;
+
 var menuTexts = [];
 MainMenu.prototype = {
     preload: function() {
@@ -46,22 +47,26 @@ MainMenu.prototype = {
         }
 
         menuTexts[0].setStyle(selectedStyle);
-        currentlySelected = 0;
+        this.currentlySelected = 0;
 
+    },
+
+    start : function(){
+        this.currentlySelected = 0;
     },
 
     changeMenuPos: function(){
         if (this._upKey.isDown) {
-            menuTexts[currentlySelected].setStyle(style);
-            currentlySelected = currentlySelected == 0 ? menuTexts.length - 1  : currentlySelected - 1  ;
-            menuTexts[currentlySelected].setStyle(selectedStyle);
+            menuTexts[this.currentlySelected].setStyle(style);
+            this.currentlySelected = this.currentlySelected == 0 ? menuTexts.length - 1  : this.currentlySelected - 1  ;
+            menuTexts[this.currentlySelected].setStyle(selectedStyle);
 
         } else if (this._downKey.isDown) {
-            menuTexts[currentlySelected].setStyle(style);
-            currentlySelected = currentlySelected +1 >= menuTexts.length ? 0 : currentlySelected + 1  ;
-            menuTexts[currentlySelected].setStyle(selectedStyle);
+            menuTexts[this.currentlySelected].setStyle(style);
+            this.currentlySelected = this.currentlySelected +1 >= menuTexts.length ? 0 : this.currentlySelected + 1  ;
+            menuTexts[this.currentlySelected].setStyle(selectedStyle);
         } else if (this._acceptKey.isDown) {
-            menuTexts[currentlySelected].events.onInputDown.dispatch();
+            menuTexts[this.currentlySelected].events.onInputDown.dispatch();
         }
     },
 
@@ -69,6 +74,7 @@ MainMenu.prototype = {
         this.game.state.start('PlayerSelection');
     },
     openScoreBoard : function(){
+        this.game.state.start('Scoreboard');
 
     },
     openCredits : function(){
