@@ -12355,6 +12355,63 @@
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 
 },{}],2:[function(require,module,exports){
+var IMAGES = require('./config').images;
+
+var enemySprite;
+var right = true;
+
+
+exports.create = function(game, type) {
+    // The enemySprite and its settings
+    enemySprite = game.add.sprite(60, 60, IMAGES.ENEMY);
+
+    //  We need to enable physics on the enemySprite
+    game.physics.arcade.enable(enemySprite);
+
+    //  enemySprite physics properties. Give the little guy a slight bounce.
+    enemySprite.body.bounce.y = 0.1;
+    enemySprite.body.gravity.y = 350;
+    enemySprite.body.collideWorldBounds = true;
+
+    //enemySprite.animations.add('death', [4, 9, 10, 11], 10);
+    //deathAnimation.onComplete.add(this.afterDeath, this);
+
+    enemySprite.anchor.x = 0.5;
+    enemySprite.anchor.y = 0.5;
+    //  Our two animations, walking left and right.
+    enemySprite.animations.add('left', [0, 1, 2, 3], 10, true);
+    enemySprite.animations.add('right', [4, 5, 6, 7], 10, true);
+    enemySprite.die = function(){
+        enemySprite.kill();
+    };
+};
+
+exports.getSprite = function() {
+    return enemySprite;
+};
+
+exports.updateMovement = function() {
+	if (enemySprite.body.blocked.right)
+	{
+		right = false;
+	}
+	else if (enemySprite.body.blocked.left)
+	{
+		right = true;
+	}
+	
+    if (right)
+    {
+        enemySprite.body.velocity.x = 100;
+		enemySprite.animations.play('right');
+    } 
+    else 
+    {
+        enemySprite.body.velocity.x = -100;
+		enemySprite.animations.play('left');
+    } 
+}
+},{"./config":5}],3:[function(require,module,exports){
 
 module.exports = {
 
@@ -12382,7 +12439,7 @@ module.exports = {
     }
 
 };
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 /* global Phaser */
 /* global _ */
 /* global PIXI */
@@ -12470,7 +12527,7 @@ TiledLevel.prototype = {
 
 module.exports = TiledLevel;
 
-},{"./config":4,"lodash":1}],4:[function(require,module,exports){
+},{"./config":5,"lodash":1}],5:[function(require,module,exports){
 module.exports =
 {
     images : {
@@ -12510,58 +12567,7 @@ module.exports =
     }
 };
 
-},{}],5:[function(require,module,exports){
-var IMAGES = require('./config').images;
-
-var enemySprite;
-var right = true;
-
-exports.create = function(game) {
-    // The enemySprite and its settings
-    enemySprite = game.add.sprite(60, 60, IMAGES.ENEMY);
-
-    //  We need to enable physics on the enemySprite
-    game.physics.arcade.enable(enemySprite);
-
-    //game.camera.follow(enemySprite);
-
-    //  enemySprite physics properties. Give the little guy a slight bounce.
-    enemySprite.body.bounce.y = 0.1;
-    enemySprite.body.gravity.y = 350;
-    enemySprite.body.collideWorldBounds = true;
-
-    //  Our two animations, walking left and right.
-    enemySprite.animations.add('left', [0, 1, 2, 3], 10, true);
-    enemySprite.animations.add('right', [4, 5, 6, 7], 10, true);
-
-};
-
-exports.getSprite = function() {
-    return enemySprite;
-}
-
-exports.updateMovement = function() {
-	if (enemySprite.body.blocked.right)
-	{
-		right = false;
-	}
-	else if (enemySprite.body.blocked.left)
-	{
-		right = true;
-	}
-	
-    if (right)
-    {
-        enemySprite.body.velocity.x = 100;
-		enemySprite.animations.play('right');
-    } 
-    else 
-    {
-        enemySprite.body.velocity.x = -100;
-		enemySprite.animations.play('left');
-    } 
-}
-},{"./config":4}],6:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 /* global Phaser */
 var IMAGES = require('../config').images;
 var CHAR_WIDTH = 200;
@@ -12618,7 +12624,7 @@ Life.prototype = {
 
 module.exports = Life;
 
-},{"../config":4}],7:[function(require,module,exports){
+},{"../config":5}],7:[function(require,module,exports){
 /* global Phaser */
 var IMAGES = require('../config').images;
 var CHAR_WIDTH = 200;
@@ -12662,14 +12668,14 @@ Score.prototype = {
 
 module.exports = Score;
 
-},{"../config":4}],8:[function(require,module,exports){
+},{"../config":5}],8:[function(require,module,exports){
 /* global _ */
 /* global PIXI */
 /* global Phaser */
 var config = require('../config');
 var Player = require('../player');
 var TiledLevel = require('../TiledLevel');
-var enemy = require('../enemy');
+var enemy = require('../EnemyFactory');
 var pauseUtils = require('../Pause');
 var Score = require('../hud/score');
 var Life = require('../hud/life');
@@ -12677,24 +12683,27 @@ var Life = require('../hud/life');
 var IMAGES = config.images;
 var TILES = config.tiles;
 
-function Level1(game) {
+function LevelRender(game) {
 	this._player = null;
 	this._platformsGroup = null;
   this._obstaclesLayer = null;
 }
 
-Level1.prototype = {
+LevelRender.prototype = {
   create: function() {
     this.physics.startSystem(Phaser.Physics.ARCADE);
     this.tiledMap = new TiledLevel(this.game, 'level1');
 
     // window.player for debugging purpose
     window.player = this._player = new Player(this, this.tiledMap.levelStart.x, this.tiledMap.levelStart.y);
-    this._enemy = enemy.create(this);
-    
+    window.enemy = this._enemy = enemy.create(this);
+
+
     this.pointsGroup = this.tiledMap.createPointsGroup();
     this.checkpointsGroup = this.tiledMap.createCheckpointsGroup();
+    this._enemies = this.game.add.physicsGroup();
 
+    this._enemies.add(enemy.getSprite());
     //  The score
     this._score = new Score(this);
 
@@ -12724,8 +12733,12 @@ Level1.prototype = {
     this.physics.arcade.overlap(this._player.sprite, this.tiledMap.propsLayer, this.onTrapCollide, isTrapTiles, this);
 
     this.physics.arcade.overlap(this._player.sprite, this.pointsGroup, this.collectStar, null, this);
-    
     this.physics.arcade.overlap(this._player.sprite, this.checkpointsGroup, this.onCheckpointCollide, null, this);
+
+    this.physics.arcade.overlap(this._player.sprite, this._enemies , this.onKillPlayer , null, this);
+
+    this.physics.arcade.overlap(this._player.sprite, enemy.getSprite() , this.onKillPlayer , null, this);
+    this.physics.arcade.overlap(this._player.projectilesGroup, enemy.getSprite() , this.onShotEnemy , null, this);
 
     this._player.update();
   },
@@ -12757,6 +12770,21 @@ Level1.prototype = {
     }
     this._player.die();
   },
+  onKillPlayer : function (player, enemy) {
+    if (this._player.immovable) { return; }
+    var lifeCount = this._life.dec();
+    if (lifeCount === 0) {
+      // od dead reset life counter and subtract points
+      this._life.setCount(3);
+      this._score.dec(50);
+    }
+    this._player.die();
+  },
+  onShotEnemy : function( enemy, bullet){
+      bullet.kill();
+      enemy.die();
+
+  },
   onCheckpointCollide: function(player, checkpoint) {
     this._player.setCheckpoint(checkpoint.position.x, checkpoint.position.y + checkpoint.height);
     checkpoint.kill();
@@ -12767,7 +12795,7 @@ Level1.prototype = {
   }
 }
 
-module.exports = Level1;
+module.exports = LevelRender;
 
 
 function isObstacleTiles(point, tile) {
@@ -12782,7 +12810,7 @@ function isTrapTiles(point, tile) {
   );
 }
 
-},{"../Pause":2,"../TiledLevel":3,"../config":4,"../enemy":5,"../hud/life":6,"../hud/score":7,"../player":10}],9:[function(require,module,exports){
+},{"../EnemyFactory":2,"../Pause":3,"../TiledLevel":4,"../config":5,"../hud/life":6,"../hud/score":7,"../player":10}],9:[function(require,module,exports){
 /* global Phaser */
 var Boot = require('./stages/Boot'),
     Preloader = require('./stages/Preloader'),
@@ -12863,6 +12891,8 @@ function Player(game, x, y) {
   this.projectilesGroup.createMultiple(5, IMAGES.PROJECTILE);
   this.projectilesGroup.setAll('anchor.x', 0.5);
   this.projectilesGroup.setAll('anchor.y', 0.5);
+  this.projectilesGroup.setAll('outOfBoundsKill', true);
+  this.projectilesGroup.setAll('checkWorldBounds', true);
   this._nextFire = 0;
   this.immovable = false;
 }
@@ -12925,6 +12955,8 @@ Player.prototype = {
       }
       projectile.rotation += 0.25;
     });
+
+
     
     if (this._1Key.isDown) {
       this.sprite.loadTexture(IMAGES.PLAYER_1, this.sprite.frame);
@@ -12973,7 +13005,7 @@ Player.prototype = {
 
 module.exports = Player;
 
-},{"./config":4}],11:[function(require,module,exports){
+},{"./config":5}],11:[function(require,module,exports){
 /* global Phaser */
 var path = '../../assets/images/';
 
@@ -13174,7 +13206,7 @@ PlayerSelection.prototype = {
         this.game.state.start('Preloader');
     }
 };
-},{"./../config":4}],14:[function(require,module,exports){
+},{"./../config":5}],14:[function(require,module,exports){
 /* global PIXI */
 /* global Phaser */
 var IMAGES = require('./../config').images;
@@ -13229,7 +13261,7 @@ Preloader.prototype = {
 	}
 };
 
-},{"./../config":4}]},{},[9])
+},{"./../config":5}]},{},[9])
 
 
 //# sourceMappingURL=build.js.map

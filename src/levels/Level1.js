@@ -4,7 +4,7 @@
 var config = require('../config');
 var Player = require('../player');
 var TiledLevel = require('../TiledLevel');
-var enemy = require('../enemy');
+var enemy = require('../EnemyFactory');
 var pauseUtils = require('../Pause');
 var Score = require('../hud/score');
 var Life = require('../hud/life');
@@ -12,24 +12,27 @@ var Life = require('../hud/life');
 var IMAGES = config.images;
 var TILES = config.tiles;
 
-function Level1(game) {
+function LevelRender(game) {
 	this._player = null;
 	this._platformsGroup = null;
   this._obstaclesLayer = null;
 }
 
-Level1.prototype = {
+LevelRender.prototype = {
   create: function() {
     this.physics.startSystem(Phaser.Physics.ARCADE);
     this.tiledMap = new TiledLevel(this.game, 'level1');
 
     // window.player for debugging purpose
     window.player = this._player = new Player(this, this.tiledMap.levelStart.x, this.tiledMap.levelStart.y);
-    this._enemy = enemy.create(this);
-    
+    window.enemy = this._enemy = enemy.create(this);
+
+
     this.pointsGroup = this.tiledMap.createPointsGroup();
     this.checkpointsGroup = this.tiledMap.createCheckpointsGroup();
+    this._enemies = this.game.add.physicsGroup();
 
+    this._enemies.add(enemy.getSprite());
     //  The score
     this._score = new Score(this);
 
@@ -59,8 +62,12 @@ Level1.prototype = {
     this.physics.arcade.overlap(this._player.sprite, this.tiledMap.propsLayer, this.onTrapCollide, isTrapTiles, this);
 
     this.physics.arcade.overlap(this._player.sprite, this.pointsGroup, this.collectStar, null, this);
-    
     this.physics.arcade.overlap(this._player.sprite, this.checkpointsGroup, this.onCheckpointCollide, null, this);
+
+    this.physics.arcade.overlap(this._player.sprite, this._enemies , this.onKillPlayer , null, this);
+
+    this.physics.arcade.overlap(this._player.sprite, enemy.getSprite() , this.onKillPlayer , null, this);
+    this.physics.arcade.overlap(this._player.projectilesGroup, enemy.getSprite() , this.onShotEnemy , null, this);
 
     this._player.update();
   },
@@ -92,6 +99,21 @@ Level1.prototype = {
     }
     this._player.die();
   },
+  onKillPlayer : function (player, enemy) {
+    if (this._player.immovable) { return; }
+    var lifeCount = this._life.dec();
+    if (lifeCount === 0) {
+      // od dead reset life counter and subtract points
+      this._life.setCount(3);
+      this._score.dec(50);
+    }
+    this._player.die();
+  },
+  onShotEnemy : function( enemy, bullet){
+      bullet.kill();
+      enemy.die();
+
+  },
   onCheckpointCollide: function(player, checkpoint) {
     this._player.setCheckpoint(checkpoint.position.x, checkpoint.position.y + checkpoint.height);
     checkpoint.kill();
@@ -102,7 +124,7 @@ Level1.prototype = {
   }
 }
 
-module.exports = Level1;
+module.exports = LevelRender;
 
 
 function isObstacleTiles(point, tile) {

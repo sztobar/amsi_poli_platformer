@@ -62,6 +62,8 @@ function Player(game, x, y) {
   this.projectilesGroup.createMultiple(5, IMAGES.PROJECTILE);
   this.projectilesGroup.setAll('anchor.x', 0.5);
   this.projectilesGroup.setAll('anchor.y', 0.5);
+  this.projectilesGroup.setAll('outOfBoundsKill', true);
+  this.projectilesGroup.setAll('checkWorldBounds', true);
   this._nextFire = 0;
   this.immovable = false;
 }
@@ -124,6 +126,8 @@ Player.prototype = {
       }
       projectile.rotation += 0.25;
     });
+
+
     
     if (this._1Key.isDown) {
       this.sprite.loadTexture(IMAGES.PLAYER_1, this.sprite.frame);
