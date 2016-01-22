@@ -15987,7 +15987,7 @@ exports.create = function(game, type) {
     enemySprite.anchor.y = 0.5;
     //  Our two animations, walking left and right.
     enemySprite.animations.add('left', [0, 1, 2, 3], 10, true);
-    enemySprite.animations.add('right', [4, 5, 6, 7], 10, true);
+    enemySprite.animations.add('right', [5, 6, 7, 8], 10, true);
     enemySprite.die = function(){
         enemySprite.kill();
     };
@@ -17016,7 +17016,7 @@ Preloader.prototype = {
 
         this.load.image(IMAGES.PROJECTILE, path + 'projectile.png');
         this.load.image(IMAGES.STAR, path + 'glos.png');
-        this.load.spritesheet(IMAGES.ENEMY, path + 'farmer.png', 60, 48);
+        this.load.spritesheet(IMAGES.ENEMY, path + 'farmer.png', 32, 48);
         this.load.image(IMAGES.FIREBALL, path + 'fireball.png');
         this.load.image(IMAGES.HEART, path + 'heart.png');
 
