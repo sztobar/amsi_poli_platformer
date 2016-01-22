@@ -27,7 +27,7 @@ LevelRender.prototype = {
     window.player = this._player = new Player(this, this.tiledMap.levelStart.x, this.tiledMap.levelStart.y);
     window.enemy = this._enemy = enemy.create(this);
 
-
+    this.game.sound.play('background-music');
     this.pointsGroup = this.tiledMap.createPointsGroup();
     this.checkpointsGroup = this.tiledMap.createCheckpointsGroup();
     this._enemies = this.game.add.physicsGroup();
