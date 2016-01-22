@@ -23,7 +23,7 @@ EndScore.prototype = {
         var self = this;
         this.game.stage.backgroundColor = '#1abc9c';
         var texts = {};
-        if (this.game.stageSetup.level == 1) {
+        if (this.game.stageSetup.level == 2) {
             texts = {
                 title: 'Gra ukończona',
                 score: 'Wynik końcowy:' + this.stageSetup.score
