@@ -12410,7 +12410,7 @@ exports.updateMovement = function() {
         enemySprite.body.velocity.x = -100;
 		enemySprite.animations.play('left');
     } 
-}
+};
 },{"./config":5}],3:[function(require,module,exports){
 
 module.exports = {
@@ -12422,7 +12422,6 @@ module.exports = {
             game.paused = false;
         }
     },
-
     pause : function(game){
         if(!game.paused) {
             game.paused = true;
@@ -12435,9 +12434,7 @@ module.exports = {
         } else {
             this.unpause(game);
         }
-
     }
-
 };
 },{}],4:[function(require,module,exports){
 /* global Phaser */
@@ -12449,9 +12446,9 @@ var _ = require('lodash');
 var TILES = config.tiles;
 var IMAGES = config.images;
 
-function TiledLevel(game, name) {
+function TiledLevel(game, id ) {
   this.game = game;
-  this.tilemap = this.game.add.tilemap(name);
+  this.tilemap = this.game.add.tilemap('level' + id);
 
   this.tilemap.addTilesetImage('tileset', 'tiles');
   this.tilemap.addTilesetImage('tiles-props', 'tiles-props');
@@ -12506,6 +12503,9 @@ TiledLevel.prototype = {
     this.tilemap.createFromObjects('objects', TILES.CHECKPOINT, IMAGES.TILES_PROPS, 6, true, false, group, Phaser.Sprite, true);
     return group;
   },
+  getEndPoint : function(){
+    return this.levelEnd;
+  },
   getTrapTiles: function(onCollideCb, onCollideCtx) {
     var trapTiles = [];
     var layer = this.propsLayer.layer;
@@ -12547,7 +12547,7 @@ module.exports =
         PLAYER_4_AV : 'player_4av',
         SCORE       : 'score',
         HEART       : 'heart',
-        TILES_PROPS : 'tiles_props'
+        TILES_PROPS : 'tiles-props'
     },
     directions : {
        LEFT :       0,
@@ -12630,10 +12630,11 @@ var IMAGES = require('../config').images;
 var CHAR_WIDTH = 200;
 var CHAR_HEIGHT = 200;
 
-function Score(game) {
+function Score(game, score) {
+
   this.game = game;
   this.font = this.game.add.retroFont(IMAGES.SCORE, CHAR_WIDTH, CHAR_HEIGHT, '0123456789', 3);
-  this._counter = 0;
+  this._counter = score || 0;
   this.update();
 
   var x = this.game.camera.view.width - 70;
@@ -12669,164 +12670,24 @@ Score.prototype = {
 module.exports = Score;
 
 },{"../config":5}],8:[function(require,module,exports){
-/* global _ */
-/* global PIXI */
-/* global Phaser */
-var config = require('../config');
-var Player = require('../player');
-var TiledLevel = require('../TiledLevel');
-var enemy = require('../EnemyFactory');
-var pauseUtils = require('../Pause');
-var Score = require('../hud/score');
-var Life = require('../hud/life');
-
-var IMAGES = config.images;
-var TILES = config.tiles;
-
-function LevelRender(game) {
-	this._player = null;
-	this._platformsGroup = null;
-  this._obstaclesLayer = null;
-}
-
-LevelRender.prototype = {
-  create: function() {
-    this.physics.startSystem(Phaser.Physics.ARCADE);
-    this.tiledMap = new TiledLevel(this.game, 'level1');
-
-    // window.player for debugging purpose
-    window.player = this._player = new Player(this, this.tiledMap.levelStart.x, this.tiledMap.levelStart.y);
-    window.enemy = this._enemy = enemy.create(this);
-
-
-    this.pointsGroup = this.tiledMap.createPointsGroup();
-    this.checkpointsGroup = this.tiledMap.createCheckpointsGroup();
-    this._enemies = this.game.add.physicsGroup();
-
-    this._enemies.add(enemy.getSprite());
-    //  The score
-    this._score = new Score(this);
-
-    //  Player life
-    this._life = new Life(this);
-
-    this._debugMode = false;
-
-    //Pause handling
-    var pauseKey = this.input.keyboard.addKey(Phaser.KeyCode.P);
-    pauseKey.onUp.add(function(){
-      pauseUtils.pause(this.game);
-    }, this);
-
-
-    var spaceKey = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
-    spaceKey.onUp.add(this.toggleDebugMode, this);
-  },
-  update: function() {
-    var enemySprite = enemy.getSprite();
-    this.physics.arcade.collide(enemySprite, this.tiledMap.propsLayer, null, isObstacleTiles);
-    enemy.updateMovement();
-
-    this.physics.arcade.collide(this._player.sprite, this.tiledMap.propsLayer, null, isObstacleTiles);
-    this.physics.arcade.collide(this._player.projectilesGroup, this.tiledMap.propsLayer, function(p) { p.kill(); }, isObstacleTiles);
-
-    this.physics.arcade.overlap(this._player.sprite, this.tiledMap.propsLayer, this.onTrapCollide, isTrapTiles, this);
-
-    this.physics.arcade.overlap(this._player.sprite, this.pointsGroup, this.collectStar, null, this);
-    this.physics.arcade.overlap(this._player.sprite, this.checkpointsGroup, this.onCheckpointCollide, null, this);
-
-    this.physics.arcade.overlap(this._player.sprite, this._enemies , this.onKillPlayer , null, this);
-
-    this.physics.arcade.overlap(this._player.sprite, enemy.getSprite() , this.onKillPlayer , null, this);
-    this.physics.arcade.overlap(this._player.projectilesGroup, enemy.getSprite() , this.onShotEnemy , null, this);
-
-    this._player.update();
-  },
-  collectStar: function (playerSprite, star) {
-    // Removes the star from the screen
-    star.kill();
-    // update score
-    this._score.inc(10);
-  },
-  render: function() {
-    if (this._debugMode) {
-      this.game.debug.body(this._player.sprite);
-      this.game.debug.text('Active Projectiles: ' + this._player.projectilesGroup.total, 32, 432);
-      this.game.debug.text('DEBUG MODE', 32, 464);
-    }
-  },
-  endLevel: function() {
-    console.log('level 1 end');
-    // TODO add level 2
-		// this.state.start('Level2');
-  },
-  onTrapCollide: function() {
-    if (this._player.immovable) { return; }
-    var lifeCount = this._life.dec();
-    if (lifeCount === 0) {
-      // od dead reset life counter and subtract points
-      this._life.setCount(3);
-      this._score.dec(50);
-    }
-    this._player.die();
-  },
-  onKillPlayer : function (player, enemy) {
-    if (this._player.immovable) { return; }
-    var lifeCount = this._life.dec();
-    if (lifeCount === 0) {
-      // od dead reset life counter and subtract points
-      this._life.setCount(3);
-      this._score.dec(50);
-    }
-    this._player.die();
-  },
-  onShotEnemy : function( enemy, bullet){
-      bullet.kill();
-      enemy.die();
-
-  },
-  onCheckpointCollide: function(player, checkpoint) {
-    this._player.setCheckpoint(checkpoint.position.x, checkpoint.position.y + checkpoint.height);
-    checkpoint.kill();
-  }, 
-  toggleDebugMode: function() {
-    this._debugMode = !this._debugMode;
-    this.tiledMap.propsLayer.visible = this._debugMode;
-  }
-}
-
-module.exports = LevelRender;
-
-
-function isObstacleTiles(point, tile) {
-  return tile.index === TILES.OBSTACLE ||
-    tile.index === TILES.PLATFORM;
-}
-
-function isTrapTiles(point, tile) {
-  return (
-    tile.index === TILES.TRAP ||
-    tile.index === TILES.SPIKE
-  );
-}
-
-},{"../EnemyFactory":2,"../Pause":3,"../TiledLevel":4,"../config":5,"../hud/life":6,"../hud/score":7,"../player":10}],9:[function(require,module,exports){
 /* global Phaser */
 var Boot = require('./stages/Boot'),
     Preloader = require('./stages/Preloader'),
     MainMenu = require('./stages/MainMenu'),
     PlayerSelection = require('./stages/PlayerSelection'),
-    Level1 = require('./levels/Level1');
+    LevelRenderer = require('./stages/LevelRenderer'),
+    EndScore = require('./stages/EndScore');
 
-var game = new Phaser.Game(640, 480, Phaser.AUTO, 'game');
+var game = new Phaser.Game(640, 480, Phaser.CANVAS, 'game');
 game.state.add('Boot', Boot);
 game.state.add('Preloader', Preloader);
 game.state.add('MainMenu', MainMenu);
+game.state.add('EndScore', EndScore);
 game.state.add('PlayerSelection', PlayerSelection);
-game.state.add('Level1', Level1);
+game.state.add('LevelRenderer', LevelRenderer);
 game.state.start('Boot');
 
-},{"./levels/Level1":8,"./stages/Boot":11,"./stages/MainMenu":12,"./stages/PlayerSelection":13,"./stages/Preloader":14}],10:[function(require,module,exports){
+},{"./stages/Boot":10,"./stages/EndScore":11,"./stages/LevelRenderer":12,"./stages/MainMenu":13,"./stages/PlayerSelection":14,"./stages/Preloader":15}],9:[function(require,module,exports){
 /* global Phaser */
 /* global PIXI */
 var config = require('./config');
@@ -13005,7 +12866,7 @@ Player.prototype = {
 
 module.exports = Player;
 
-},{"./config":5}],11:[function(require,module,exports){
+},{"./config":5}],10:[function(require,module,exports){
 /* global Phaser */
 var path = '../../assets/images/';
 
@@ -13028,7 +12889,308 @@ Boot.prototype = {
 };
 
 module.exports = Boot;
+},{}],11:[function(require,module,exports){
+module.exports = EndScore;
+function EndScore(game) {
+    this.game = game;
+    this.currentlySelected = -1;
+};
+var style = {font: "bold 32px Arial", fill: "#ecf0f1", boundsAlignH: "center", boundsAlignV: "middle"};
+var selectedStyle = {font: "bold 32px Arial", fill: "#ff3333", boundsAlignH: "center", boundsAlignV: "middle"};
+var menuTexts = [];
+EndScore.prototype = {
+    init: function (stageSetup) {
+        this.stageSetup = stageSetup;
+    },
+    create: function () {
+        this._upKey = this.game.input.keyboard.addKey(Phaser.Keyboard.UP);
+        this._downKey = this.game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
+        this._acceptKey = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+        this._downKey.onDown.add(this.changeMenuPos, this);
+        this._upKey.onDown.add(this.changeMenuPos, this);
+        this._upKey.onDown.add(this.changeMenuPos, this);
+        this._acceptKey.onDown.add(this.changeMenuPos, this);
+        this._acceptKey.onDown.add(this.changeMenuPos, this);
+        var menu;
+        var self = this;
+        this.game.stage.backgroundColor = '#1abc9c';
+        var texts = {};
+        if (this.game.stageSetup.level == 1) {
+            texts = {
+                title: 'Gra ukończona',
+                score: 'Wynik końcowy:' + this.stageSetup.score
+            };
+            menu = [
+                ['Do menu!', 330, this.toMainMenu],
+                ['Zagraj jeszcze raz', 370, this.repeatGame]
+            ];
+            this.saveScore(this.game.currentSelectHero, this.stageSetup.score);
+        } else {
+            texts = {
+                title: 'Poziom ukończony',
+                score: 'Aktualny Wynik:' + this.stageSetup.score
+            };
+            menu = [
+                ['Kolejny poziom', 330, this.nextLevel],
+                ['Powtórz poziom', 370, this.repeatLevel]
+            ];
+        }
+        this.game.add.text(320, 100, texts.title, {
+                font: "bold 70px Arial",
+                fill: "#2c3e50",
+                boundsAlignH: "center",
+                boundsAlignV: "middle"
+            }
+        ).anchor.set(0.5);
+
+        this.game.add.text(320, 160, texts.score, {
+                font: "bold 40px Arial",
+                fill: "#d35400",
+                boundsAlignH: "center",
+                boundsAlignV: "middle"
+            }
+        ).anchor.set(0.5);
+
+
+
+        for (var menuPos in menu) {
+            if (menu.hasOwnProperty(menuPos)) {
+                var mn = menu[menuPos],
+                    textbox = this.game.add.text(320, mn[1], mn[0], style);
+                textbox.inputEnabled = true;
+                textbox.events.onInputDown.add(mn[2], this);
+                textbox.input.useHandCursor = true;
+                textbox.anchor.set(0.5);
+                menuTexts.push(textbox);
+                this.currentlySelected = -1;
+            }
+        }
+
+        menuTexts[0].setStyle(selectedStyle);
+        this.currentlySelected = 0;
+
+
+    },
+
+    saveScore: function(hero, score){
+        if(typeof(Storage) !== "undefined") {
+           var scoreboard = JSON.parse(localStorage.getItem("scoreboard") || "[]");
+
+           var heroLabels = {
+               1 : 'Braun',
+               2 : 'Macierewicz',
+               3 : 'Nie znam naziwska',
+               4 : 'Liroy'
+           };
+           scoreboard.push({
+               name : heroLabels[hero],
+               score: score,
+               date : new Date()
+           });
+
+          scoreboard.sort(function(scoreA, scoreB){
+              return scoreA.score < scoreB.score;
+          });
+
+          localStorage.setItem('scoreboard', JSON.stringify(scoreboard));
+
+        }
+    },
+    changeMenuPos: function () {
+        if (this._upKey.isDown) {
+            menuTexts[this.currentlySelected].setStyle(style);
+            this.currentlySelected = this.currentlySelected == 0 ? menuTexts.length - 1 : this.currentlySelected - 1;
+            menuTexts[this.currentlySelected].setStyle(selectedStyle);
+
+        } else if (this._downKey.isDown) {
+            menuTexts[this.currentlySelected].setStyle(style);
+            this.currentlySelected = this.currentlySelected + 1 >= menuTexts.length ? 0 : this.currentlySelected + 1;
+            menuTexts[this.currentlySelected].setStyle(selectedStyle);
+        } else if (this._acceptKey.isDown) {
+            menuTexts[this.currentlySelected].events.onInputDown.dispatch();
+        }
+    }
+    ,
+    repeatGame: function () {
+        var self = this;
+        this.game.stageSetup = {
+            level: self.game.stageSetup.level,
+            score: self.game.stageSetup.score
+        };
+        this.state.start('Preloader');
+    }
+    ,
+    repeatLevel: function () {
+        var self = this;
+        this.game.stageSetup = {
+            level: 1,
+            score: self.game.stageSetup.score
+        };
+        this.state.start('Preloader');
+    }
+    ,
+    nextLevel: function () {
+        var self = this;
+        this.game.stageSetup = {
+            level: self.game.stageSetup.level + 1,
+            score: self.game.stageSetup.score
+        };
+        this.state.start('Preloader');
+    }
+    ,
+    toMainMenu: function () {
+        this.state.start('MainMenu');
+    }
+
+
+}
+;
 },{}],12:[function(require,module,exports){
+/* global _ */
+/* global PIXI */
+/* global Phaser */
+var config = require('../config');
+var Player = require('../player');
+var TiledLevel = require('../TiledLevel');
+var enemy = require('../EnemyFactory');
+var pauseUtils = require('../Pause');
+var Score = require('../hud/score');
+var Life = require('../hud/life');
+
+var IMAGES = config.images;
+var TILES = config.tiles;
+
+function LevelRender(game) {
+	this._player = null;
+	this._platformsGroup = null;
+  this._obstaclesLayer = null;
+}
+
+LevelRender.prototype = {
+  create: function() {
+    this.physics.startSystem(Phaser.Physics.ARCADE);
+    this.tiledMap = new TiledLevel(this.game, this.game.stageSetup.level);
+
+    // window.player for debugging purpose
+    window.player = this._player = new Player(this, this.tiledMap.levelStart.x, this.tiledMap.levelStart.y);
+    window.enemy = this._enemy = enemy.create(this);
+
+
+    this.pointsGroup = this.tiledMap.createPointsGroup();
+    this.checkpointsGroup = this.tiledMap.createCheckpointsGroup();
+    this._enemies = this.game.add.physicsGroup();
+
+    this._enemies.add(enemy.getSprite());
+    //  The score
+    this._score = new Score(this, this.game.stageSetup.score);
+
+    //  Player life
+    this._life = new Life(this);
+
+    this._debugMode = false;
+
+    //Pause handling
+    var pauseKey = this.input.keyboard.addKey(Phaser.KeyCode.P);
+    pauseKey.onUp.add(function(){
+      pauseUtils.pause(this.game);
+    }, this);
+
+
+    var spaceKey = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
+    spaceKey.onUp.add(this.toggleDebugMode, this);
+  },
+  update: function() {
+    var enemySprite = enemy.getSprite();
+    this.physics.arcade.collide(enemySprite, this.tiledMap.propsLayer, null, isObstacleTiles);
+    enemy.updateMovement();
+
+    this.physics.arcade.collide(this._player.sprite, this.tiledMap.propsLayer, null, isObstacleTiles);
+    this.physics.arcade.collide(this._player.projectilesGroup, this.tiledMap.propsLayer, function(p) { p.kill(); }, isObstacleTiles);
+
+    this.physics.arcade.overlap(this._player.sprite, this.tiledMap.propsLayer, this.onTrapCollide, isTrapTiles, this);
+
+    this.physics.arcade.overlap(this._player.sprite, this.pointsGroup, this.collectStar, null, this);
+    this.physics.arcade.overlap(this._player.sprite, this.checkpointsGroup, this.onCheckpointCollide, null, this);
+
+    this.physics.arcade.overlap(this._player.sprite, this._enemies , this.onKillPlayer , null, this);
+
+    //Enemy actions
+    this.physics.arcade.overlap(this._player.sprite, enemy.getSprite() , this.onKillPlayer , null, this);
+    this.physics.arcade.overlap(this._player.projectilesGroup, enemy.getSprite() , this.onShotEnemy , null, this);
+
+    //End level
+    this.physics.arcade.overlap(this._player.sprite, this.tiledMap.getEndPoint() , this.endLevel , null, this);
+
+    this._player.update();
+  },
+  collectStar: function (playerSprite, star) {
+    // Removes the star from the screen
+    star.kill();
+    // update score
+    this._score.inc(10);
+  },
+  render: function() {
+    if (this._debugMode) {
+      this.game.debug.body(this._player.sprite);
+      this.game.debug.text('Active Projectiles: ' + this._player.projectilesGroup.total, 32, 432);
+      this.game.debug.text('DEBUG MODE', 32, 464);
+    }
+  },
+  endLevel: function() {
+     this.game.stageSetup.score = this._score._counter;
+	 this.state.start('EndScore', true, true, this.game.stageSetup);
+  },
+  onTrapCollide: function() {
+    if (this._player.immovable) { return; }
+    var lifeCount = this._life.dec();
+    if (lifeCount === 0) {
+      // od dead reset life counter and subtract points
+      this._life.setCount(3);
+      this._score.dec(50);
+    }
+    this._player.die();
+  },
+  onKillPlayer : function (player, enemy) {
+    if (this._player.immovable) { return; }
+    var lifeCount = this._life.dec();
+    if (lifeCount === 0) {
+      // od dead reset life counter and subtract points
+      this._life.setCount(3);
+      this._score.dec(50);
+    }
+    this._player.die();
+  },
+  onShotEnemy : function( enemy, bullet){
+      bullet.kill();
+      enemy.die();
+
+  },
+  onCheckpointCollide: function(player, checkpoint) {
+    this._player.setCheckpoint(checkpoint.position.x, checkpoint.position.y + checkpoint.height);
+    checkpoint.kill();
+  }, 
+  toggleDebugMode: function() {
+    this._debugMode = !this._debugMode;
+    this.tiledMap.propsLayer.visible = this._debugMode;
+  }
+};
+
+module.exports = LevelRender;
+
+
+function isObstacleTiles(point, tile) {
+  return tile.index === TILES.OBSTACLE ||
+    tile.index === TILES.PLATFORM;
+}
+
+function isTrapTiles(point, tile) {
+  return (
+    tile.index === TILES.TRAP ||
+    tile.index === TILES.SPIKE
+  );
+}
+
+},{"../EnemyFactory":2,"../Pause":3,"../TiledLevel":4,"../config":5,"../hud/life":6,"../hud/score":7,"../player":9}],13:[function(require,module,exports){
 module.exports = MainMenu;
 function MainMenu(game){
 };
@@ -13059,14 +13221,14 @@ MainMenu.prototype = {
             ['Wyjście', 370, function(){}]
         ];
 
-        this.game.add.text(this.game.world.centerX,  100 , "PoliticAmsi" ,{ font: "bold 80px Arial", fill: "#2c3e50", boundsAlignH: "center", boundsAlignV: "middle" }
+        this.game.add.text(320,  100 , "PoliticAmsi" ,{ font: "bold 80px Arial", fill: "#2c3e50", boundsAlignH: "center", boundsAlignV: "middle" }
         ).anchor.set(0.5);;
 
         this.game.stage.backgroundColor = '#1abc9c';
         for(var menuPos in menu){
             if(menu.hasOwnProperty(menuPos)){
                 var mn = menu[menuPos],
-                    textbox = this.game.add.text(this.game.world.centerX,mn[1], mn[0],  style);
+                    textbox = this.game.add.text(320, mn[1], mn[0],  style);
                 textbox.inputEnabled = true;
                 textbox.events.onInputDown.add(mn[2], this);
                 textbox.input.useHandCursor = true;
@@ -13106,7 +13268,7 @@ MainMenu.prototype = {
 
     }
 };
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 module.exports = PlayerSelection;
 
 var IMAGES = require('./../config').images;
@@ -13164,11 +13326,6 @@ PlayerSelection.prototype = {
                 sprite.events.onInputDown.add(this.clickPlayer, this);
             }
         }
-
-
-
-
-
     },
     changeMenuPos: function(){
         if (this._upKey.isDown) {
@@ -13202,11 +13359,15 @@ PlayerSelection.prototype = {
 
     },
     loadGame : function(){
+        this.game.stageSetup = {
+            level : 1,
+            score : 0
+        };
         this.game.currentSelectHero = playerTab[currentPosY][currentPosX];
         this.game.state.start('Preloader');
     }
 };
-},{"./../config":5}],14:[function(require,module,exports){
+},{"./../config":5}],15:[function(require,module,exports){
 /* global PIXI */
 /* global Phaser */
 var IMAGES = require('./../config').images;
@@ -13218,50 +13379,70 @@ var GAME_HEIGHT = exports.GAME_HEIGHT = 960;
 module.exports = Preloader;
 
 function Preloader(game){
+    this.game = game;
 };
 
 Preloader.prototype = {
-	preload: function() {
+    preload: function() {
 
-		// set background color and preload image
-		this.stage.backgroundColor = '#B4D9E7';
-		this.preloadBar = this.add.sprite((GAME_WIDTH-311)/2, (GAME_HEIGHT-27)/2, 'preloaderBar');
-		this.load.setPreloadSprite(this.preloadBar);
-
-
-    this.load.image(IMAGES.SKY, path + 'sky.png');
-    this.load.image(IMAGES.GROUND, path + 'platform.png');
-
-    this.load.spritesheet(IMAGES.PLAYER_1, path + 'wippler.png', 32, 48);
-    this.load.spritesheet(IMAGES.PLAYER_2, path + 'macierewicz.png', 32, 48);
-    this.load.spritesheet(IMAGES.PLAYER_3, path + 'braun.png', 32, 48);
-    this.load.spritesheet(IMAGES.PLAYER_4, path + 'liroy.png', 32, 48);
-
-    this.load.image(IMAGES.PROJECTILE, path + 'projectile.png');
-    this.load.image(IMAGES.STAR, path + 'glos.png');
-    this.load.spritesheet(IMAGES.ENEMY, path + 'farmer.png', 60, 48);
-    this.load.image(IMAGES.FIREBALL, path + 'fireball.png');
-    this.load.image(IMAGES.HEART, path + 'heart.png');
-
-    this.load.spritesheet(IMAGES.SCORE, path + 'score.png');
+        // set background color and preload image
+        this.stage.backgroundColor = '#B4D9E7';
+        this.preloadBar = this.add.sprite((GAME_WIDTH-311)/2, (GAME_HEIGHT-27)/2, 'preloaderBar');
+        this.load.setPreloadSprite(this.preloadBar);
 
 
-    this.load.tilemap('level1', './../../assets/mapa-wies/mapa-wies.json', null, Phaser.Tilemap.TILED_JSON);
+        this.load.image(IMAGES.SKY, path + 'sky.png');
+        this.load.image(IMAGES.GROUND, path + 'platform.png');
 
-    //  Next we load the tileset. This is just an image, loaded in via the normal way we load images:
-    this.load.image('tiles', './../../assets/mapa-wies/tileset.png');
-    this.load.image('tiles-props', './../../assets/images/tiles-props.png');
-    this.load.image('background', './../../assets/mapa-wies/wies-tlo.png');
+        this.load.spritesheet(IMAGES.PLAYER_1, path + 'wippler.png', 32, 48);
+        this.load.spritesheet(IMAGES.PLAYER_2, path + 'macierewicz.png', 32, 48);
+        this.load.spritesheet(IMAGES.PLAYER_3, path + 'braun.png', 32, 48);
+        this.load.spritesheet(IMAGES.PLAYER_4, path + 'liroy.png', 32, 48);
 
-    this.load.spritesheet(IMAGES.TILES_PROPS, './../../assets/images/tiles-props.png', 32, 32);
-	},
-	create: function(){
-		// start the MainMenu state
-		this.state.start('Level1');
-	}
+        this.load.image(IMAGES.PROJECTILE, path + 'projectile.png');
+        this.load.image(IMAGES.STAR, path + 'glos.png');
+        this.load.spritesheet(IMAGES.ENEMY, path + 'farmer.png', 60, 48);
+        this.load.image(IMAGES.FIREBALL, path + 'fireball.png');
+        this.load.image(IMAGES.HEART, path + 'heart.png');
+
+        this.load.spritesheet(IMAGES.SCORE, path + 'score.png');
+
+        switch(this.game.stageSetup.level){
+            case 1:
+                console.log('Loaded 1 level');
+                this.load.tilemap('level1', './../../assets/mapa-wies/mapa-wies.json', null, Phaser.Tilemap.TILED_JSON);
+                this.load.image('tiles', './../../assets/mapa-wies/tileset.png');
+                this.load.image('background', './../../assets/mapa-wies/wies-tlo.png');
+                break;
+            case 2:
+                console.log('Loaded 2 level');
+                this.load.tilemap('level2', './../../assets/mapa-euro/mapa-euro.json', null, Phaser.Tilemap.TILED_JSON);
+                this.load.image('tiles', './../../assets/mapa-euro/tileset.png');
+                this.load.image('background', './../../assets/mapa-euro/euro-tlo.png');
+                break;
+            case 3:
+                console.log('Loaded 3 level');
+                this.load.tilemap('level3', './../../assets/mapa-sejm/mapa-sejm.json', null, Phaser.Tilemap.TILED_JSON);
+                this.load.image('tiles', './../../assets/mapa-sejm/tileset.png');
+                this.load.image('background', './../../assets/mapa-sejm/sejm-tlo.png');
+                break;
+            case 4:
+                console.log('Loaded 4 level');
+                this.load.tilemap('level4', './../../assets/mapa-miasto/mapa-miasto.json', null, Phaser.Tilemap.TILED_JSON);
+                this.load.image('tiles', './../../assets/mapa-miasto/tileset.png');
+                this.load.image('background', './../../assets/mapa-miasto/miasto-tlo.png');
+                break;
+        }
+        this.load.image('tiles-props', './../../assets/images/tiles-props.png');
+        this.load.spritesheet(IMAGES.TILES_PROPS, './../../assets/images/tiles-props.png', 32, 32);
+    },
+    create: function(){
+        // start the MainMenu state
+        this.state.start('LevelRenderer'  );
+    }
 };
 
-},{"./../config":5}]},{},[9])
+},{"./../config":5}]},{},[8])
 
 
 //# sourceMappingURL=build.js.map

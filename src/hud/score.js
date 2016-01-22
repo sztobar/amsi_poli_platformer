@@ -3,10 +3,11 @@ var IMAGES = require('../config').images;
 var CHAR_WIDTH = 200;
 var CHAR_HEIGHT = 200;
 
-function Score(game) {
+function Score(game, score) {
+
   this.game = game;
   this.font = this.game.add.retroFont(IMAGES.SCORE, CHAR_WIDTH, CHAR_HEIGHT, '0123456789', 3);
-  this._counter = 0;
+  this._counter = score || 0;
   this.update();
 
   var x = this.game.camera.view.width - 70;

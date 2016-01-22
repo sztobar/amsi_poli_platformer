@@ -55,11 +55,6 @@ PlayerSelection.prototype = {
                 sprite.events.onInputDown.add(this.clickPlayer, this);
             }
         }
-
-
-
-
-
     },
     changeMenuPos: function(){
         if (this._upKey.isDown) {
@@ -93,6 +88,10 @@ PlayerSelection.prototype = {
 
     },
     loadGame : function(){
+        this.game.stageSetup = {
+            level : 1,
+            score : 0
+        };
         this.game.currentSelectHero = playerTab[currentPosY][currentPosX];
         this.game.state.start('Preloader');
     }

@@ -28,14 +28,14 @@ MainMenu.prototype = {
             ['Wyjście', 370, function(){}]
         ];
 
-        this.game.add.text(this.game.world.centerX,  100 , "PoliticAmsi" ,{ font: "bold 80px Arial", fill: "#2c3e50", boundsAlignH: "center", boundsAlignV: "middle" }
+        this.game.add.text(320,  100 , "PoliticAmsi" ,{ font: "bold 80px Arial", fill: "#2c3e50", boundsAlignH: "center", boundsAlignV: "middle" }
         ).anchor.set(0.5);;
 
         this.game.stage.backgroundColor = '#1abc9c';
         for(var menuPos in menu){
             if(menu.hasOwnProperty(menuPos)){
                 var mn = menu[menuPos],
-                    textbox = this.game.add.text(this.game.world.centerX,mn[1], mn[0],  style);
+                    textbox = this.game.add.text(320, mn[1], mn[0],  style);
                 textbox.inputEnabled = true;
                 textbox.events.onInputDown.add(mn[2], this);
                 textbox.input.useHandCursor = true;

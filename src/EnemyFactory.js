@@ -53,4 +53,4 @@ exports.updateMovement = function() {
         enemySprite.body.velocity.x = -100;
 		enemySprite.animations.play('left');
     } 
-}
+};

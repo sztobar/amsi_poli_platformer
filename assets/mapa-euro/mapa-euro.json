@@ -2,7 +2,7 @@
  "layers":[
         {
          "height":0,
-         "image":"wies-tlo.png",
+         "image":"euro-tlo.png",
          "name":"background",
          "opacity":1,
          "type":"imagelayer",

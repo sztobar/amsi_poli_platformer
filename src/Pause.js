@@ -8,7 +8,6 @@ module.exports = {
             game.paused = false;
         }
     },
-
     pause : function(game){
         if(!game.paused) {
             game.paused = true;
@@ -21,7 +20,5 @@ module.exports = {
         } else {
             this.unpause(game);
         }
-
     }
-
 };

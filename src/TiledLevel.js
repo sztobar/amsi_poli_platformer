@@ -7,9 +7,9 @@ var _ = require('lodash');
 var TILES = config.tiles;
 var IMAGES = config.images;
 
-function TiledLevel(game, name) {
+function TiledLevel(game, id ) {
   this.game = game;
-  this.tilemap = this.game.add.tilemap(name);
+  this.tilemap = this.game.add.tilemap('level' + id);
 
   this.tilemap.addTilesetImage('tileset', 'tiles');
   this.tilemap.addTilesetImage('tiles-props', 'tiles-props');
@@ -63,6 +63,9 @@ TiledLevel.prototype = {
     group.enableBody = true;
     this.tilemap.createFromObjects('objects', TILES.CHECKPOINT, IMAGES.TILES_PROPS, 6, true, false, group, Phaser.Sprite, true);
     return group;
+  },
+  getEndPoint : function(){
+    return this.levelEnd;
   },
   getTrapTiles: function(onCollideCb, onCollideCtx) {
     var trapTiles = [];

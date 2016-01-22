@@ -21,7 +21,7 @@ function LevelRender(game) {
 LevelRender.prototype = {
   create: function() {
     this.physics.startSystem(Phaser.Physics.ARCADE);
-    this.tiledMap = new TiledLevel(this.game, 'level1');
+    this.tiledMap = new TiledLevel(this.game, this.game.stageSetup.level);
 
     // window.player for debugging purpose
     window.player = this._player = new Player(this, this.tiledMap.levelStart.x, this.tiledMap.levelStart.y);
@@ -34,7 +34,7 @@ LevelRender.prototype = {
 
     this._enemies.add(enemy.getSprite());
     //  The score
-    this._score = new Score(this);
+    this._score = new Score(this, this.game.stageSetup.score);
 
     //  Player life
     this._life = new Life(this);
@@ -66,8 +66,12 @@ LevelRender.prototype = {
 
     this.physics.arcade.overlap(this._player.sprite, this._enemies , this.onKillPlayer , null, this);
 
+    //Enemy actions
     this.physics.arcade.overlap(this._player.sprite, enemy.getSprite() , this.onKillPlayer , null, this);
     this.physics.arcade.overlap(this._player.projectilesGroup, enemy.getSprite() , this.onShotEnemy , null, this);
+
+    //End level
+    this.physics.arcade.overlap(this._player.sprite, this.tiledMap.getEndPoint() , this.endLevel , null, this);
 
     this._player.update();
   },
@@ -85,9 +89,8 @@ LevelRender.prototype = {
     }
   },
   endLevel: function() {
-    console.log('level 1 end');
-    // TODO add level 2
-		// this.state.start('Level2');
+     this.game.stageSetup.score = this._score._counter;
+	 this.state.start('EndScore', true, true, this.game.stageSetup);
   },
   onTrapCollide: function() {
     if (this._player.immovable) { return; }
@@ -122,7 +125,7 @@ LevelRender.prototype = {
     this._debugMode = !this._debugMode;
     this.tiledMap.propsLayer.visible = this._debugMode;
   }
-}
+};
 
 module.exports = LevelRender;
 
