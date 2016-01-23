@@ -35,7 +35,7 @@ function Player(game, x, y) {
   this.sprite.animations.add('shootleft', [12], 10, true);
   this.sprite.animations.add('shootright', [13], 10, true);
   
-  var deathAnimation = this.sprite.animations.add('death', [4, 9, 10, 11], 10);
+  var deathAnimation = this.sprite.animations.add('death', [9,10,9,10,11,10,11],5);
   deathAnimation.onComplete.add(this.afterDeath, this);
   
   this._jumpKey = game.input.keyboard.addKey(Phaser.KeyCode.X);
