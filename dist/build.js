@@ -15968,19 +15968,28 @@ var _Farmer = require('./enemies/Farmer');
 
 var _Farmer2 = _interopRequireDefault(_Farmer);
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+var _Pig = require('./enemies/Pig');
+
+var _Pig2 = _interopRequireDefault(_Pig);
+
+function _interopRequireDefault(obj) {
+    return obj && obj.__esModule ? obj : { default: obj };
+}
 
 var IMAGES = require('./config').images;
 
-exports.create = function (game, type) {
+exports.create = function (game, position, type) {
     var enemy;
     // The enemySprite and its settings
     switch (type) {
         case 'farmer':
-            enemy = new _Farmer2.default(game);
+            enemy = new _Farmer2.default(game, position);
+            break;
+        case 'pig':
+            enemy = new _Pig2.default(game, position);
             break;
         default:
-            enemy = new _Farmer2.default(game);
+            enemy = new _Farmer2.default(game, position);
             break;
     }
     defaultConfiguration(game, enemy.getSprite());
@@ -15999,7 +16008,7 @@ var defaultConfiguration = function defaultConfiguration(game, enemySprite) {
     enemySprite.anchor.y = 0.5;
 };
 
-},{"./config":6,"./enemies/Farmer":7}],4:[function(require,module,exports){
+},{"./config":6,"./enemies/Farmer":7,"./enemies/Pig":8}],4:[function(require,module,exports){
 "use strict";
 
 module.exports = {
@@ -16139,7 +16148,8 @@ module.exports = {
         PLAYER_4_AV: 'player_4av',
         SCORE: 'score',
         HEART: 'heart',
-        TILES_PROPS: 'tiles-props'
+        TILES_PROPS: 'tiles-props',
+        PIG: 'pig'
     },
     directions: {
         LEFT: 0,
@@ -16162,25 +16172,13 @@ module.exports = {
 },{}],7:[function(require,module,exports){
 'use strict';
 
-var _createClass = function () {
-    function defineProperties(target, props) {
-        for (var i = 0; i < props.length; i++) {
-            var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
-        }
-    }return function (Constructor, protoProps, staticProps) {
-        if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
-    };
-}();
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-        throw new TypeError("Cannot call a class as a function");
-    }
-}
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /**
  * Created by mmitis on 23.01.16.
@@ -16188,7 +16186,7 @@ function _classCallCheck(instance, Constructor) {
 var IMAGES = require('./../config').images;
 
 var Farmer = function () {
-    function Farmer(game) {
+    function Farmer(game, position) {
         _classCallCheck(this, Farmer);
 
         this.game = game;
@@ -16197,6 +16195,8 @@ var Farmer = function () {
         this.sprite.animations.add('left', [0, 1, 2, 3], 10, true);
         this.sprite.animations.add('right', [5, 6, 7, 8], 10, true);
         this.sprite.die = this.die.bind(this);
+        this.sprite.x = position[0];
+        this.sprite.y = position[1];
         this.death = false;
         var deathAnimation = this.sprite.animations.add('death', [4, 9, 10, 11], 10);
         deathAnimation.onComplete.add(this.afterDeath.bind(this), this);
@@ -16217,7 +16217,6 @@ var Farmer = function () {
     }, {
         key: 'afterDeath',
         value: function afterDeath() {
-            console.log('he died!');
             this.sprite.kill();
         }
     }, {
@@ -16247,6 +16246,85 @@ var Farmer = function () {
 exports.default = Farmer;
 
 },{"./../config":6}],8:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () {
+    function defineProperties(target, props) {
+        for (var i = 0; i < props.length; i++) {
+            var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+        }
+    }return function (Constructor, protoProps, staticProps) {
+        if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+    };
+}();
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+        throw new TypeError("Cannot call a class as a function");
+    }
+}
+
+/**
+ * Created by mmitis on 23.01.16.
+ */
+var IMAGES = require('./../config').images;
+
+var Pig = function () {
+    function Pig(game, position) {
+        _classCallCheck(this, Pig);
+
+        this.game = game;
+        this.sprite = game.add.sprite(60, 48, IMAGES.PIG);
+        this.right = false;
+        this.sprite.animations.add('left', [0, 1, 2, 3], 10, true);
+        this.sprite.animations.add('right', [5, 6, 7, 8], 10, true);
+        this.sprite.die = this.die.bind(this);
+        this.sprite.x = position[0];
+        this.sprite.y = position[1];
+        this.death = false;
+        var deathAnimation = this.sprite.animations.add('death', [4, 9, 10, 11], 10);
+        deathAnimation.onComplete.add(this.afterDeath.bind(this), this);
+    }
+
+    _createClass(Pig, [{
+        key: 'getSprite',
+        value: function getSprite() {
+            return this.sprite;
+        }
+    }, {
+        key: 'die',
+        value: function die() {
+            this.death = true;
+            this.sprite.body.velocity.x = 0;
+            this.sprite.animations.play('death');
+        }
+    }, {
+        key: 'afterDeath',
+        value: function afterDeath() {
+            this.sprite.kill();
+        }
+    }, {
+        key: 'updateMovement',
+        value: function updateMovement(player) {
+            if (Phaser.Point.distance(player, this.sprite.body) < 640) {
+                if (this.death == false) {
+                    this.sprite.body.velocity.x = -30;
+                    this.sprite.animations.play('left');
+                }
+            }
+        }
+    }]);
+
+    return Pig;
+}();
+
+exports.default = Pig;
+
+},{"./../config":6}],9:[function(require,module,exports){
 'use strict';
 
 /* global Phaser */
@@ -16305,7 +16383,7 @@ Life.prototype = {
 
 module.exports = Life;
 
-},{"../config":6}],9:[function(require,module,exports){
+},{"../config":6}],10:[function(require,module,exports){
 'use strict';
 
 /* global Phaser */
@@ -16352,7 +16430,7 @@ Score.prototype = {
 
 module.exports = Score;
 
-},{"../config":6}],10:[function(require,module,exports){
+},{"../config":6}],11:[function(require,module,exports){
 'use strict';
 
 /* global Phaser */
@@ -16374,7 +16452,7 @@ game.state.add('PlayerSelection', PlayerSelection);
 game.state.add('LevelRenderer', LevelRenderer);
 game.state.start('Boot');
 
-},{"./stages/Boot":12,"./stages/EndScore":13,"./stages/LevelRenderer":14,"./stages/MainMenu":15,"./stages/PlayerSelection":16,"./stages/Preloader":17,"./stages/Scoreboard":18}],11:[function(require,module,exports){
+},{"./stages/Boot":13,"./stages/EndScore":14,"./stages/LevelRenderer":15,"./stages/MainMenu":16,"./stages/PlayerSelection":17,"./stages/Preloader":18,"./stages/Scoreboard":19}],12:[function(require,module,exports){
 'use strict';
 
 /* global Phaser */
@@ -16551,7 +16629,7 @@ Player.prototype = {
 
 module.exports = Player;
 
-},{"./config":6}],12:[function(require,module,exports){
+},{"./config":6}],13:[function(require,module,exports){
 'use strict';
 
 /* global Phaser */
@@ -16577,7 +16655,7 @@ Boot.prototype = {
 
 module.exports = Boot;
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 "use strict";
 
 module.exports = EndScore;
@@ -16720,12 +16798,13 @@ EndScore.prototype = {
 
 };
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 'use strict';
 
 /* global _ */
 /* global PIXI */
 /* global Phaser */
+
 var config = require('../config');
 var Player = require('../player');
 var TiledLevel = require('../TiledLevel');
@@ -16758,7 +16837,7 @@ LevelRender.prototype = {
     this._enemiesArray = [];
 
     //Add enemy
-    var enemyObj = enemy.create(this);
+    var enemyObj = enemy.create(this, [1000, 0], 'pig');
     this._enemies.add(enemyObj.getSprite());
     this._enemiesArray.push(enemyObj);
 
@@ -16782,7 +16861,7 @@ LevelRender.prototype = {
   update: function update() {
     this.physics.arcade.collide(this._enemies, this.tiledMap.propsLayer, null, isObstacleTiles);
     this._enemiesArray.forEach(function (item) {
-      item.updateMovement();
+      item.updateMovement(this._player.sprite);
     }, this);
 
     this.physics.arcade.collide(this._player.sprite, this.tiledMap.propsLayer, null, isObstacleTiles);
@@ -16871,7 +16950,7 @@ function isTrapTiles(point, tile) {
   return tile.index === TILES.TRAP || tile.index === TILES.SPIKE;
 }
 
-},{"../EnemyFactory":3,"../Pause":4,"../TiledLevel":5,"../config":6,"../hud/life":8,"../hud/score":9,"../player":11}],15:[function(require,module,exports){
+},{"../EnemyFactory":3,"../Pause":4,"../TiledLevel":5,"../config":6,"../hud/life":9,"../hud/score":10,"../player":12}],16:[function(require,module,exports){
 "use strict";
 
 module.exports = MainMenu;
@@ -16945,7 +17024,7 @@ MainMenu.prototype = {
     openCredits: function openCredits() {}
 };
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 'use strict';
 
 module.exports = PlayerSelection;
@@ -17038,11 +17117,12 @@ PlayerSelection.prototype = {
     }
 };
 
-},{"./../config":6}],17:[function(require,module,exports){
+},{"./../config":6}],18:[function(require,module,exports){
 'use strict';
 
 /* global PIXI */
 /* global Phaser */
+
 var IMAGES = require('./../config').images;
 var path = '../../assets/images/';
 
@@ -17074,6 +17154,7 @@ Preloader.prototype = {
         this.load.image(IMAGES.PROJECTILE, path + 'projectile.png');
         this.load.image(IMAGES.STAR, path + 'glos.png');
         this.load.spritesheet(IMAGES.ENEMY, path + 'farmer.png', 32, 48);
+        this.load.spritesheet(IMAGES.PIG, path + 'swinia.png', 32, 48);
         this.load.image(IMAGES.FIREBALL, path + 'fireball.png');
         this.load.image(IMAGES.HEART, path + 'heart.png');
 
@@ -17119,7 +17200,7 @@ Preloader.prototype = {
     }
 };
 
-},{"./../config":6}],18:[function(require,module,exports){
+},{"./../config":6}],19:[function(require,module,exports){
 "use strict";
 
 var moment = require('moment');
@@ -17162,7 +17243,7 @@ Scoreboard.prototype = {
     }
 };
 
-},{"moment":2}]},{},[10])
+},{"moment":2}]},{},[11])
 
 
 //# sourceMappingURL=build.js.map

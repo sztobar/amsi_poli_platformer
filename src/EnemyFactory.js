@@ -1,15 +1,19 @@
 var IMAGES = require('./config').images;
 import Farmer from './enemies/Farmer';
+import Pig from './enemies/Pig';
 
-exports.create = function(game, type) {
+exports.create = function(game, position, type ) {
     var enemy;
     // The enemySprite and its settings
     switch (type){
         case 'farmer':
-            enemy = new Farmer(game);
+            enemy = new Farmer(game, position);
+            break;
+        case 'pig':
+            enemy = new Pig(game, position);
             break;
         default:
-            enemy = new Farmer(game);
+            enemy = new Farmer(game, position);
             break;
     }
     defaultConfiguration(game, enemy.getSprite());

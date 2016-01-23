@@ -17,7 +17,8 @@ module.exports =
         PLAYER_4_AV : 'player_4av',
         SCORE       : 'score',
         HEART       : 'heart',
-        TILES_PROPS : 'tiles-props'
+        TILES_PROPS : 'tiles-props',
+        PIG : 'pig'
     },
     directions : {
        LEFT :       0,

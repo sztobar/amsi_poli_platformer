@@ -3,11 +3,11 @@
  */
 var IMAGES = require('./../config').images;
 
-export default class Farmer {
+export default class Pig {
 
     constructor(game, position){
         this.game = game;
-        this.sprite = game.add.sprite(60, 60, IMAGES.ENEMY);
+        this.sprite = game.add.sprite(60, 48, IMAGES.PIG);
         this.right = false;
         this.sprite.animations.add('left', [0, 1, 2, 3], 10, true);
         this.sprite.animations.add('right', [5, 6, 7, 8], 10, true);
@@ -33,23 +33,12 @@ export default class Farmer {
         this.sprite.kill();
     }
 
-    updateMovement() {
-        if(this.death == false) {
-            if (this.sprite.body.blocked.right) {
-                this.right = false;
-            }
-            else if (this.sprite.body.blocked.left) {
-                this.right = true;
-            }
-
-            if (this.right) {
-                this.sprite.body.velocity.x = 100;
-                this.sprite.animations.play('right');
-            }
-            else {
-                this.sprite.body.velocity.x = -100;
+    updateMovement(player) {
+        if(Phaser.Point.distance(player, this.sprite.body) < 640) {
+            if (this.death == false) {
+                this.sprite.body.velocity.x = -30;
                 this.sprite.animations.play('left');
             }
         }
-    };
+    }
 }

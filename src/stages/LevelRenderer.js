@@ -34,10 +34,9 @@ LevelRender.prototype = {
     this._enemiesArray = [];
 
     //Add enemy
-    let enemyObj = enemy.create(this);
+    let enemyObj = enemy.create(this, [ 1000, 0 ], 'pig');
     this._enemies.add(enemyObj.getSprite());
     this._enemiesArray.push(enemyObj);
-
 
     //  The score
     this._score = new Score(this, this.game.stageSetup.score);
@@ -60,7 +59,7 @@ LevelRender.prototype = {
   update: function() {
     this.physics.arcade.collide(this._enemies, this.tiledMap.propsLayer, null, isObstacleTiles);
     this._enemiesArray.forEach(function(item){
-      item.updateMovement();
+      item.updateMovement(this._player.sprite);
     }, this);
 
     this.physics.arcade.collide(this._player.sprite, this.tiledMap.propsLayer, null, isObstacleTiles);
