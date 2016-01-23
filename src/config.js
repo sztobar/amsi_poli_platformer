@@ -45,6 +45,9 @@ module.exports =
       SPIKE: 21,
       TRAP: 22,
       CHECKPOINT: 23,
-      POINT: 24
+      POINT: 24,
+      ENEMYWALKER: 25,
+      ENEMYSHOOT: 26,
+      ENEMYFLY: 27
     }
 };

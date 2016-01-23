@@ -22,7 +22,7 @@ LevelRender.prototype = {
   create: function() {
     this.physics.startSystem(Phaser.Physics.ARCADE);
     this.tiledMap = new TiledLevel(this.game, this.game.stageSetup.level);
-
+    console.log(this.tiledMap.enemies);
     // window.player for debugging purpose
     window.player = this._player = new Player(this, this.tiledMap.levelStart.x, this.tiledMap.levelStart.y);
 
@@ -30,13 +30,30 @@ LevelRender.prototype = {
     this.game.sound.play('background-music');
     this.pointsGroup = this.tiledMap.createPointsGroup();
     this.checkpointsGroup = this.tiledMap.createCheckpointsGroup();
-    this._enemies = this.game.add.physicsGroup();
-    this._enemiesArray = [];
 
-    //Add enemy
-    let enemyObj = enemy.create(this, [ 200, 900 ], 'fly', this.game.stageSetup.level );
-    this._enemies.add(enemyObj.getSprite());
-    this._enemiesArray.push(enemyObj);
+    this.enemiesFlyGroup = this.tiledMap.createEnemiesFlyGroup();
+    this.enemiesShootGroup = this.tiledMap.createEnemiesShootGroup();
+    this.enemiesWalkerGroup = this.tiledMap.createEnemiesWalkerGroup();
+
+    this._enemies = this.game.add.physicsGroup();
+    this._enemiesArray = []
+    //Add enemies (flying)
+    for (let enemyIndex in this.enemiesFlyGroup.children){
+      let enemyObj = enemy.create(this, [ this.enemiesFlyGroup.children[enemyIndex].x, this.enemiesFlyGroup.children[enemyIndex].y ], 'fly', this.game.stageSetup.level );
+      this._enemies.add(enemyObj.getSprite());
+      this._enemiesArray.push(enemyObj);
+    }
+    for (let enemyIndex in this.enemiesShootGroup.children){
+      let enemyObj = enemy.create(this, [ this.enemiesShootGroup.children[enemyIndex].x, this.enemiesShootGroup.children[enemyIndex].y ], 'shoot', this.game.stageSetup.level );
+      this._enemies.add(enemyObj.getSprite());
+      this._enemiesArray.push(enemyObj);
+    }
+    for (let enemyIndex in this.enemiesWalkerGroup.children){
+      let enemyObj = enemy.create(this, [ this.enemiesWalkerGroup.children[enemyIndex].x, this.enemiesWalkerGroup.children[enemyIndex].y ], 'walk', this.game.stageSetup.level );
+      this._enemies.add(enemyObj.getSprite());
+      this._enemiesArray.push(enemyObj);
+    }
+
     //  The score
     this._score = new Score(this, this.game.stageSetup.score);
 

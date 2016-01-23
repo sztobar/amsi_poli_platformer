@@ -34,15 +34,22 @@ function TiledLevel(game, id ) {
   this.levelEnd.anchor.y = 1;
   this.levelEnd.enableBody = true;
   this.levelEnd.body.immovable = true;
-
+  this.enemies = [];
   var layer = this.propsLayer.layer;
   for (var y = 0; y < layer.height; y++) {
     for (var x = 0; x < layer.width; x++) {
       var tile = layer.data[y][x];
-
+      if(tile.index > 23){
+        console.log(tile);
+      }
       if (tile.index === TILES.PLATFORM) {
         tile.setCollision(false, false, true, false);
-      } else if (tile.index === TILES.SPIKE ||
+      }
+      else if (tile.index === TILES.ENEMYFLY || tile.index === TILES.ENEMYSHOOT || tile.index === TILES.ENEMYWALKER) {
+
+         this.enemies.push({ x: tile.x , y : tile.y});
+      }
+      else if (tile.index === TILES.SPIKE ||
           tile.index === TILES.TRAP ||
           tile.index === TILES.OBSTACLE) {
         tile.setCollision(true, true, true, true);
@@ -64,6 +71,21 @@ TiledLevel.prototype = {
     this.tilemap.createFromObjects('objects', TILES.CHECKPOINT, IMAGES.TILES_PROPS, 6, true, false, group, Phaser.Sprite, true);
     return group;
   },
+  createEnemiesWalkerGroup: function() {
+    var group  = this.game.add.group();
+    this.tilemap.createFromObjects('objects', TILES.ENEMYFLY, IMAGES.TILES_PROPS, 7, false, false, group, Phaser.Sprite, false);
+    return group;
+  },
+  createEnemiesShootGroup: function() {
+    var group  = this.game.add.group();
+    this.tilemap.createFromObjects('objects', TILES.ENEMYSHOOT, IMAGES.TILES_PROPS, 8, false, false, group, Phaser.Sprite, false);
+    return group;
+  },
+  createEnemiesFlyGroup: function() {
+    var group  = this.game.add.group();
+    this.tilemap.createFromObjects('objects', TILES.ENEMYWALKER, IMAGES.TILES_PROPS, 9, false, false, group, Phaser.Sprite, false);
+    return group;
+  },
   getEndPoint : function(){
     return this.levelEnd;
   },
@@ -73,7 +95,6 @@ TiledLevel.prototype = {
     for (var y = 0; y < layer.height; y++) {
       for (var x = 0; x < layer.width; x++) {
         var tile = layer.data[y][x];
-
         if (tile &&
           tile.index === TILES.TRAP ||
           tile.index === TILES.SPIKE) {
