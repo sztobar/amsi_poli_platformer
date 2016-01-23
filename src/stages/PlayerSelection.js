@@ -20,7 +20,7 @@ PlayerSelection.prototype = {
     create: function() {
         var self = this;
         this.game.stage.backgroundColor = '#1abc9c';
-        v
+        this.game.add.tileSprite(0, 0, 640, 480, IMAGES.MAINMENU);
 
         this.game.add.text(this.game.world.centerX,  60 , "Wybierz bohatera" ,{ font: "bold 30px Arial", fill: "#ffffff", boundsAlignH: "center", boundsAlignV: "middle" }
         ).anchor.set(0.5);;

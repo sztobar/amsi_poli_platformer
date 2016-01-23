@@ -17221,7 +17221,9 @@ MainMenu.prototype = {
         this._acceptKey.onDown.add(this.changeMenuPos, this);
         this.game.add.tileSprite(0, 0, 640, 480, IMAGES.MAINMENU);
         //Defined Menu
-        var menu = [['Start', 250, this.openPlayerSelection], ['Tablica wyników', 290, this.openScoreBoard], ['Twórcy', 330, this.openCredits], ['Wyjście', 370, function () {}]];
+        var menu = [['Start', 250, this.openPlayerSelection], ['Tablica wyników', 290, this.openScoreBoard],
+        /*['Twórcy', 330, this.openCredits],*/
+        ['Wyjście', 370, function () {}]];
 
         /*this.game.add.text(320,  100 , "PoliticAmsi" ,{ font: "bold 80px Arial", fill: "#2c3e50", boundsAlignH: "center", boundsAlignV: "middle" }
         ).anchor.set(0.5);*/
@@ -17297,7 +17299,7 @@ PlayerSelection.prototype = {
     create: function create() {
         var self = this;
         this.game.stage.backgroundColor = '#1abc9c';
-        v;
+        this.game.add.tileSprite(0, 0, 640, 480, IMAGES.MAINMENU);
 
         this.game.add.text(this.game.world.centerX, 60, "Wybierz bohatera", { font: "bold 30px Arial", fill: "#ffffff", boundsAlignH: "center", boundsAlignV: "middle" }).anchor.set(0.5);;
 
