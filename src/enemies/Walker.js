@@ -41,7 +41,7 @@ export default class Walker {
                     this.direction = !this.direction;
                 }
                 if(this.direction){
-                    this.sprite.body.velocity.x = 30;
+                    this.sprite.body.velocity.x = -30;
                     this.sprite.animations.play('left');
                 } else {
                     this.sprite.body.velocity.x = 30;
