@@ -16197,6 +16197,7 @@ var Farmer = function () {
         this.sprite.animations.add('left', [0, 1, 2, 3], 10, true);
         this.sprite.animations.add('right', [5, 6, 7, 8], 10, true);
         this.sprite.die = this.die.bind(this);
+        this.death = false;
         var deathAnimation = this.sprite.animations.add('death', [4, 9, 10, 11], 10);
         deathAnimation.onComplete.add(this.afterDeath.bind(this), this);
     }
@@ -16209,18 +16210,20 @@ var Farmer = function () {
     }, {
         key: 'die',
         value: function die() {
+            this.death = true;
             this.sprite.body.velocity.x = 0;
             this.sprite.animations.play('death');
         }
     }, {
         key: 'afterDeath',
         value: function afterDeath() {
+            console.log('he died!');
             this.sprite.kill();
         }
     }, {
         key: 'updateMovement',
         value: function updateMovement() {
-            if (this.death == true) {
+            if (this.death == false) {
                 if (this.sprite.body.blocked.right) {
                     this.right = false;
                 } else if (this.sprite.body.blocked.left) {
@@ -16723,7 +16726,6 @@ EndScore.prototype = {
 /* global _ */
 /* global PIXI */
 /* global Phaser */
-
 var config = require('../config');
 var Player = require('../player');
 var TiledLevel = require('../TiledLevel');
