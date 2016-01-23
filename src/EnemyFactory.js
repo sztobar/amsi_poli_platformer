@@ -1,26 +1,28 @@
 var IMAGES = require('./config').images;
+var LevelSetups = require('./LevelSetups');
+
 import Cloud from './enemies/Cloud';
 import Shooter from './enemies/Shooter';
 import Walker from './enemies/Walker';
-
 exports.create = function(game, position, type, map ) {
+
     var enemy;
     // The enemySprite and its settings
     switch (type){
         case 'shoot':
-            enemy = new Shooter(game, position);
+            enemy = new Shooter(game, position, LevelSetups.enemies[map-1].shoot, IMAGES.PROJECTILE );
             defaultConfiguration(game, enemy.getSprite());
             break;
         case 'walk':
-            enemy = new Walker(game, position);
+            enemy = new Walker(game, position, LevelSetups.enemies[map-1].walker);
             defaultConfiguration(game, enemy.getSprite());
 
             break;
         case 'fly':
-            enemy = new Cloud(game, position, IMAGES.SMOG);
+            enemy = new Cloud(game, position, LevelSetups.enemies[map-1].fly);
             break;
         default:
-            enemy = new Cloud(game, position, IMAGES.BOR);
+            enemy = new Shooter(game, position, LevelSetups.enemies[map-1].shoot, IMAGES.PROJECTILE);
             defaultConfiguration(game, enemy.getSprite());
             break;
     }

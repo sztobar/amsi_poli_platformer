@@ -15976,28 +15976,32 @@ var _Walker = require('./enemies/Walker');
 
 var _Walker2 = _interopRequireDefault(_Walker);
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireDefault(obj) {
+    return obj && obj.__esModule ? obj : { default: obj };
+}
 
 var IMAGES = require('./config').images;
+var LevelSetups = require('./LevelSetups');
 
 exports.create = function (game, position, type, map) {
+
     var enemy;
     // The enemySprite and its settings
     switch (type) {
         case 'shoot':
-            enemy = new _Shooter2.default(game, position);
+            enemy = new _Shooter2.default(game, position, LevelSetups.enemies[map - 1].shoot, IMAGES.PROJECTILE);
             defaultConfiguration(game, enemy.getSprite());
             break;
         case 'walk':
-            enemy = new _Walker2.default(game, position);
+            enemy = new _Walker2.default(game, position, LevelSetups.enemies[map - 1].walker);
             defaultConfiguration(game, enemy.getSprite());
 
             break;
         case 'fly':
-            enemy = new _Cloud2.default(game, position, IMAGES.SMOG);
+            enemy = new _Cloud2.default(game, position, LevelSetups.enemies[map - 1].fly);
             break;
         default:
-            enemy = new _Cloud2.default(game, position, IMAGES.BOR);
+            enemy = new _Shooter2.default(game, position, LevelSetups.enemies[map - 1].shoot, IMAGES.PROJECTILE);
             defaultConfiguration(game, enemy.getSprite());
             break;
     }
@@ -16016,7 +16020,37 @@ var defaultConfiguration = function defaultConfiguration(game, enemySprite) {
     enemySprite.anchor.y = 0.5;
 };
 
-},{"./config":6,"./enemies/Cloud":7,"./enemies/Shooter":8,"./enemies/Walker":9}],4:[function(require,module,exports){
+},{"./LevelSetups":4,"./config":7,"./enemies/Cloud":8,"./enemies/Shooter":9,"./enemies/Walker":10}],4:[function(require,module,exports){
+'use strict';
+
+/**
+ * Created by mmitis on 23.01.16.
+ */
+
+var IMAGES = require('./config').images;
+
+module.exports = {
+
+    enemies: [{
+        shoot: IMAGES.FARMER,
+        walker: IMAGES.PIG,
+        fly: IMAGES.COMPOST
+    }, {
+        shoot: IMAGES.BIZNESMAN,
+        walker: IMAGES.SKATEBOARD,
+        fly: IMAGES.SMOG
+    }, {
+        shoot: IMAGES.BOR,
+        walker: IMAGES.JOURNALIST,
+        fly: IMAGES.CORUPT
+    }, {
+        shoot: IMAGES.MERKEL,
+        walker: IMAGES.GRONKIEWICZ,
+        fly: IMAGES.POPRAWNOSC
+    }]
+};
+
+},{"./config":7}],5:[function(require,module,exports){
 "use strict";
 
 module.exports = {
@@ -16042,7 +16076,7 @@ module.exports = {
     }
 };
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 'use strict';
 
 /* global Phaser */
@@ -16135,7 +16169,7 @@ TiledLevel.prototype = {
 
 module.exports = TiledLevel;
 
-},{"./config":6,"lodash":1}],6:[function(require,module,exports){
+},{"./config":7,"lodash":1}],7:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -16188,28 +16222,16 @@ module.exports = {
     }
 };
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 'use strict';
 
-var _createClass = function () {
-    function defineProperties(target, props) {
-        for (var i = 0; i < props.length; i++) {
-            var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
-        }
-    }return function (Constructor, protoProps, staticProps) {
-        if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
-    };
-}();
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-        throw new TypeError("Cannot call a class as a function");
-    }
-}
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /**
  * Created by mmitis on 23.01.16.
@@ -16298,7 +16320,7 @@ var Cloud = function () {
 
 exports.default = Cloud;
 
-},{"./../config":6}],8:[function(require,module,exports){
+},{"./../config":7}],9:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -16427,7 +16449,7 @@ var Shooter = function () {
 
 exports.default = Shooter;
 
-},{"./../config":6}],9:[function(require,module,exports){
+},{"./../config":7}],10:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -16503,7 +16525,7 @@ var Walker = function () {
 
 exports.default = Walker;
 
-},{"./../config":6}],10:[function(require,module,exports){
+},{"./../config":7}],11:[function(require,module,exports){
 'use strict';
 
 /* global Phaser */
@@ -16562,7 +16584,7 @@ Life.prototype = {
 
 module.exports = Life;
 
-},{"../config":6}],11:[function(require,module,exports){
+},{"../config":7}],12:[function(require,module,exports){
 'use strict';
 
 /* global Phaser */
@@ -16609,7 +16631,7 @@ Score.prototype = {
 
 module.exports = Score;
 
-},{"../config":6}],12:[function(require,module,exports){
+},{"../config":7}],13:[function(require,module,exports){
 'use strict';
 
 /* global Phaser */
@@ -16631,7 +16653,7 @@ game.state.add('PlayerSelection', PlayerSelection);
 game.state.add('LevelRenderer', LevelRenderer);
 game.state.start('Boot');
 
-},{"./stages/Boot":14,"./stages/EndScore":15,"./stages/LevelRenderer":16,"./stages/MainMenu":17,"./stages/PlayerSelection":18,"./stages/Preloader":19,"./stages/Scoreboard":20}],13:[function(require,module,exports){
+},{"./stages/Boot":15,"./stages/EndScore":16,"./stages/LevelRenderer":17,"./stages/MainMenu":18,"./stages/PlayerSelection":19,"./stages/Preloader":20,"./stages/Scoreboard":21}],14:[function(require,module,exports){
 'use strict';
 
 /* global Phaser */
@@ -16808,7 +16830,7 @@ Player.prototype = {
 
 module.exports = Player;
 
-},{"./config":6}],14:[function(require,module,exports){
+},{"./config":7}],15:[function(require,module,exports){
 'use strict';
 
 /* global Phaser */
@@ -16834,7 +16856,7 @@ Boot.prototype = {
 
 module.exports = Boot;
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 "use strict";
 
 module.exports = EndScore;
@@ -16977,12 +16999,13 @@ EndScore.prototype = {
 
 };
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 'use strict';
 
 /* global _ */
 /* global PIXI */
 /* global Phaser */
+
 var config = require('../config');
 var Player = require('../player');
 var TiledLevel = require('../TiledLevel');
@@ -17015,7 +17038,7 @@ LevelRender.prototype = {
     this._enemiesArray = [];
 
     //Add enemy
-    var enemyObj = enemy.create(this, [200, 900], 'fly');
+    var enemyObj = enemy.create(this, [200, 900], 'fly', this.game.stageSetup.level);
     this._enemies.add(enemyObj.getSprite());
     this._enemiesArray.push(enemyObj);
     //  The score
@@ -17127,7 +17150,7 @@ function isTrapTiles(point, tile) {
   return tile.index === TILES.TRAP || tile.index === TILES.SPIKE;
 }
 
-},{"../EnemyFactory":3,"../Pause":4,"../TiledLevel":5,"../config":6,"../hud/life":10,"../hud/score":11,"../player":13}],17:[function(require,module,exports){
+},{"../EnemyFactory":3,"../Pause":5,"../TiledLevel":6,"../config":7,"../hud/life":11,"../hud/score":12,"../player":14}],18:[function(require,module,exports){
 "use strict";
 
 module.exports = MainMenu;
@@ -17201,7 +17224,7 @@ MainMenu.prototype = {
     openCredits: function openCredits() {}
 };
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 'use strict';
 
 module.exports = PlayerSelection;
@@ -17294,7 +17317,7 @@ PlayerSelection.prototype = {
     }
 };
 
-},{"./../config":6}],19:[function(require,module,exports){
+},{"./../config":7}],20:[function(require,module,exports){
 'use strict';
 
 /* global PIXI */
@@ -17389,7 +17412,7 @@ Preloader.prototype = {
     }
 };
 
-},{"./../config":6}],20:[function(require,module,exports){
+},{"./../config":7}],21:[function(require,module,exports){
 "use strict";
 
 var moment = require('moment');
@@ -17432,7 +17455,7 @@ Scoreboard.prototype = {
     }
 };
 
-},{"moment":2}]},{},[12])
+},{"moment":2}]},{},[13])
 
 
 //# sourceMappingURL=build.js.map
