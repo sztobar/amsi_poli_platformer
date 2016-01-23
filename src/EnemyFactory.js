@@ -1,28 +1,29 @@
 var IMAGES = require('./config').images;
-import Farmer from './enemies/Farmer';
-import Pig from './enemies/Pig';
-import Policeman from './enemies/Policeman';
+import Cloud from './enemies/Cloud';
+import Shooter from './enemies/Shooter';
+import Walker from './enemies/Walker';
 
-exports.create = function(game, position, type ) {
+exports.create = function(game, position, type, map ) {
     var enemy;
     // The enemySprite and its settings
     switch (type){
-        case 'farmer':
-            enemy = new Farmer(game, position);
+        case 'shoot':
+            enemy = new Shooter(game, position);
+            defaultConfiguration(game, enemy.getSprite());
             break;
-        case 'pig':
-            enemy = new Pig(game, position);
+        case 'walk':
+            enemy = new Walker(game, position);
+            defaultConfiguration(game, enemy.getSprite());
+
             break;
-        case 'policeman':
-            enemy = new Policeman(game, position);
+        case 'fly':
+            enemy = new Cloud(game, position, IMAGES.SMOG);
             break;
-        case 'flying':
-            enemy = new FlyingEnemt(game, position);
         default:
-            enemy = new Farmer(game, position);
+            enemy = new Cloud(game, position, IMAGES.BOR);
+            defaultConfiguration(game, enemy.getSprite());
             break;
     }
-    defaultConfiguration(game, enemy.getSprite());
 
     return enemy;
 };

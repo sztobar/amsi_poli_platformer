@@ -3,11 +3,11 @@
  */
 var IMAGES = require('./../config').images;
 
-export default class Policeman {
+export default class Shooter {
 
-    constructor(game, position){
+    constructor(game, position, spriteMan, spriteBullet){
         this.game = game;
-        this.sprite = game.add.sprite(60, 48, IMAGES.POLICEMAN);
+        this.sprite = game.add.sprite(60, 48, spriteMan);
         this.right = false;
         this.sprite.animations.add('left', [0, 1, 2, 3], 10, true);
         this.sprite.animations.add('right', [5, 6, 7, 8], 10, true);
@@ -23,7 +23,7 @@ export default class Policeman {
         this.projectilesGroup = game.add.group();
         this.projectilesGroup.enableBody = true;
         this.projectilesGroup.physicsBodyType = Phaser.Physics.ARCADE;
-        this.projectilesGroup.createMultiple(5, IMAGES.PROJECTILE);
+        this.projectilesGroup.createMultiple(5, spriteBullet);
         this.projectilesGroup.setAll('anchor.x', 0.5);
         this.projectilesGroup.setAll('anchor.y', 0.5);
         this.projectilesGroup.setAll('outOfBoundsKill', true);

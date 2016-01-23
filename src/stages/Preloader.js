@@ -31,9 +31,23 @@ Preloader.prototype = {
 
         this.load.image(IMAGES.PROJECTILE, path + 'projectile.png');
         this.load.image(IMAGES.STAR, path + 'glos.png');
-        this.load.spritesheet(IMAGES.ENEMY, path + 'farmer.png', 32, 48);
-        this.load.spritesheet(IMAGES.POLICEMAN, path + 'bor.png', 32, 48);
+
+        this.load.spritesheet(IMAGES.FARMER, path + 'farmer.png', 32, 48);
+        this.load.spritesheet(IMAGES.BOR, path + 'bor.png', 32, 48);
+        this.load.spritesheet(IMAGES.MERKEL, path + 'merkel.png', 32, 48);
+        this.load.spritesheet(IMAGES.GRONKIEWICZ, path + 'gronkiewicz.png', 32, 48);
+
         this.load.spritesheet(IMAGES.PIG, path + 'swinia.png', 32, 48);
+        this.load.spritesheet(IMAGES.JOURNALIST, path + 'journalist.png', 32, 48);
+        this.load.spritesheet(IMAGES.BIZNESMAN, path + 'biznesmen.png', 32, 48);
+        this.load.spritesheet(IMAGES.SKATEBOARD, path + 'skate.png', 32, 48);
+
+
+        this.load.spritesheet(IMAGES.SMOG, path + 'smog.png', 60, 36);
+        this.load.spritesheet(IMAGES.COMPOST, path + 'kompost.png', 60, 36);
+        this.load.spritesheet(IMAGES.CORUPT, path + 'korupcja.png', 60, 36);
+        this.load.spritesheet(IMAGES.POPRAWNOSC, path + 'poprawnosc.png', 60, 36);
+
         this.load.image(IMAGES.FIREBALL, path + 'fireball.png');
         this.load.image(IMAGES.HEART, path + 'heart.png');
         this.load.spritesheet(IMAGES.SCORE, path + 'score.png');
@@ -62,7 +76,7 @@ Preloader.prototype = {
                 break;
             case 4:
                 console.log('Loaded 4 level');
-                this.load.tilemap('level43', './../../assets/mapa-sejm/mapa-sejm.json', null, Phaser.Tilemap.TILED_JSON);
+                this.load.tilemap('level4', './../../assets/mapa-sejm/mapa-sejm.json', null, Phaser.Tilemap.TILED_JSON);
                 this.load.image('tiles', './../../assets/mapa-sejm/tileset.png');
                 this.load.image('background', './../../assets/mapa-sejm/sejm-tlo.png');
                 this.load.audio('background-music', ['./../../assets/music/muzyka-sejm.mp3']);
@@ -74,6 +88,6 @@ Preloader.prototype = {
     },
     create: function(){
         // start the MainMenu state
-        this.state.start('LevelRenderer'  );
+        this.state.start('LevelRenderer');
     }
 };

@@ -34,10 +34,9 @@ LevelRender.prototype = {
     this._enemiesArray = [];
 
     //Add enemy
-    let enemyObj = enemy.create(this, [ 200, 0 ], 'policeman');
+    let enemyObj = enemy.create(this, [ 200, 900 ], 'fly');
     this._enemies.add(enemyObj.getSprite());
     this._enemiesArray.push(enemyObj);
-
     //  The score
     this._score = new Score(this, this.game.stageSetup.score);
 

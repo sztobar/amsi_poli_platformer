@@ -3,11 +3,11 @@
  */
 var IMAGES = require('./../config').images;
 
-export default class Pig {
+export default class Walker {
 
-    constructor(game, position){
+    constructor(game, position, spriteMan){
         this.game = game;
-        this.sprite = game.add.sprite(60, 48, IMAGES.PIG);
+        this.sprite = game.add.sprite(60, 48, spriteMan);
         this.right = false;
         this.sprite.animations.add('left', [0, 1, 2, 3], 10, true);
         this.sprite.animations.add('right', [5, 6, 7, 8], 10, true);

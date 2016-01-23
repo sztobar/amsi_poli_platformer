@@ -15964,42 +15964,43 @@
 },{}],3:[function(require,module,exports){
 'use strict';
 
-var _Farmer = require('./enemies/Farmer');
+var _Cloud = require('./enemies/Cloud');
 
-var _Farmer2 = _interopRequireDefault(_Farmer);
+var _Cloud2 = _interopRequireDefault(_Cloud);
 
-var _Pig = require('./enemies/Pig');
+var _Shooter = require('./enemies/Shooter');
 
-var _Pig2 = _interopRequireDefault(_Pig);
+var _Shooter2 = _interopRequireDefault(_Shooter);
 
-var _Policeman = require('./enemies/Policeman');
+var _Walker = require('./enemies/Walker');
 
-var _Policeman2 = _interopRequireDefault(_Policeman);
+var _Walker2 = _interopRequireDefault(_Walker);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var IMAGES = require('./config').images;
 
-exports.create = function (game, position, type) {
+exports.create = function (game, position, type, map) {
     var enemy;
     // The enemySprite and its settings
     switch (type) {
-        case 'farmer':
-            enemy = new _Farmer2.default(game, position);
+        case 'shoot':
+            enemy = new _Shooter2.default(game, position);
+            defaultConfiguration(game, enemy.getSprite());
             break;
-        case 'pig':
-            enemy = new _Pig2.default(game, position);
+        case 'walk':
+            enemy = new _Walker2.default(game, position);
+            defaultConfiguration(game, enemy.getSprite());
+
             break;
-        case 'policeman':
-            enemy = new _Policeman2.default(game, position);
+        case 'fly':
+            enemy = new _Cloud2.default(game, position, IMAGES.SMOG);
             break;
-        case 'flying':
-            enemy = new FlyingEnemt(game, position);
         default:
-            enemy = new _Farmer2.default(game, position);
+            enemy = new _Cloud2.default(game, position, IMAGES.BOR);
+            defaultConfiguration(game, enemy.getSprite());
             break;
     }
-    defaultConfiguration(game, enemy.getSprite());
 
     return enemy;
 };
@@ -16015,7 +16016,7 @@ var defaultConfiguration = function defaultConfiguration(game, enemySprite) {
     enemySprite.anchor.y = 0.5;
 };
 
-},{"./config":6,"./enemies/Farmer":7,"./enemies/Pig":8,"./enemies/Policeman":9}],4:[function(require,module,exports){
+},{"./config":6,"./enemies/Cloud":7,"./enemies/Shooter":8,"./enemies/Walker":9}],4:[function(require,module,exports){
 "use strict";
 
 module.exports = {
@@ -16157,7 +16158,17 @@ module.exports = {
         HEART: 'heart',
         TILES_PROPS: 'tiles-props',
         PIG: 'pig',
-        POLICEMAN: 'bor'
+        BOR: 'bor',
+        BIZNESMAN: 'biznesman',
+        JOURNALIST: 'journalist',
+        CORUPT: 'korupcja',
+        SMOG: 'smog',
+        POPRAWNOSC: 'poprawnosc',
+        COMPOST: 'compost',
+        FARMER: 'farmer',
+        SKATEBOARD: 'skate',
+        MERKEL: 'merkel',
+        GRONKIEWICZ: 'gronkiewicz'
     },
     directions: {
         LEFT: 0,
@@ -16180,37 +16191,58 @@ module.exports = {
 },{}],7:[function(require,module,exports){
 'use strict';
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var _createClass = function () {
+    function defineProperties(target, props) {
+        for (var i = 0; i < props.length; i++) {
+            var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+        }
+    }return function (Constructor, protoProps, staticProps) {
+        if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+    };
+}();
 
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+        throw new TypeError("Cannot call a class as a function");
+    }
+}
 
 /**
  * Created by mmitis on 23.01.16.
  */
 var IMAGES = require('./../config').images;
 
-var Farmer = function () {
-    function Farmer(game, position) {
-        _classCallCheck(this, Farmer);
+var Cloud = function () {
+    function Cloud(game, position, spriteMan) {
+        _classCallCheck(this, Cloud);
 
         this.game = game;
-        this.sprite = game.add.sprite(60, 60, IMAGES.ENEMY);
+        this.sprite = game.add.sprite(36, 60, spriteMan);
         this.right = false;
-        this.sprite.animations.add('left', [0, 1, 2, 3], 10, true);
-        this.sprite.animations.add('right', [5, 6, 7, 8], 10, true);
+        this.sprite.animations.add('left', [0, 1, 2, 3], 8, true);
+
+        this.game.physics.arcade.enable(this.sprite);
+        this.sprite.body.setSize(60, 36, 0, this.sprite.height - 48);
         this.sprite.die = this.die.bind(this);
         this.sprite.x = position[0];
         this.sprite.y = position[1];
+        this.yMax = position[1] + 70;
+        this.yMin = position[1] - 70;
+        this.sprite.enableBody = true;
+        this.sprite.physicsBodyType = Phaser.Physics.ARCADE;
+
         this.death = false;
-        var deathAnimation = this.sprite.animations.add('death', [4, 9, 10, 11], 10);
+        this.direction = true;
+
+        var deathAnimation = this.sprite.animations.add('death', [4, 5, 6, 7], 8);
         deathAnimation.onComplete.add(this.afterDeath.bind(this), this);
     }
 
-    _createClass(Farmer, [{
+    _createClass(Cloud, [{
         key: 'getSprite',
         value: function getSprite() {
             return this.sprite;
@@ -16219,7 +16251,7 @@ var Farmer = function () {
         key: 'die',
         value: function die() {
             this.death = true;
-            this.sprite.body.velocity.x = 0;
+            this.sprite.body.velocity.y = 0;
             this.sprite.animations.play('death');
         }
     }, {
@@ -16229,29 +16261,42 @@ var Farmer = function () {
         }
     }, {
         key: 'updateMovement',
-        value: function updateMovement() {
+        value: function updateMovement(player, physics) {
             if (this.death == false) {
-                if (this.sprite.body.blocked.right) {
-                    this.right = false;
-                } else if (this.sprite.body.blocked.left) {
-                    this.right = true;
-                }
-
-                if (this.right) {
-                    this.sprite.body.velocity.x = 100;
-                    this.sprite.animations.play('right');
+                if (Phaser.Point.distance(player, this.sprite.body) < 200) {
+                    physics.arcade.moveToObject(this.sprite, player, 100);
                 } else {
-                    this.sprite.body.velocity.x = -100;
-                    this.sprite.animations.play('left');
+                    if (this.sprite.y > this.yMax) {
+                        this.direction = true;
+                        this.sprite.y = this.yMax;
+                    }
+                    if (this.sprite.y < this.yMin) {
+                        this.direction = false;
+                        this.sprite.y = this.yMin;
+                    }
+
+                    if (this.direction) {
+                        this.sprite.body.velocity.y = -60;
+                    } else {
+                        this.sprite.body.velocity.y = 60;
+                    }
                 }
+                if (player.x < this.sprite.x) {
+                    this.sprite.animations.play('left');
+                } else {
+                    this.sprite.animations.play('right');
+                }
+            } else {
+                this.sprite.body.velocity.x = 0;
+                this.sprite.body.velocity.y = 0;
             }
         }
     }]);
 
-    return Farmer;
+    return Cloud;
 }();
 
-exports.default = Farmer;
+exports.default = Cloud;
 
 },{"./../config":6}],8:[function(require,module,exports){
 'use strict';
@@ -16269,88 +16314,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  */
 var IMAGES = require('./../config').images;
 
-var Pig = function () {
-    function Pig(game, position) {
-        _classCallCheck(this, Pig);
+var Shooter = function () {
+    function Shooter(game, position, spriteMan, spriteBullet) {
+        _classCallCheck(this, Shooter);
 
         this.game = game;
-        this.sprite = game.add.sprite(60, 48, IMAGES.PIG);
-        this.right = false;
-        this.sprite.animations.add('left', [0, 1, 2, 3], 10, true);
-        this.sprite.animations.add('right', [5, 6, 7, 8], 10, true);
-        this.sprite.die = this.die.bind(this);
-        this.sprite.x = position[0];
-        this.sprite.y = position[1];
-        this.death = false;
-        this.direction = true;
-        var deathAnimation = this.sprite.animations.add('death', [4, 9, 10, 11], 10);
-        deathAnimation.onComplete.add(this.afterDeath.bind(this), this);
-    }
-
-    _createClass(Pig, [{
-        key: 'getSprite',
-        value: function getSprite() {
-            return this.sprite;
-        }
-    }, {
-        key: 'die',
-        value: function die() {
-            this.death = true;
-            this.sprite.body.velocity.x = 0;
-            this.sprite.animations.play('death');
-        }
-    }, {
-        key: 'afterDeath',
-        value: function afterDeath() {
-            this.sprite.kill();
-        }
-    }, {
-        key: 'updateMovement',
-        value: function updateMovement(player) {
-            if (Phaser.Point.distance(player, this.sprite.body) < 640) {
-                if (this.death == false) {
-                    if (this.sprite.body.onWall() == true) {
-                        this.direction = !this.direction;
-                    }
-                    if (this.direction) {
-                        this.sprite.body.velocity.x = 30;
-                        this.sprite.animations.play('left');
-                    } else {
-                        this.sprite.body.velocity.x = 30;
-                        this.sprite.animations.play('right');
-                    }
-                }
-            }
-        }
-    }]);
-
-    return Pig;
-}();
-
-exports.default = Pig;
-
-},{"./../config":6}],9:[function(require,module,exports){
-'use strict';
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-/**
- * Created by mmitis on 23.01.16.
- */
-var IMAGES = require('./../config').images;
-
-var Policeman = function () {
-    function Policeman(game, position) {
-        _classCallCheck(this, Policeman);
-
-        this.game = game;
-        this.sprite = game.add.sprite(60, 48, IMAGES.POLICEMAN);
+        this.sprite = game.add.sprite(60, 48, spriteMan);
         this.right = false;
         this.sprite.animations.add('left', [0, 1, 2, 3], 10, true);
         this.sprite.animations.add('right', [5, 6, 7, 8], 10, true);
@@ -16366,7 +16335,7 @@ var Policeman = function () {
         this.projectilesGroup = game.add.group();
         this.projectilesGroup.enableBody = true;
         this.projectilesGroup.physicsBodyType = Phaser.Physics.ARCADE;
-        this.projectilesGroup.createMultiple(5, IMAGES.PROJECTILE);
+        this.projectilesGroup.createMultiple(5, spriteBullet);
         this.projectilesGroup.setAll('anchor.x', 0.5);
         this.projectilesGroup.setAll('anchor.y', 0.5);
         this.projectilesGroup.setAll('outOfBoundsKill', true);
@@ -16377,7 +16346,7 @@ var Policeman = function () {
         deathAnimation.onComplete.add(this.afterDeath.bind(this), this);
     }
 
-    _createClass(Policeman, [{
+    _createClass(Shooter, [{
         key: 'getSprite',
         value: function getSprite() {
             return this.sprite;
@@ -16453,10 +16422,86 @@ var Policeman = function () {
         }
     }]);
 
-    return Policeman;
+    return Shooter;
 }();
 
-exports.default = Policeman;
+exports.default = Shooter;
+
+},{"./../config":6}],9:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * Created by mmitis on 23.01.16.
+ */
+var IMAGES = require('./../config').images;
+
+var Walker = function () {
+    function Walker(game, position, spriteMan) {
+        _classCallCheck(this, Walker);
+
+        this.game = game;
+        this.sprite = game.add.sprite(60, 48, spriteMan);
+        this.right = false;
+        this.sprite.animations.add('left', [0, 1, 2, 3], 10, true);
+        this.sprite.animations.add('right', [5, 6, 7, 8], 10, true);
+        this.sprite.die = this.die.bind(this);
+        this.sprite.x = position[0];
+        this.sprite.y = position[1];
+        this.death = false;
+        this.direction = true;
+        var deathAnimation = this.sprite.animations.add('death', [4, 9, 10, 11], 10);
+        deathAnimation.onComplete.add(this.afterDeath.bind(this), this);
+    }
+
+    _createClass(Walker, [{
+        key: 'getSprite',
+        value: function getSprite() {
+            return this.sprite;
+        }
+    }, {
+        key: 'die',
+        value: function die() {
+            this.death = true;
+            this.sprite.body.velocity.x = 0;
+            this.sprite.animations.play('death');
+        }
+    }, {
+        key: 'afterDeath',
+        value: function afterDeath() {
+            this.sprite.kill();
+        }
+    }, {
+        key: 'updateMovement',
+        value: function updateMovement(player) {
+            if (Phaser.Point.distance(player, this.sprite.body) < 640) {
+                if (this.death == false) {
+                    if (this.sprite.body.onWall() == true) {
+                        this.direction = !this.direction;
+                    }
+                    if (this.direction) {
+                        this.sprite.body.velocity.x = 30;
+                        this.sprite.animations.play('left');
+                    } else {
+                        this.sprite.body.velocity.x = 30;
+                        this.sprite.animations.play('right');
+                    }
+                }
+            }
+        }
+    }]);
+
+    return Walker;
+}();
+
+exports.default = Walker;
 
 },{"./../config":6}],10:[function(require,module,exports){
 'use strict';
@@ -16970,10 +17015,9 @@ LevelRender.prototype = {
     this._enemiesArray = [];
 
     //Add enemy
-    var enemyObj = enemy.create(this, [200, 0], 'policeman');
+    var enemyObj = enemy.create(this, [200, 900], 'fly');
     this._enemies.add(enemyObj.getSprite());
     this._enemiesArray.push(enemyObj);
-
     //  The score
     this._score = new Score(this, this.game.stageSetup.score);
 
@@ -17255,7 +17299,6 @@ PlayerSelection.prototype = {
 
 /* global PIXI */
 /* global Phaser */
-
 var IMAGES = require('./../config').images;
 var path = '../../assets/images/';
 
@@ -17286,9 +17329,22 @@ Preloader.prototype = {
 
         this.load.image(IMAGES.PROJECTILE, path + 'projectile.png');
         this.load.image(IMAGES.STAR, path + 'glos.png');
-        this.load.spritesheet(IMAGES.ENEMY, path + 'farmer.png', 32, 48);
-        this.load.spritesheet(IMAGES.POLICEMAN, path + 'bor.png', 32, 48);
+
+        this.load.spritesheet(IMAGES.FARMER, path + 'farmer.png', 32, 48);
+        this.load.spritesheet(IMAGES.BOR, path + 'bor.png', 32, 48);
+        this.load.spritesheet(IMAGES.MERKEL, path + 'merkel.png', 32, 48);
+        this.load.spritesheet(IMAGES.GRONKIEWICZ, path + 'gronkiewicz.png', 32, 48);
+
         this.load.spritesheet(IMAGES.PIG, path + 'swinia.png', 32, 48);
+        this.load.spritesheet(IMAGES.JOURNALIST, path + 'journalist.png', 32, 48);
+        this.load.spritesheet(IMAGES.BIZNESMAN, path + 'biznesmen.png', 32, 48);
+        this.load.spritesheet(IMAGES.SKATEBOARD, path + 'skate.png', 32, 48);
+
+        this.load.spritesheet(IMAGES.SMOG, path + 'smog.png', 60, 36);
+        this.load.spritesheet(IMAGES.COMPOST, path + 'kompost.png', 60, 36);
+        this.load.spritesheet(IMAGES.CORUPT, path + 'korupcja.png', 60, 36);
+        this.load.spritesheet(IMAGES.POPRAWNOSC, path + 'poprawnosc.png', 60, 36);
+
         this.load.image(IMAGES.FIREBALL, path + 'fireball.png');
         this.load.image(IMAGES.HEART, path + 'heart.png');
         this.load.spritesheet(IMAGES.SCORE, path + 'score.png');
@@ -17317,7 +17373,7 @@ Preloader.prototype = {
                 break;
             case 4:
                 console.log('Loaded 4 level');
-                this.load.tilemap('level43', './../../assets/mapa-sejm/mapa-sejm.json', null, Phaser.Tilemap.TILED_JSON);
+                this.load.tilemap('level4', './../../assets/mapa-sejm/mapa-sejm.json', null, Phaser.Tilemap.TILED_JSON);
                 this.load.image('tiles', './../../assets/mapa-sejm/tileset.png');
                 this.load.image('background', './../../assets/mapa-sejm/sejm-tlo.png');
                 this.load.audio('background-music', ['./../../assets/music/muzyka-sejm.mp3']);

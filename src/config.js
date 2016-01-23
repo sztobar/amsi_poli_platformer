@@ -19,7 +19,17 @@ module.exports =
         HEART       : 'heart',
         TILES_PROPS : 'tiles-props',
         PIG : 'pig',
-        POLICEMAN : 'bor'
+        BOR : 'bor',
+        BIZNESMAN : 'biznesman',
+        JOURNALIST : 'journalist',
+        CORUPT     : 'korupcja',
+        SMOG        : 'smog',
+        POPRAWNOSC : 'poprawnosc',
+        COMPOST     : 'compost',
+        FARMER      : 'farmer',
+        SKATEBOARD  : 'skate',
+        MERKEL      : 'merkel',
+        GRONKIEWICZ: 'gronkiewicz'
     },
     directions : {
        LEFT :       0,
