@@ -25,14 +25,20 @@ LevelRender.prototype = {
 
     // window.player for debugging purpose
     window.player = this._player = new Player(this, this.tiledMap.levelStart.x, this.tiledMap.levelStart.y);
-    window.enemy = this._enemy = enemy.create(this);
+
 
     this.game.sound.play('background-music');
     this.pointsGroup = this.tiledMap.createPointsGroup();
     this.checkpointsGroup = this.tiledMap.createCheckpointsGroup();
     this._enemies = this.game.add.physicsGroup();
+    this._enemiesArray = [];
 
-    this._enemies.add(enemy.getSprite());
+    //Add enemy
+    let enemyObj = enemy.create(this);
+    this._enemies.add(enemyObj.getSprite());
+    this._enemiesArray.push(enemyObj);
+
+
     //  The score
     this._score = new Score(this, this.game.stageSetup.score);
 
@@ -52,9 +58,10 @@ LevelRender.prototype = {
     spaceKey.onUp.add(this.toggleDebugMode, this);
   },
   update: function() {
-    var enemySprite = enemy.getSprite();
-    this.physics.arcade.collide(enemySprite, this.tiledMap.propsLayer, null, isObstacleTiles);
-    enemy.updateMovement();
+    this.physics.arcade.collide(this._enemies, this.tiledMap.propsLayer, null, isObstacleTiles);
+    this._enemiesArray.forEach(function(item){
+      item.updateMovement();
+    }, this);
 
     this.physics.arcade.collide(this._player.sprite, this.tiledMap.propsLayer, null, isObstacleTiles);
     this.physics.arcade.collide(this._player.projectilesGroup, this.tiledMap.propsLayer, function(p) { p.kill(); }, isObstacleTiles);
@@ -67,8 +74,8 @@ LevelRender.prototype = {
     this.physics.arcade.overlap(this._player.sprite, this._enemies , this.onKillPlayer , null, this);
 
     //Enemy actions
-    this.physics.arcade.overlap(this._player.sprite, enemy.getSprite() , this.onKillPlayer , null, this);
-    this.physics.arcade.overlap(this._player.projectilesGroup, enemy.getSprite() , this.onShotEnemy , null, this);
+    this.physics.arcade.overlap(this._player.sprite, this._enemies , this.onKillPlayer , null, this);
+    this.physics.arcade.overlap(this._player.projectilesGroup,this._enemies , this.onShotEnemy , null, this);
 
     //End level
     this.physics.arcade.overlap(this._player.sprite, this.tiledMap.getEndPoint() , this.endLevel , null, this);
@@ -112,7 +119,7 @@ LevelRender.prototype = {
     }
     this._player.die();
   },
-  onShotEnemy : function( enemy, bullet){
+  onShotEnemy : function( bullet, enemy){
       bullet.kill();
       enemy.die();
 

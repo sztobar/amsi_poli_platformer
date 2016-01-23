@@ -8,6 +8,7 @@ var browserSync = require('browser-sync').create();
 
 var watchify = require('watchify');
 var browserify = require('browserify');
+var babelify = require('babelify');
 
 var buffer = require('vinyl-buffer');
 var source = require('vinyl-source-stream');
@@ -25,7 +26,7 @@ var opts = _.assign({}, watchify.args, customOpts);
 
 
 function gulpBundle(builder) {   
-  return builder.bundle()
+  return builder.transform(babelify, {presets: ["es2015"]}).bundle()
     // log errors if they happen
     .on('error', gutil.log.bind(gutil, 'Browserify Error'))
     .pipe(source('build.js'))

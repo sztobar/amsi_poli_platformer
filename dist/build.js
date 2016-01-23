@@ -15962,75 +15962,56 @@
 
 }));
 },{}],3:[function(require,module,exports){
+'use strict';
+
+var _Farmer = require('./enemies/Farmer');
+
+var _Farmer2 = _interopRequireDefault(_Farmer);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 var IMAGES = require('./config').images;
 
-var enemySprite;
-var right = true;
-
-
-exports.create = function(game, type) {
+exports.create = function (game, type) {
+    var enemy;
     // The enemySprite and its settings
-    enemySprite = game.add.sprite(60, 60, IMAGES.ENEMY);
+    switch (type) {
+        case 'farmer':
+            enemy = new _Farmer2.default(game);
+            break;
+        default:
+            enemy = new _Farmer2.default(game);
+            break;
+    }
+    defaultConfiguration(game, enemy.getSprite());
 
-    //  We need to enable physics on the enemySprite
+    return enemy;
+};
+
+var defaultConfiguration = function defaultConfiguration(game, enemySprite) {
     game.physics.arcade.enable(enemySprite);
-
     //  enemySprite physics properties. Give the little guy a slight bounce.
     enemySprite.body.bounce.y = 0.1;
     enemySprite.body.gravity.y = 350;
     enemySprite.body.collideWorldBounds = true;
 
-    //enemySprite.animations.add('death', [4, 9, 10, 11], 10);
-    //deathAnimation.onComplete.add(this.afterDeath, this);
-
     enemySprite.anchor.x = 0.5;
     enemySprite.anchor.y = 0.5;
-    //  Our two animations, walking left and right.
-    enemySprite.animations.add('left', [0, 1, 2, 3], 10, true);
-    enemySprite.animations.add('right', [5, 6, 7, 8], 10, true);
-    enemySprite.die = function(){
-        enemySprite.kill();
-    };
 };
 
-exports.getSprite = function() {
-    return enemySprite;
-};
-
-exports.updateMovement = function() {
-	if (enemySprite.body.blocked.right)
-	{
-		right = false;
-	}
-	else if (enemySprite.body.blocked.left)
-	{
-		right = true;
-	}
-	
-    if (right)
-    {
-        enemySprite.body.velocity.x = 100;
-		enemySprite.animations.play('right');
-    } 
-    else 
-    {
-        enemySprite.body.velocity.x = -100;
-		enemySprite.animations.play('left');
-    } 
-};
-},{"./config":6}],4:[function(require,module,exports){
+},{"./config":6,"./enemies/Farmer":7}],4:[function(require,module,exports){
+"use strict";
 
 module.exports = {
 
-
-    unpause: function(game){
+    unpause: function unpause(game) {
         // Only act if paused
-        if(game.paused){
+        if (game.paused) {
             game.paused = false;
         }
     },
-    pause : function(game){
-        if(!game.paused) {
+    pause: function pause(game) {
+        if (!game.paused) {
             game.paused = true;
             var menu = game.add.graphics(0, 0);
             menu.inputEnabled = true;
@@ -16043,7 +16024,10 @@ module.exports = {
         }
     }
 };
+
 },{}],5:[function(require,module,exports){
+'use strict';
+
 /* global Phaser */
 /* global _ */
 /* global PIXI */
@@ -16053,7 +16037,7 @@ var _ = require('lodash');
 var TILES = config.tiles;
 var IMAGES = config.images;
 
-function TiledLevel(game, id ) {
+function TiledLevel(game, id) {
   this.game = game;
   this.tilemap = this.game.add.tilemap('level' + id);
 
@@ -16073,8 +16057,12 @@ function TiledLevel(game, id ) {
 
   this.tilemap.setLayer(this.propsLayer);
 
-  this.levelStart = _.find(this.tilemap.objects.objects, function(obj) { return obj.name === 'start' });
-  var endObject = _.find(this.tilemap.objects.objects, function(obj) { return obj.name === 'end' });
+  this.levelStart = _.find(this.tilemap.objects.objects, function (obj) {
+    return obj.name === 'start';
+  });
+  var endObject = _.find(this.tilemap.objects.objects, function (obj) {
+    return obj.name === 'end';
+  });
   this.levelEnd = game.add.sprite(endObject.x, endObject.y);
   game.physics.arcade.enable(this.levelEnd);
   this.levelEnd.anchor.y = 1;
@@ -16088,9 +16076,7 @@ function TiledLevel(game, id ) {
 
       if (tile.index === TILES.PLATFORM) {
         tile.setCollision(false, false, true, false);
-      } else if (tile.index === TILES.SPIKE ||
-          tile.index === TILES.TRAP ||
-          tile.index === TILES.OBSTACLE) {
+      } else if (tile.index === TILES.SPIKE || tile.index === TILES.TRAP || tile.index === TILES.OBSTACLE) {
         tile.setCollision(true, true, true, true);
       }
     }
@@ -16098,83 +16084,168 @@ function TiledLevel(game, id ) {
 }
 
 TiledLevel.prototype = {
-  createPointsGroup: function() {
-    var group  = this.game.add.group();
+  createPointsGroup: function createPointsGroup() {
+    var group = this.game.add.group();
     group.enableBody = true;
     this.tilemap.createFromObjects('objects', TILES.POINT, IMAGES.STAR, -1, true, false, group, Phaser.Sprite, true);
     return group;
   },
-  createCheckpointsGroup: function() {
-    var group  = this.game.add.group();
+  createCheckpointsGroup: function createCheckpointsGroup() {
+    var group = this.game.add.group();
     group.enableBody = true;
     this.tilemap.createFromObjects('objects', TILES.CHECKPOINT, IMAGES.TILES_PROPS, 6, true, false, group, Phaser.Sprite, true);
     return group;
   },
-  getEndPoint : function(){
+  getEndPoint: function getEndPoint() {
     return this.levelEnd;
   },
-  getTrapTiles: function(onCollideCb, onCollideCtx) {
+  getTrapTiles: function getTrapTiles(onCollideCb, onCollideCtx) {
     var trapTiles = [];
     var layer = this.propsLayer.layer;
     for (var y = 0; y < layer.height; y++) {
       for (var x = 0; x < layer.width; x++) {
         var tile = layer.data[y][x];
 
-        if (tile &&
-          tile.index === TILES.TRAP ||
-          tile.index === TILES.SPIKE) {
-            tile.setCollision(true, true, true, true);
-            trapTiles.push(tile);
+        if (tile && tile.index === TILES.TRAP || tile.index === TILES.SPIKE) {
+          tile.setCollision(true, true, true, true);
+          trapTiles.push(tile);
         }
       }
     }
     return trapTiles;
   }
-}
+};
 
 module.exports = TiledLevel;
 
 },{"./config":6,"lodash":1}],6:[function(require,module,exports){
-module.exports =
-{
-    images : {
-        PLAYER      : 'player',
-        ENEMY       : 'swinia',
-        SKY         : 'sky',
-        GROUND      : 'ground',
-        STAR        : 'star',
-        PROJECTILE  : 'projectile',
-        PLAYER_1    : 'player_1',
-        PLAYER_2    : 'player_2',
-        PLAYER_3    : 'player_3',
-        PLAYER_4    : 'player_4',
-        PLAYER_1_AV : 'player_1av',
-        PLAYER_2_AV : 'player_2av',
-        PLAYER_3_AV : 'player_3av',
-        PLAYER_4_AV : 'player_4av',
-        SCORE       : 'score',
-        HEART       : 'heart',
-        TILES_PROPS : 'tiles-props'
+'use strict';
+
+module.exports = {
+    images: {
+        PLAYER: 'player',
+        ENEMY: 'swinia',
+        SKY: 'sky',
+        GROUND: 'ground',
+        STAR: 'star',
+        PROJECTILE: 'projectile',
+        PLAYER_1: 'player_1',
+        PLAYER_2: 'player_2',
+        PLAYER_3: 'player_3',
+        PLAYER_4: 'player_4',
+        PLAYER_1_AV: 'player_1av',
+        PLAYER_2_AV: 'player_2av',
+        PLAYER_3_AV: 'player_3av',
+        PLAYER_4_AV: 'player_4av',
+        SCORE: 'score',
+        HEART: 'heart',
+        TILES_PROPS: 'tiles-props'
     },
-    directions : {
-       LEFT :       0,
-       RIGHT :      1
+    directions: {
+        LEFT: 0,
+        RIGHT: 1
     },
     gameSize: {
         width: 640,
         height: 960
     },
     tiles: {
-      OBSTACLE: 17,
-      PLATFORM: 18,
-      SPIKE: 21,
-      TRAP: 22,
-      CHECKPOINT: 23,
-      POINT: 24
+        OBSTACLE: 17,
+        PLATFORM: 18,
+        SPIKE: 21,
+        TRAP: 22,
+        CHECKPOINT: 23,
+        POINT: 24
     }
 };
 
 },{}],7:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () {
+    function defineProperties(target, props) {
+        for (var i = 0; i < props.length; i++) {
+            var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+        }
+    }return function (Constructor, protoProps, staticProps) {
+        if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+    };
+}();
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+        throw new TypeError("Cannot call a class as a function");
+    }
+}
+
+/**
+ * Created by mmitis on 23.01.16.
+ */
+var IMAGES = require('./../config').images;
+
+var Farmer = function () {
+    function Farmer(game) {
+        _classCallCheck(this, Farmer);
+
+        this.game = game;
+        this.sprite = game.add.sprite(60, 60, IMAGES.ENEMY);
+        this.right = false;
+        this.sprite.animations.add('left', [0, 1, 2, 3], 10, true);
+        this.sprite.animations.add('right', [5, 6, 7, 8], 10, true);
+        this.sprite.die = this.die.bind(this);
+        var deathAnimation = this.sprite.animations.add('death', [4, 9, 10, 11], 10);
+        deathAnimation.onComplete.add(this.afterDeath.bind(this), this);
+    }
+
+    _createClass(Farmer, [{
+        key: 'getSprite',
+        value: function getSprite() {
+            return this.sprite;
+        }
+    }, {
+        key: 'die',
+        value: function die() {
+            this.sprite.body.velocity.x = 0;
+            this.sprite.animations.play('death');
+        }
+    }, {
+        key: 'afterDeath',
+        value: function afterDeath() {
+            this.sprite.kill();
+        }
+    }, {
+        key: 'updateMovement',
+        value: function updateMovement() {
+            if (this.death == true) {
+                if (this.sprite.body.blocked.right) {
+                    this.right = false;
+                } else if (this.sprite.body.blocked.left) {
+                    this.right = true;
+                }
+
+                if (this.right) {
+                    this.sprite.body.velocity.x = 100;
+                    this.sprite.animations.play('right');
+                } else {
+                    this.sprite.body.velocity.x = -100;
+                    this.sprite.animations.play('left');
+                }
+            }
+        }
+    }]);
+
+    return Farmer;
+}();
+
+exports.default = Farmer;
+
+},{"./../config":6}],8:[function(require,module,exports){
+'use strict';
+
 /* global Phaser */
 var IMAGES = require('../config').images;
 var CHAR_WIDTH = 200;
@@ -16191,21 +16262,21 @@ function Life(game) {
 }
 
 Life.prototype = {
-  createImage: function(x, y) {
+  createImage: function createImage(x, y) {
     var image = this.game.add.image(x, y, IMAGES.HEART);
     image.fixedToCamera = true;
     image.scale.set(0.2);
     image.alpha = 0.9;
     return image;
   },
-  createImages: function(x, y) {
+  createImages: function createImages(x, y) {
     var images = [];
     for (var i = 0, len = 3; i < len; i++) {
-      images[i] = this.createImage(x + (i * 50), y);
+      images[i] = this.createImage(x + i * 50, y);
     }
     return images;
   },
-  setCount: function(count) {
+  setCount: function setCount(count) {
     this._count = count;
     for (var i = 0, len = 3; i < len; i++) {
       if (i < 3 - count) {
@@ -16215,13 +16286,13 @@ Life.prototype = {
       }
     }
   },
-  inc: function() {
+  inc: function inc() {
     if (this._count < 3) {
       this.setCount(this._count + 1);
     }
     return this._count;
   },
-  dec: function() {
+  dec: function dec() {
     if (this._count > 0) {
       this.setCount(this._count - 1);
     }
@@ -16231,7 +16302,9 @@ Life.prototype = {
 
 module.exports = Life;
 
-},{"../config":6}],8:[function(require,module,exports){
+},{"../config":6}],9:[function(require,module,exports){
+'use strict';
+
 /* global Phaser */
 var IMAGES = require('../config').images;
 var CHAR_WIDTH = 200;
@@ -16260,14 +16333,14 @@ function Score(game, score) {
 }
 
 Score.prototype = {
-  update: function() {
+  update: function update() {
     this.font.setText('' + this._counter, false, 0, 0, Phaser.RetroFont.ALIGN_RIGHT);
   },
-  inc: function(n) {
+  inc: function inc(n) {
     this._counter += n;
     this.update();
   },
-  dec: function(n) {
+  dec: function dec(n) {
     this._counter -= n;
     this._counter = Math.max(0, this._counter);
     this.update();
@@ -16276,7 +16349,9 @@ Score.prototype = {
 
 module.exports = Score;
 
-},{"../config":6}],9:[function(require,module,exports){
+},{"../config":6}],10:[function(require,module,exports){
+'use strict';
+
 /* global Phaser */
 var Boot = require('./stages/Boot'),
     Preloader = require('./stages/Preloader'),
@@ -16296,7 +16371,9 @@ game.state.add('PlayerSelection', PlayerSelection);
 game.state.add('LevelRenderer', LevelRenderer);
 game.state.start('Boot');
 
-},{"./stages/Boot":11,"./stages/EndScore":12,"./stages/LevelRenderer":13,"./stages/MainMenu":14,"./stages/PlayerSelection":15,"./stages/Preloader":16,"./stages/Scoreboard":17}],10:[function(require,module,exports){
+},{"./stages/Boot":12,"./stages/EndScore":13,"./stages/LevelRenderer":14,"./stages/MainMenu":15,"./stages/PlayerSelection":16,"./stages/Preloader":17,"./stages/Scoreboard":18}],11:[function(require,module,exports){
+'use strict';
+
 /* global Phaser */
 /* global PIXI */
 var config = require('./config');
@@ -16312,15 +16389,15 @@ function Player(game, x, y) {
 
   this._checkpoint = new Phaser.PIXI.Point(x, y);
   // The playerSprite and its settings
-  console.log('Loaded', 'PLAYER_'+ this._game.game.currentSelectHero);
-  this.sprite = game.add.sprite(x, y, IMAGES['PLAYER_'+ this._game.game.currentSelectHero]);
-  
+  console.log('Loaded', 'PLAYER_' + this._game.game.currentSelectHero);
+  this.sprite = game.add.sprite(x, y, IMAGES['PLAYER_' + this._game.game.currentSelectHero]);
+
   //  We need to enable physics on the playerSprite
   game.physics.arcade.enable(this.sprite);
   this.sprite.position.y -= this.sprite.height;
   this.sprite.body.setSize(32, 32, 0, this.sprite.height - 32);
   game.camera.follow(this.sprite);
-  
+
   //  playerSprite physics properties. Give the little guy a slight bounce.
   this.sprite.body.bounce.y = 0;
   this.sprite.body.gravity.y = 600;
@@ -16330,26 +16407,26 @@ function Player(game, x, y) {
   //  Our two animations, walking left and right.
   this.sprite.animations.add('left', [0, 1, 2, 3], 10, true);
   this.sprite.animations.add('right', [5, 6, 7, 8], 10, true);
-  
+
   this.sprite.animations.add('shootleft', [12], 10, true);
   this.sprite.animations.add('shootright', [13], 10, true);
-  
+
   var deathAnimation = this.sprite.animations.add('death', [4, 9, 10, 11], 10);
   deathAnimation.onComplete.add(this.afterDeath, this);
-  
+
   this._jumpKey = game.input.keyboard.addKey(Phaser.KeyCode.X);
   this._jumpKey.onDown.add(this.handleJumpKeyDown, this);
   this._jumpKey.onUp.add(this.handleJumpKeyUp, this);
-  
+
   this._shootKey = game.input.keyboard.addKey(Phaser.KeyCode.Z);
   this._shootKey.onDown.add(this.handleShootKeyDown, this);
   this._shootKey.onUp.add(this.handleShootKeyUp, this);
-  
+
   this._leftKey = game.input.keyboard.addKey(Phaser.KeyCode.LEFT);
   this._rightKey = game.input.keyboard.addKey(Phaser.KeyCode.RIGHT);
   //  Stop the following keys from propagating up to the browser
-  game.input.keyboard.addKeyCapture([ Phaser.Keyboard.LEFT, Phaser.Keyboard.RIGHT ]);
-  
+  game.input.keyboard.addKeyCapture([Phaser.Keyboard.LEFT, Phaser.Keyboard.RIGHT]);
+
   this._1Key = game.input.keyboard.addKey(Phaser.KeyCode.ONE);
   this._2Key = game.input.keyboard.addKey(Phaser.KeyCode.TWO);
   this._3Key = game.input.keyboard.addKey(Phaser.KeyCode.THREE);
@@ -16368,14 +16445,14 @@ function Player(game, x, y) {
 }
 
 Player.prototype = {
-  update: function() {
-  
+  update: function update() {
+
     //  Reset the players velocity (movement)
     this.sprite.body.velocity.x = 0;
-    
+
     if (this.immovable) {
       return;
-    } 
+    }
 
     if (this._leftKey.isDown) {
       //  Move to the left
@@ -16392,42 +16469,39 @@ Player.prototype = {
       this.sprite.animations.stop();
       this.sprite.frame = 4;
     }
-    
-    
+
     if (this.sprite.body.onFloor()) {
       this._jumps = 2;
     }
-    
+
     if (this._jumps > 0 && this._makeJump) {
       this.sprite.body.velocity.y = -JUMP_SPEED;
       this._makeJump = false;
       this._jumps--;
     }
-    
+
     if (this._makeShoot && this._game.time.now > this._nextFire && this.projectilesGroup.countDead() > 0) {
       this._nextFire = this._game.time.now + FIRE_RATE;
 
       var projectile = this.projectilesGroup.getFirstDead();
 
-      projectile.reset(this.sprite.position.x + this.sprite.width/2, this.sprite.position.y + this.sprite.height/2);
+      projectile.reset(this.sprite.position.x + this.sprite.width / 2, this.sprite.position.y + this.sprite.height / 2);
       if (this.direction === DIRECTIONS.RIGHT) {
         projectile.body.velocity.x = PROJECTILE_VELOCITY;
       } else {
-        projectile.body.velocity.x = -PROJECTILE_VELOCITY;        
+        projectile.body.velocity.x = -PROJECTILE_VELOCITY;
       }
-    //  Allow the player to jump if they are touching the ground.
+      //  Allow the player to jump if they are touching the ground.
     }
-    
+
     var cameraView = this._game.world.camera.view;
-    this.projectilesGroup.children.forEach(function(projectile) {
+    this.projectilesGroup.children.forEach(function (projectile) {
       if (projectile.alive && !cameraView.intersects(projectile)) {
         projectile.kill();
       }
       projectile.rotation += 0.25;
     });
 
-
-    
     if (this._1Key.isDown) {
       this.sprite.loadTexture(IMAGES.PLAYER_1, this.sprite.frame);
     }
@@ -16440,53 +16514,54 @@ Player.prototype = {
     if (this._4Key.isDown) {
       this.sprite.loadTexture(IMAGES.PLAYER_4, this.sprite.frame);
     }
-    
   },
-  handleJumpKeyDown : function() {
+  handleJumpKeyDown: function handleJumpKeyDown() {
     this._makeJump = true;
   },
-  handleJumpKeyUp : function() {
+  handleJumpKeyUp: function handleJumpKeyUp() {
     this._makeJump = false;
   },
-  handleShootKeyDown : function() {
+  handleShootKeyDown: function handleShootKeyDown() {
     this._makeShoot = true;
   },
-  handleShootKeyUp : function(){
+  handleShootKeyUp: function handleShootKeyUp() {
     this._makeShoot = false;
   },
-  resetToCheckpoint: function() {
+  resetToCheckpoint: function resetToCheckpoint() {
     this.sprite.position.set(this._checkpoint.x, this._checkpoint.y - this.sprite.body.height - 5);
     var that = this;
-    setTimeout(function() {
+    setTimeout(function () {
       that.immovable = false;
     });
   },
-  setCheckpoint: function(x, y) {
+  setCheckpoint: function setCheckpoint(x, y) {
     this._checkpoint.set(x, y);
   },
-  die: function() {
+  die: function die() {
     this.immovable = true;
     this.sprite.animations.play('death');
   },
-  afterDeath: function() {
+  afterDeath: function afterDeath() {
     this.resetToCheckpoint();
   }
 };
 
 module.exports = Player;
 
-},{"./config":6}],11:[function(require,module,exports){
+},{"./config":6}],12:[function(require,module,exports){
+'use strict';
+
 /* global Phaser */
 var path = '../../assets/images/';
 
-function Boot (game){};
+function Boot(game) {};
 
 Boot.prototype = {
-	preload: function(){
+	preload: function preload() {
 		// preload the loading indicator first before anything else
 		this.load.image('preloaderBar', path + 'loading-bar.png');
 	},
-	create: function(){
+	create: function create() {
 		// set scale options
 		// this.input.maxPointers = 1;
 		this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
@@ -16498,20 +16573,23 @@ Boot.prototype = {
 };
 
 module.exports = Boot;
-},{}],12:[function(require,module,exports){
+
+},{}],13:[function(require,module,exports){
+"use strict";
+
 module.exports = EndScore;
 function EndScore(game) {
     this.game = game;
     this.currentlySelected = -1;
 };
-var style = {font: "bold 32px Arial", fill: "#ecf0f1", boundsAlignH: "center", boundsAlignV: "middle"};
-var selectedStyle = {font: "bold 32px Arial", fill: "#ff3333", boundsAlignH: "center", boundsAlignV: "middle"};
+var style = { font: "bold 32px Arial", fill: "#ecf0f1", boundsAlignH: "center", boundsAlignV: "middle" };
+var selectedStyle = { font: "bold 32px Arial", fill: "#ff3333", boundsAlignH: "center", boundsAlignV: "middle" };
 var menuTexts = [];
 EndScore.prototype = {
-    init: function (stageSetup) {
+    init: function init(stageSetup) {
         this.stageSetup = stageSetup;
     },
-    create: function () {
+    create: function create() {
         this._upKey = this.game.input.keyboard.addKey(Phaser.Keyboard.UP);
         this._downKey = this.game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
         this._acceptKey = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
@@ -16529,38 +16607,28 @@ EndScore.prototype = {
                 title: 'Gra ukończona',
                 score: 'Wynik końcowy:' + this.stageSetup.score
             };
-            menu = [
-                ['Do menu!', 330, this.toMainMenu],
-                ['Zagraj jeszcze raz', 370, this.repeatGame]
-            ];
+            menu = [['Do menu!', 330, this.toMainMenu], ['Zagraj jeszcze raz', 370, this.repeatGame]];
             this.saveScore(this.game.currentSelectHero, this.stageSetup.score);
         } else {
             texts = {
                 title: 'Poziom ukończony',
                 score: 'Aktualny Wynik:' + this.stageSetup.score
             };
-            menu = [
-                ['Kolejny poziom', 330, this.nextLevel],
-                ['Powtórz poziom', 370, this.repeatLevel]
-            ];
+            menu = [['Kolejny poziom', 330, this.nextLevel], ['Powtórz poziom', 370, this.repeatLevel]];
         }
         this.game.add.text(320, 100, texts.title, {
-                font: "bold 70px Arial",
-                fill: "#2c3e50",
-                boundsAlignH: "center",
-                boundsAlignV: "middle"
-            }
-        ).anchor.set(0.5);
+            font: "bold 70px Arial",
+            fill: "#2c3e50",
+            boundsAlignH: "center",
+            boundsAlignV: "middle"
+        }).anchor.set(0.5);
 
         this.game.add.text(320, 160, texts.score, {
-                font: "bold 40px Arial",
-                fill: "#d35400",
-                boundsAlignH: "center",
-                boundsAlignV: "middle"
-            }
-        ).anchor.set(0.5);
-
-
+            font: "bold 40px Arial",
+            fill: "#d35400",
+            boundsAlignH: "center",
+            boundsAlignV: "middle"
+        }).anchor.set(0.5);
 
         for (var menuPos in menu) {
             if (menu.hasOwnProperty(menuPos)) {
@@ -16577,40 +16645,36 @@ EndScore.prototype = {
 
         menuTexts[0].setStyle(selectedStyle);
         this.currentlySelected = 0;
-
-
     },
 
-    saveScore: function(hero, score){
-        if(typeof(Storage) !== "undefined") {
-           var scoreboard = JSON.parse(localStorage.getItem("scoreboard") || "[]");
+    saveScore: function saveScore(hero, score) {
+        if (typeof Storage !== "undefined") {
+            var scoreboard = JSON.parse(localStorage.getItem("scoreboard") || "[]");
 
-           var heroLabels = {
-               1 : 'Braun',
-               2 : 'Macierewicz',
-               3 : 'Nie znam naziwska',
-               4 : 'Liroy'
-           };
-           scoreboard.push({
-               name : heroLabels[hero],
-               score: score,
-               date : new Date()
-           });
+            var heroLabels = {
+                1: 'Braun',
+                2: 'Macierewicz',
+                3: 'Nie znam naziwska',
+                4: 'Liroy'
+            };
+            scoreboard.push({
+                name: heroLabels[hero],
+                score: score,
+                date: new Date()
+            });
 
-          scoreboard.sort(function(scoreA, scoreB){
-              return scoreA.score < scoreB.score;
-          });
+            scoreboard.sort(function (scoreA, scoreB) {
+                return scoreA.score < scoreB.score;
+            });
 
-          localStorage.setItem('scoreboard', JSON.stringify(scoreboard));
-
+            localStorage.setItem('scoreboard', JSON.stringify(scoreboard));
         }
     },
-    changeMenuPos: function () {
+    changeMenuPos: function changeMenuPos() {
         if (this._upKey.isDown) {
             menuTexts[this.currentlySelected].setStyle(style);
             this.currentlySelected = this.currentlySelected == 0 ? menuTexts.length - 1 : this.currentlySelected - 1;
             menuTexts[this.currentlySelected].setStyle(selectedStyle);
-
         } else if (this._downKey.isDown) {
             menuTexts[this.currentlySelected].setStyle(style);
             this.currentlySelected = this.currentlySelected + 1 >= menuTexts.length ? 0 : this.currentlySelected + 1;
@@ -16618,46 +16682,48 @@ EndScore.prototype = {
         } else if (this._acceptKey.isDown) {
             menuTexts[this.currentlySelected].events.onInputDown.dispatch();
         }
-    }
-    ,
-    repeatGame: function () {
+    },
+
+    repeatGame: function repeatGame() {
         var self = this;
         this.game.stageSetup = {
             level: self.game.stageSetup.level,
             score: self.game.stageSetup.score
         };
         this.state.start('Preloader');
-    }
-    ,
-    repeatLevel: function () {
+    },
+
+    repeatLevel: function repeatLevel() {
         var self = this;
         this.game.stageSetup = {
             level: 1,
             score: self.game.stageSetup.score
         };
         this.state.start('Preloader');
-    }
-    ,
-    nextLevel: function () {
+    },
+
+    nextLevel: function nextLevel() {
         var self = this;
         this.game.stageSetup = {
             level: self.game.stageSetup.level + 1,
             score: self.game.stageSetup.score
         };
         this.state.start('Preloader');
-    }
-    ,
-    toMainMenu: function () {
+    },
+
+    toMainMenu: function toMainMenu() {
         this.state.start('MainMenu');
     }
 
+};
 
-}
-;
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
+'use strict';
+
 /* global _ */
 /* global PIXI */
 /* global Phaser */
+
 var config = require('../config');
 var Player = require('../player');
 var TiledLevel = require('../TiledLevel');
@@ -16670,26 +16736,30 @@ var IMAGES = config.images;
 var TILES = config.tiles;
 
 function LevelRender(game) {
-	this._player = null;
-	this._platformsGroup = null;
+  this._player = null;
+  this._platformsGroup = null;
   this._obstaclesLayer = null;
 }
 
 LevelRender.prototype = {
-  create: function() {
+  create: function create() {
     this.physics.startSystem(Phaser.Physics.ARCADE);
     this.tiledMap = new TiledLevel(this.game, this.game.stageSetup.level);
 
     // window.player for debugging purpose
     window.player = this._player = new Player(this, this.tiledMap.levelStart.x, this.tiledMap.levelStart.y);
-    window.enemy = this._enemy = enemy.create(this);
 
     this.game.sound.play('background-music');
     this.pointsGroup = this.tiledMap.createPointsGroup();
     this.checkpointsGroup = this.tiledMap.createCheckpointsGroup();
     this._enemies = this.game.add.physicsGroup();
+    this._enemiesArray = [];
 
-    this._enemies.add(enemy.getSprite());
+    //Add enemy
+    var enemyObj = enemy.create(this);
+    this._enemies.add(enemyObj.getSprite());
+    this._enemiesArray.push(enemyObj);
+
     //  The score
     this._score = new Score(this, this.game.stageSetup.score);
 
@@ -16700,57 +16770,61 @@ LevelRender.prototype = {
 
     //Pause handling
     var pauseKey = this.input.keyboard.addKey(Phaser.KeyCode.P);
-    pauseKey.onUp.add(function(){
+    pauseKey.onUp.add(function () {
       pauseUtils.pause(this.game);
     }, this);
-
 
     var spaceKey = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
     spaceKey.onUp.add(this.toggleDebugMode, this);
   },
-  update: function() {
-    var enemySprite = enemy.getSprite();
-    this.physics.arcade.collide(enemySprite, this.tiledMap.propsLayer, null, isObstacleTiles);
-    enemy.updateMovement();
+  update: function update() {
+    this.physics.arcade.collide(this._enemies, this.tiledMap.propsLayer, null, isObstacleTiles);
+    this._enemiesArray.forEach(function (item) {
+      item.updateMovement();
+    }, this);
 
     this.physics.arcade.collide(this._player.sprite, this.tiledMap.propsLayer, null, isObstacleTiles);
-    this.physics.arcade.collide(this._player.projectilesGroup, this.tiledMap.propsLayer, function(p) { p.kill(); }, isObstacleTiles);
+    this.physics.arcade.collide(this._player.projectilesGroup, this.tiledMap.propsLayer, function (p) {
+      p.kill();
+    }, isObstacleTiles);
 
     this.physics.arcade.overlap(this._player.sprite, this.tiledMap.propsLayer, this.onTrapCollide, isTrapTiles, this);
 
     this.physics.arcade.overlap(this._player.sprite, this.pointsGroup, this.collectStar, null, this);
     this.physics.arcade.overlap(this._player.sprite, this.checkpointsGroup, this.onCheckpointCollide, null, this);
 
-    this.physics.arcade.overlap(this._player.sprite, this._enemies , this.onKillPlayer , null, this);
+    this.physics.arcade.overlap(this._player.sprite, this._enemies, this.onKillPlayer, null, this);
 
     //Enemy actions
-    this.physics.arcade.overlap(this._player.sprite, enemy.getSprite() , this.onKillPlayer , null, this);
-    this.physics.arcade.overlap(this._player.projectilesGroup, enemy.getSprite() , this.onShotEnemy , null, this);
+    this.physics.arcade.overlap(this._player.sprite, this._enemies, this.onKillPlayer, null, this);
+    this.physics.arcade.overlap(this._player.projectilesGroup, this._enemies, this.onShotEnemy, null, this);
 
     //End level
-    this.physics.arcade.overlap(this._player.sprite, this.tiledMap.getEndPoint() , this.endLevel , null, this);
+    this.physics.arcade.overlap(this._player.sprite, this.tiledMap.getEndPoint(), this.endLevel, null, this);
 
     this._player.update();
   },
-  collectStar: function (playerSprite, star) {
+  collectStar: function collectStar(playerSprite, star) {
     // Removes the star from the screen
     star.kill();
     // update score
     this._score.inc(10);
   },
-  render: function() {
+  render: function render() {
     if (this._debugMode) {
       this.game.debug.body(this._player.sprite);
       this.game.debug.text('Active Projectiles: ' + this._player.projectilesGroup.total, 32, 432);
       this.game.debug.text('DEBUG MODE', 32, 464);
     }
   },
-  endLevel: function() {
-     this.game.stageSetup.score = this._score._counter;
-	 this.state.start('EndScore', true, true, this.game.stageSetup);
+  endLevel: function endLevel() {
+    this.game.stageSetup.score = this._score._counter;
+    this.state.start('EndScore', true, true, this.game.stageSetup);
   },
-  onTrapCollide: function() {
-    if (this._player.immovable) { return; }
+  onTrapCollide: function onTrapCollide() {
+    if (this._player.immovable) {
+      return;
+    }
     var lifeCount = this._life.dec();
     if (lifeCount === 0) {
       // od dead reset life counter and subtract points
@@ -16759,8 +16833,10 @@ LevelRender.prototype = {
     }
     this._player.die();
   },
-  onKillPlayer : function (player, enemy) {
-    if (this._player.immovable) { return; }
+  onKillPlayer: function onKillPlayer(player, enemy) {
+    if (this._player.immovable) {
+      return;
+    }
     var lifeCount = this._life.dec();
     if (lifeCount === 0) {
       // od dead reset life counter and subtract points
@@ -16769,16 +16845,15 @@ LevelRender.prototype = {
     }
     this._player.die();
   },
-  onShotEnemy : function( enemy, bullet){
-      bullet.kill();
-      enemy.die();
-
+  onShotEnemy: function onShotEnemy(bullet, enemy) {
+    bullet.kill();
+    enemy.die();
   },
-  onCheckpointCollide: function(player, checkpoint) {
+  onCheckpointCollide: function onCheckpointCollide(player, checkpoint) {
     this._player.setCheckpoint(checkpoint.position.x, checkpoint.position.y + checkpoint.height);
     checkpoint.kill();
-  }, 
-  toggleDebugMode: function() {
+  },
+  toggleDebugMode: function toggleDebugMode() {
     this._debugMode = !this._debugMode;
     this.tiledMap.propsLayer.visible = this._debugMode;
   }
@@ -16786,35 +16861,30 @@ LevelRender.prototype = {
 
 module.exports = LevelRender;
 
-
 function isObstacleTiles(point, tile) {
-  return tile.index === TILES.OBSTACLE ||
-    tile.index === TILES.PLATFORM;
+  return tile.index === TILES.OBSTACLE || tile.index === TILES.PLATFORM;
 }
 
 function isTrapTiles(point, tile) {
-  return (
-    tile.index === TILES.TRAP ||
-    tile.index === TILES.SPIKE
-  );
+  return tile.index === TILES.TRAP || tile.index === TILES.SPIKE;
 }
 
-},{"../EnemyFactory":3,"../Pause":4,"../TiledLevel":5,"../config":6,"../hud/life":7,"../hud/score":8,"../player":10}],14:[function(require,module,exports){
+},{"../EnemyFactory":3,"../Pause":4,"../TiledLevel":5,"../config":6,"../hud/life":8,"../hud/score":9,"../player":11}],15:[function(require,module,exports){
+"use strict";
+
 module.exports = MainMenu;
-function MainMenu(game){
+function MainMenu(game) {
     this.currentlySelected = 0;
 };
-var nBack_frames =  0;
+var nBack_frames = 0;
 var style = { font: "bold 32px Arial", fill: "#ecf0f1", boundsAlignH: "center", boundsAlignV: "middle" };
 var selectedStyle = { font: "bold 32px Arial", fill: "#ff3333", boundsAlignH: "center", boundsAlignV: "middle" };
 
 var menuTexts = [];
 MainMenu.prototype = {
-    preload: function() {
+    preload: function preload() {},
 
-    },
-
-    create: function() {
+    create: function create() {
 
         this._upKey = this.game.input.keyboard.addKey(Phaser.Keyboard.UP);
         this._downKey = this.game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
@@ -16824,91 +16894,81 @@ MainMenu.prototype = {
         this._acceptKey.onDown.add(this.changeMenuPos, this);
 
         //Defined Menu
-        var menu = [
-            ['Start', 250, this.openPlayerSelection],
-            ['Tablica wyników', 290, this.openScoreBoard],
-            ['Twórcy', 330, this.openCredits],
-            ['Wyjście', 370, function(){}]
-        ];
+        var menu = [['Start', 250, this.openPlayerSelection], ['Tablica wyników', 290, this.openScoreBoard], ['Twórcy', 330, this.openCredits], ['Wyjście', 370, function () {}]];
 
-        this.game.add.text(320,  100 , "PoliticAmsi" ,{ font: "bold 80px Arial", fill: "#2c3e50", boundsAlignH: "center", boundsAlignV: "middle" }
-        ).anchor.set(0.5);;
+        this.game.add.text(320, 100, "PoliticAmsi", { font: "bold 80px Arial", fill: "#2c3e50", boundsAlignH: "center", boundsAlignV: "middle" }).anchor.set(0.5);
 
         this.game.stage.backgroundColor = '#1abc9c';
-        for(var menuPos in menu){
-            if(menu.hasOwnProperty(menuPos)){
+        for (var menuPos in menu) {
+            if (menu.hasOwnProperty(menuPos)) {
                 var mn = menu[menuPos],
-                    textbox = this.game.add.text(320, mn[1], mn[0],  style);
+                    textbox = this.game.add.text(320, mn[1], mn[0], style);
                 textbox.inputEnabled = true;
                 textbox.events.onInputDown.add(mn[2], this);
                 textbox.input.useHandCursor = true;
                 textbox.anchor.set(0.5);
                 menuTexts.push(textbox);
-                currentlySelected = -1;
+                this.currentlySelected = -1;
             }
         }
 
         menuTexts[0].setStyle(selectedStyle);
         this.currentlySelected = 0;
-
     },
 
-    start : function(){
+    start: function start() {
         this.currentlySelected = 0;
     },
 
-    changeMenuPos: function(){
+    changeMenuPos: function changeMenuPos() {
         if (this._upKey.isDown) {
             menuTexts[this.currentlySelected].setStyle(style);
-            this.currentlySelected = this.currentlySelected == 0 ? menuTexts.length - 1  : this.currentlySelected - 1  ;
+            this.currentlySelected = this.currentlySelected == 0 ? menuTexts.length - 1 : this.currentlySelected - 1;
             menuTexts[this.currentlySelected].setStyle(selectedStyle);
-
         } else if (this._downKey.isDown) {
             menuTexts[this.currentlySelected].setStyle(style);
-            this.currentlySelected = this.currentlySelected +1 >= menuTexts.length ? 0 : this.currentlySelected + 1  ;
+            this.currentlySelected = this.currentlySelected + 1 >= menuTexts.length ? 0 : this.currentlySelected + 1;
             menuTexts[this.currentlySelected].setStyle(selectedStyle);
         } else if (this._acceptKey.isDown) {
             menuTexts[this.currentlySelected].events.onInputDown.dispatch();
         }
     },
 
-    openPlayerSelection : function(){
+    openPlayerSelection: function openPlayerSelection() {
         this.game.state.start('PlayerSelection');
     },
-    openScoreBoard : function(){
+    openScoreBoard: function openScoreBoard() {
         this.game.state.start('Scoreboard');
-
     },
-    openCredits : function(){
-
-    }
+    openCredits: function openCredits() {}
 };
-},{}],15:[function(require,module,exports){
+
+},{}],16:[function(require,module,exports){
+'use strict';
+
 module.exports = PlayerSelection;
 
 var IMAGES = require('./../config').images;
 var path = '../../assets/images/';
-var borderSprite, playerTab, currentPosX = 0, currentPosY = 0;
+var borderSprite,
+    playerTab,
+    currentPosX = 0,
+    currentPosY = 0;
 var sizeAvatar = 150;
 
-function PlayerSelection(game){
-
-};
+function PlayerSelection(game) {};
 
 PlayerSelection.prototype = {
-    preload: function() {
+    preload: function preload() {
         this.load.spritesheet(IMAGES.PLAYER_1_AV, path + 'PlayerAvatars/player_1.png', sizeAvatar, sizeAvatar);
         this.load.spritesheet(IMAGES.PLAYER_2_AV, path + 'PlayerAvatars/player_2.png', sizeAvatar, sizeAvatar);
         this.load.spritesheet(IMAGES.PLAYER_3_AV, path + 'PlayerAvatars/player_3.png', sizeAvatar, sizeAvatar);
         this.load.spritesheet(IMAGES.PLAYER_4_AV, path + 'PlayerAvatars/player_4.png', sizeAvatar, sizeAvatar);
-
     },
-    create: function() {
+    create: function create() {
         var self = this;
         this.game.stage.backgroundColor = '#1abc9c';
-        this.game.add.text(this.game.world.centerX,  60 , "Wybierz bohatera" ,{ font: "bold 30px Arial", fill: "ecf0f1", boundsAlignH: "center", boundsAlignV: "middle" }
-        ).anchor.set(0.5);;
-
+        this.game.add.text(this.game.world.centerX, 60, "Wybierz bohatera", { font: "bold 30px Arial", fill: "ecf0f1", boundsAlignH: "center", boundsAlignV: "middle" }).anchor.set(0.5);;
 
         this._upKey = this.game.input.keyboard.addKey(Phaser.Keyboard.UP);
         this._downKey = this.game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
@@ -16921,19 +16981,16 @@ PlayerSelection.prototype = {
         this._leftKey.onDown.add(this.changeMenuPos, this);
         this._acceptKey.onDown.add(this.changeMenuPos, this);
 
-        playerTab = [
-            [1,3],
-            [2,4]
-        ];
+        playerTab = [[1, 3], [2, 4]];
 
-        borderSprite = this.game.add.graphics( 166 , 96 );
+        borderSprite = this.game.add.graphics(166, 96);
         borderSprite.beginFill(0xFF3333, 1);
-        borderSprite.bounds = new PIXI.Rectangle(0, 0, sizeAvatar + 8, sizeAvatar + 8 );
+        borderSprite.bounds = new PIXI.Rectangle(0, 0, sizeAvatar + 8, sizeAvatar + 8);
         borderSprite.drawRect(0, 0, sizeAvatar + 8, sizeAvatar + 8);
 
-        for(var row = 0; row < playerTab.length; row++){
-            for(var col = 0; col < playerTab[row].length; col++){
-                var sprite = this.game.add.sprite(col*(sizeAvatar+20) + 170, row*(sizeAvatar+20) + 100, IMAGES['PLAYER_' + playerTab[row][col] + '_AV']);
+        for (var row = 0; row < playerTab.length; row++) {
+            for (var col = 0; col < playerTab[row].length; col++) {
+                var sprite = this.game.add.sprite(col * (sizeAvatar + 20) + 170, row * (sizeAvatar + 20) + 100, IMAGES['PLAYER_' + playerTab[row][col] + '_AV']);
                 sprite.inputEnabled = true;
                 sprite.input.useHandCursor = true;
                 sprite.champSelectedY = col;
@@ -16942,47 +16999,46 @@ PlayerSelection.prototype = {
             }
         }
     },
-    changeMenuPos: function(){
+    changeMenuPos: function changeMenuPos() {
         if (this._upKey.isDown) {
-            currentPosY = 0 <= currentPosY - 1 ? currentPosY - 1: playerTab.length - 1;
+            currentPosY = 0 <= currentPosY - 1 ? currentPosY - 1 : playerTab.length - 1;
         } else if (this._downKey.isDown) {
             currentPosY = playerTab.length > currentPosY + 1 ? currentPosY + 1 : 0;
         } else if (this._leftKey.isDown) {
-            currentPosX = 0 <= currentPosX - 1 ? currentPosX - 1: playerTab[currentPosY].length - 1;
+            currentPosX = 0 <= currentPosX - 1 ? currentPosX - 1 : playerTab[currentPosY].length - 1;
         } else if (this._rightKey.isDown) {
-            currentPosX = playerTab[currentPosY].length > currentPosX + 1 ? currentPosX + 1: 0;
-        }
-        else if (this._acceptKey.isDown) {
+            currentPosX = playerTab[currentPosY].length > currentPosX + 1 ? currentPosX + 1 : 0;
+        } else if (this._acceptKey.isDown) {
             this.loadGame();
         }
         this.setNewPosition();
     },
 
-    setNewPosition : function(){
-        borderSprite.x = currentPosX *(sizeAvatar+20) + 166;
-        borderSprite.y = currentPosY *(sizeAvatar+20) + 96;
+    setNewPosition: function setNewPosition() {
+        borderSprite.x = currentPosX * (sizeAvatar + 20) + 166;
+        borderSprite.y = currentPosY * (sizeAvatar + 20) + 96;
     },
 
-    update: function() {
-
-    },
-    clickPlayer : function(spriteE){
+    update: function update() {},
+    clickPlayer: function clickPlayer(spriteE) {
         currentPosX = spriteE.champSelectedX;
         currentPosY = spriteE.champSelectedY;
         this.setNewPosition();
         this.loadGame();
-
     },
-    loadGame : function(){
+    loadGame: function loadGame() {
         this.game.stageSetup = {
-            level : 1,
-            score : 0
+            level: 1,
+            score: 0
         };
         this.game.currentSelectHero = playerTab[currentPosY][currentPosX];
         this.game.state.start('Preloader');
     }
 };
-},{"./../config":6}],16:[function(require,module,exports){
+
+},{"./../config":6}],17:[function(require,module,exports){
+'use strict';
+
 /* global PIXI */
 /* global Phaser */
 var IMAGES = require('./../config').images;
@@ -16993,18 +17049,17 @@ var GAME_HEIGHT = exports.GAME_HEIGHT = 960;
 
 module.exports = Preloader;
 
-function Preloader(game){
+function Preloader(game) {
     this.game = game;
 };
 
 Preloader.prototype = {
-    preload: function() {
+    preload: function preload() {
 
         // set background color and preload image
         this.stage.backgroundColor = '#B4D9E7';
-        this.preloadBar = this.add.sprite((GAME_WIDTH-311)/2, (GAME_HEIGHT-27)/2, 'preloaderBar');
+        this.preloadBar = this.add.sprite((GAME_WIDTH - 311) / 2, (GAME_HEIGHT - 27) / 2, 'preloaderBar');
         this.load.setPreloadSprite(this.preloadBar);
-
 
         this.load.image(IMAGES.SKY, path + 'sky.png');
         this.load.image(IMAGES.GROUND, path + 'platform.png');
@@ -17022,7 +17077,7 @@ Preloader.prototype = {
 
         this.load.spritesheet(IMAGES.SCORE, path + 'score.png');
 
-        switch(this.game.stageSetup.level){
+        switch (this.game.stageSetup.level) {
             case 1:
                 console.log('Loaded 1 level');
                 this.load.tilemap('level1', './../../assets/mapa-wies/mapa-wies.json', null, Phaser.Tilemap.TILED_JSON);
@@ -17037,78 +17092,75 @@ Preloader.prototype = {
                 this.load.image('background', './../../assets/mapa-miasto/miasto-tlo.png');
                 this.load.audio('background-music', ['./../../assets/music/muzyka-miasto.mp3']);
                 break;
-           /* case 2:
-                console.log('Loaded 2 level');
-                this.load.tilemap('level2', './../../assets/mapa-euro/mapa-euro.json', null, Phaser.Tilemap.TILED_JSON);
+            case 2:
+                console.log('Loaded 3 level');
+                this.load.tilemap('level3', './../../assets/mapa-euro/mapa-euro.json', null, Phaser.Tilemap.TILED_JSON);
                 this.load.image('tiles', './../../assets/mapa-euro/tileset.png');
                 this.load.image('background', './../../assets/mapa-euro/euro-tlo.png');
                 this.load.audio('background-music', ['./../../assets/music/muzyka-euro.mp3']);
-
                 break;
-            case 3:
-                console.log('Loaded 3 level');
-                this.load.tilemap('level3', './../../assets/mapa-sejm/mapa-sejm.json', null, Phaser.Tilemap.TILED_JSON);
+            case 4:
+                console.log('Loaded 4 level');
+                this.load.tilemap('level43', './../../assets/mapa-sejm/mapa-sejm.json', null, Phaser.Tilemap.TILED_JSON);
                 this.load.image('tiles', './../../assets/mapa-sejm/tileset.png');
                 this.load.image('background', './../../assets/mapa-sejm/sejm-tlo.png');
                 this.load.audio('background-music', ['./../../assets/music/muzyka-sejm.mp3']);
-                break;*/
+                break;
 
         }
         this.load.image('tiles-props', './../../assets/images/tiles-props.png');
         this.load.spritesheet(IMAGES.TILES_PROPS, './../../assets/images/tiles-props.png', 32, 32);
     },
-    create: function(){
+    create: function create() {
         // start the MainMenu state
-        this.state.start('LevelRenderer'  );
+        this.state.start('LevelRenderer');
     }
 };
 
-},{"./../config":6}],17:[function(require,module,exports){
+},{"./../config":6}],18:[function(require,module,exports){
+"use strict";
+
 var moment = require('moment');
 module.exports = Scoreboard;
-function Scoreboard(game){}
+function Scoreboard(game) {}
 var style = { font: "bold 32px Arial", fill: "#ecf0f1", boundsAlignH: "center", boundsAlignV: "middle" };
 Scoreboard.prototype = {
-    preload: function() {
+    preload: function preload() {},
 
-    },
-
-    create: function() {
+    create: function create() {
         this._acceptKey = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
         this._acceptKey.onDown.add(this.changeMenuPos, this);
 
         //Defined Menu
         var scores = JSON.parse(localStorage.getItem("scoreboard") || "[]");
 
-        this.game.add.text(320,  100 , "Tablica wyników" ,{ font: "bold 60px Arial", fill: "#2c3e50", boundsAlignH: "center", boundsAlignV: "middle" }
-        ).anchor.set(0.5);
+        this.game.add.text(320, 100, "Tablica wyników", { font: "bold 60px Arial", fill: "#2c3e50", boundsAlignH: "center", boundsAlignV: "middle" }).anchor.set(0.5);
 
         this.game.stage.backgroundColor = '#1abc9c';
         var index = 1;
-        if(scores.length > 0) {
+        if (scores.length > 0) {
             for (var score in scores) {
                 if (scores.hasOwnProperty(score) && index < 6) {
                     var mn = scores[score],
-                        textbox = this.game.add.text(40, 160 + (index * 50), index + '. ' + mn.name, style),
-                        textbox_date = this.game.add.text(300, 160 + (index * 50), moment(mn.date).format('DD/MM H:m'), style),
-                        textbox_points = this.game.add.text(530, 160 + (index * 50), mn.score, style);
+                        textbox = this.game.add.text(40, 160 + index * 50, index + '. ' + mn.name, style),
+                        textbox_date = this.game.add.text(300, 160 + index * 50, moment(mn.date).format('DD/MM H:m'), style),
+                        textbox_points = this.game.add.text(530, 160 + index * 50, mn.score, style);
                     index++;
                 }
             }
         } else {
-            this.game.add.text(320,  350 , "Aktualnie lista jest pusta." ,{ font: "bold 3px Arial", fill: "#ffffff", boundsAlignH: "center", boundsAlignV: "middle" }
-            ).anchor.set(0.5);
+            this.game.add.text(320, 350, "Aktualnie lista jest pusta.", { font: "bold 3px Arial", fill: "#ffffff", boundsAlignH: "center", boundsAlignV: "middle" }).anchor.set(0.5);
         }
     },
 
-    changeMenuPos: function(){
+    changeMenuPos: function changeMenuPos() {
         if (this._acceptKey.isDown) {
             this.state.start('MainMenu', true, true);
-
         }
     }
 };
-},{"moment":2}]},{},[9])
+
+},{"moment":2}]},{},[10])
 
 
 //# sourceMappingURL=build.js.map

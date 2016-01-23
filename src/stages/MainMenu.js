@@ -30,7 +30,7 @@ MainMenu.prototype = {
         ];
 
         this.game.add.text(320,  100 , "PoliticAmsi" ,{ font: "bold 80px Arial", fill: "#2c3e50", boundsAlignH: "center", boundsAlignV: "middle" }
-        ).anchor.set(0.5);;
+        ).anchor.set(0.5);
 
         this.game.stage.backgroundColor = '#1abc9c';
         for(var menuPos in menu){
@@ -42,7 +42,7 @@ MainMenu.prototype = {
                 textbox.input.useHandCursor = true;
                 textbox.anchor.set(0.5);
                 menuTexts.push(textbox);
-                currentlySelected = -1;
+                this.currentlySelected = -1;
             }
         }
 
