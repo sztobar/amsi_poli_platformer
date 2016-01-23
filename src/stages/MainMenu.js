@@ -2,13 +2,18 @@ module.exports = MainMenu;
 function MainMenu(game){
     this.currentlySelected = 0;
 };
-var nBack_frames =  0;
+var IMAGES = require('./../config').images;
+var path = '../../assets/images/';
+
 var style = { font: "bold 32px Arial", fill: "#ecf0f1", boundsAlignH: "center", boundsAlignV: "middle" };
 var selectedStyle = { font: "bold 32px Arial", fill: "#ff3333", boundsAlignH: "center", boundsAlignV: "middle" };
 
 var menuTexts = [];
 MainMenu.prototype = {
     preload: function() {
+        this.load.spritesheet(IMAGES.MAINMENU, path + 'menu-tlo.png', 640, 480);
+        this.load.spritesheet(IMAGES.MENUTITLE, path + 'menu-title.png', 267, 58);
+
 
     },
 
@@ -20,17 +25,18 @@ MainMenu.prototype = {
         this._downKey.onDown.add(this.changeMenuPos, this);
         this._upKey.onDown.add(this.changeMenuPos, this);
         this._acceptKey.onDown.add(this.changeMenuPos, this);
-
+        this.game.add.tileSprite(0, 0, 640, 480, IMAGES.MAINMENU);
         //Defined Menu
         var menu = [
             ['Start', 250, this.openPlayerSelection],
             ['Tablica wyników', 290, this.openScoreBoard],
-            ['Twórcy', 330, this.openCredits],
+            /*['Twórcy', 330, this.openCredits],*/
             ['Wyjście', 370, function(){}]
         ];
 
-        this.game.add.text(320,  100 , "PoliticAmsi" ,{ font: "bold 80px Arial", fill: "#2c3e50", boundsAlignH: "center", boundsAlignV: "middle" }
-        ).anchor.set(0.5);
+        /*this.game.add.text(320,  100 , "PoliticAmsi" ,{ font: "bold 80px Arial", fill: "#2c3e50", boundsAlignH: "center", boundsAlignV: "middle" }
+        ).anchor.set(0.5);*/
+        this.game.add.tileSprite(320, 100, 267, 58, IMAGES.MENUTITLE).anchor.set(0.5);
 
         this.game.stage.backgroundColor = '#1abc9c';
         for(var menuPos in menu){

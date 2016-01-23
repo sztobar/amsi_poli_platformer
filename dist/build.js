@@ -16218,7 +16218,9 @@ module.exports = {
         FARMER: 'farmer',
         SKATEBOARD: 'skate',
         MERKEL: 'merkel',
-        GRONKIEWICZ: 'gronkiewicz'
+        GRONKIEWICZ: 'gronkiewicz',
+        MAINMENU: 'menu-tlo',
+        MENUTITLE: 'menu-title'
     },
     directions: {
         LEFT: 0,
@@ -16471,25 +16473,13 @@ exports.default = Shooter;
 },{"./../config":7}],10:[function(require,module,exports){
 'use strict';
 
-var _createClass = function () {
-    function defineProperties(target, props) {
-        for (var i = 0; i < props.length; i++) {
-            var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
-        }
-    }return function (Constructor, protoProps, staticProps) {
-        if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
-    };
-}();
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-        throw new TypeError("Cannot call a class as a function");
-    }
-}
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /**
  * Created by mmitis on 23.01.16.
@@ -16888,9 +16878,11 @@ Boot.prototype = {
 module.exports = Boot;
 
 },{}],16:[function(require,module,exports){
-"use strict";
+'use strict';
 
 module.exports = EndScore;
+var IMAGES = require('./../config').images;
+var path = '../../assets/images/';
 function EndScore(game) {
     this.game = game;
     this.currentlySelected = -1;
@@ -16914,6 +16906,8 @@ EndScore.prototype = {
         var menu;
         var self = this;
         this.game.stage.backgroundColor = '#1abc9c';
+        this.game.add.tileSprite(0, 0, 640, 480, IMAGES.MAINMENU);
+
         var texts = {};
         if (this.game.stageSetup.level == 4) {
             texts = {
@@ -17030,7 +17024,7 @@ EndScore.prototype = {
 
 };
 
-},{}],17:[function(require,module,exports){
+},{"./../config":7}],17:[function(require,module,exports){
 'use strict';
 
 /* global _ */
@@ -17198,19 +17192,24 @@ function isTrapTiles(point, tile) {
 }
 
 },{"../EnemyFactory":3,"../Pause":5,"../TiledLevel":6,"../config":7,"../hud/life":11,"../hud/score":12,"../player":14}],18:[function(require,module,exports){
-"use strict";
+'use strict';
 
 module.exports = MainMenu;
 function MainMenu(game) {
     this.currentlySelected = 0;
 };
-var nBack_frames = 0;
+var IMAGES = require('./../config').images;
+var path = '../../assets/images/';
+
 var style = { font: "bold 32px Arial", fill: "#ecf0f1", boundsAlignH: "center", boundsAlignV: "middle" };
 var selectedStyle = { font: "bold 32px Arial", fill: "#ff3333", boundsAlignH: "center", boundsAlignV: "middle" };
 
 var menuTexts = [];
 MainMenu.prototype = {
-    preload: function preload() {},
+    preload: function preload() {
+        this.load.spritesheet(IMAGES.MAINMENU, path + 'menu-tlo.png', 640, 480);
+        this.load.spritesheet(IMAGES.MENUTITLE, path + 'menu-title.png', 267, 58);
+    },
 
     create: function create() {
 
@@ -17220,11 +17219,13 @@ MainMenu.prototype = {
         this._downKey.onDown.add(this.changeMenuPos, this);
         this._upKey.onDown.add(this.changeMenuPos, this);
         this._acceptKey.onDown.add(this.changeMenuPos, this);
-
+        this.game.add.tileSprite(0, 0, 640, 480, IMAGES.MAINMENU);
         //Defined Menu
         var menu = [['Start', 250, this.openPlayerSelection], ['Tablica wyników', 290, this.openScoreBoard], ['Twórcy', 330, this.openCredits], ['Wyjście', 370, function () {}]];
 
-        this.game.add.text(320, 100, "PoliticAmsi", { font: "bold 80px Arial", fill: "#2c3e50", boundsAlignH: "center", boundsAlignV: "middle" }).anchor.set(0.5);
+        /*this.game.add.text(320,  100 , "PoliticAmsi" ,{ font: "bold 80px Arial", fill: "#2c3e50", boundsAlignH: "center", boundsAlignV: "middle" }
+        ).anchor.set(0.5);*/
+        this.game.add.tileSprite(320, 100, 267, 58, IMAGES.MENUTITLE).anchor.set(0.5);
 
         this.game.stage.backgroundColor = '#1abc9c';
         for (var menuPos in menu) {
@@ -17271,7 +17272,7 @@ MainMenu.prototype = {
     openCredits: function openCredits() {}
 };
 
-},{}],19:[function(require,module,exports){
+},{"./../config":7}],19:[function(require,module,exports){
 'use strict';
 
 module.exports = PlayerSelection;
@@ -17296,7 +17297,9 @@ PlayerSelection.prototype = {
     create: function create() {
         var self = this;
         this.game.stage.backgroundColor = '#1abc9c';
-        this.game.add.text(this.game.world.centerX, 60, "Wybierz bohatera", { font: "bold 30px Arial", fill: "ecf0f1", boundsAlignH: "center", boundsAlignV: "middle" }).anchor.set(0.5);;
+        v;
+
+        this.game.add.text(this.game.world.centerX, 60, "Wybierz bohatera", { font: "bold 30px Arial", fill: "#ffffff", boundsAlignH: "center", boundsAlignV: "middle" }).anchor.set(0.5);;
 
         this._upKey = this.game.input.keyboard.addKey(Phaser.Keyboard.UP);
         this._downKey = this.game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
@@ -17460,10 +17463,12 @@ Preloader.prototype = {
 };
 
 },{"./../config":7}],21:[function(require,module,exports){
-"use strict";
+'use strict';
 
 var moment = require('moment');
 module.exports = Scoreboard;
+var IMAGES = require('./../config').images;
+var path = '../../assets/images/';
 function Scoreboard(game) {}
 var style = { font: "bold 32px Arial", fill: "#ecf0f1", boundsAlignH: "center", boundsAlignV: "middle" };
 Scoreboard.prototype = {
@@ -17472,11 +17477,11 @@ Scoreboard.prototype = {
     create: function create() {
         this._acceptKey = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
         this._acceptKey.onDown.add(this.changeMenuPos, this);
-
+        this.game.add.tileSprite(0, 0, 640, 480, IMAGES.MAINMENU);
         //Defined Menu
         var scores = JSON.parse(localStorage.getItem("scoreboard") || "[]");
 
-        this.game.add.text(320, 100, "Tablica wyników", { font: "bold 60px Arial", fill: "#2c3e50", boundsAlignH: "center", boundsAlignV: "middle" }).anchor.set(0.5);
+        this.game.add.text(320, 100, "Tablica wyników", { font: "bold 60px Arial", fill: "#ffffff", boundsAlignH: "center", boundsAlignV: "middle" }).anchor.set(0.5);
 
         this.game.stage.backgroundColor = '#1abc9c';
         var index = 1;
@@ -17502,7 +17507,7 @@ Scoreboard.prototype = {
     }
 };
 
-},{"moment":2}]},{},[13])
+},{"./../config":7,"moment":2}]},{},[13])
 
 
 //# sourceMappingURL=build.js.map

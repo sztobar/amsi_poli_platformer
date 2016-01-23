@@ -1,5 +1,7 @@
 var moment = require('moment');
 module.exports = Scoreboard;
+var IMAGES = require('./../config').images;
+var path = '../../assets/images/';
 function Scoreboard(game){}
 var style = { font: "bold 32px Arial", fill: "#ecf0f1", boundsAlignH: "center", boundsAlignV: "middle" };
 Scoreboard.prototype = {
@@ -10,11 +12,11 @@ Scoreboard.prototype = {
     create: function() {
         this._acceptKey = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
         this._acceptKey.onDown.add(this.changeMenuPos, this);
-
+        this.game.add.tileSprite(0, 0, 640, 480, IMAGES.MAINMENU);
         //Defined Menu
         var scores = JSON.parse(localStorage.getItem("scoreboard") || "[]");
 
-        this.game.add.text(320,  100 , "Tablica wyników" ,{ font: "bold 60px Arial", fill: "#2c3e50", boundsAlignH: "center", boundsAlignV: "middle" }
+        this.game.add.text(320,  100 , "Tablica wyników" ,{ font: "bold 60px Arial", fill: "#ffffff", boundsAlignH: "center", boundsAlignV: "middle" }
         ).anchor.set(0.5);
 
         this.game.stage.backgroundColor = '#1abc9c';

@@ -29,7 +29,9 @@ module.exports =
         FARMER      : 'farmer',
         SKATEBOARD  : 'skate',
         MERKEL      : 'merkel',
-        GRONKIEWICZ: 'gronkiewicz'
+        GRONKIEWICZ: 'gronkiewicz',
+        MAINMENU    : 'menu-tlo',
+        MENUTITLE   : 'menu-title'
     },
     directions : {
        LEFT :       0,

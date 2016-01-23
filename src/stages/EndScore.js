@@ -1,4 +1,6 @@
 module.exports = EndScore;
+var IMAGES = require('./../config').images;
+var path = '../../assets/images/';
 function EndScore(game) {
     this.game = game;
     this.currentlySelected = -1;
@@ -22,6 +24,8 @@ EndScore.prototype = {
         var menu;
         var self = this;
         this.game.stage.backgroundColor = '#1abc9c';
+        this.game.add.tileSprite(0, 0, 640, 480, IMAGES.MAINMENU);
+
         var texts = {};
         if (this.game.stageSetup.level == 4) {
             texts = {
