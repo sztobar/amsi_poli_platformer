@@ -15972,9 +15972,7 @@ var _Pig = require('./enemies/Pig');
 
 var _Pig2 = _interopRequireDefault(_Pig);
 
-function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : { default: obj };
-}
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var IMAGES = require('./config').images;
 
@@ -16286,6 +16284,7 @@ var Pig = function () {
         this.sprite.x = position[0];
         this.sprite.y = position[1];
         this.death = false;
+        this.direction = true;
         var deathAnimation = this.sprite.animations.add('death', [4, 9, 10, 11], 10);
         deathAnimation.onComplete.add(this.afterDeath.bind(this), this);
     }
@@ -16312,8 +16311,16 @@ var Pig = function () {
         value: function updateMovement(player) {
             if (Phaser.Point.distance(player, this.sprite.body) < 640) {
                 if (this.death == false) {
-                    this.sprite.body.velocity.x = -30;
-                    this.sprite.animations.play('left');
+                    if (this.sprite.body.onWall() == true) {
+                        this.direction = !this.direction;
+                    }
+                    if (this.direction) {
+                        this.sprite.body.velocity.x = 30;
+                        this.sprite.animations.play('left');
+                    } else {
+                        this.sprite.body.velocity.x = 30;
+                        this.sprite.animations.play('right');
+                    }
                 }
             }
         }
@@ -16683,7 +16690,7 @@ EndScore.prototype = {
         var self = this;
         this.game.stage.backgroundColor = '#1abc9c';
         var texts = {};
-        if (this.game.stageSetup.level == 2) {
+        if (this.game.stageSetup.level == 4) {
             texts = {
                 title: 'Gra ukończona',
                 score: 'Wynik końcowy:' + this.stageSetup.score
@@ -16804,7 +16811,6 @@ EndScore.prototype = {
 /* global _ */
 /* global PIXI */
 /* global Phaser */
-
 var config = require('../config');
 var Player = require('../player');
 var TiledLevel = require('../TiledLevel');
@@ -17122,7 +17128,6 @@ PlayerSelection.prototype = {
 
 /* global PIXI */
 /* global Phaser */
-
 var IMAGES = require('./../config').images;
 var path = '../../assets/images/';
 
