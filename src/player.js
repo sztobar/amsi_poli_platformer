@@ -19,7 +19,7 @@ function Player(game, x, y) {
   //  We need to enable physics on the playerSprite
   game.physics.arcade.enable(this.sprite);
   this.sprite.position.y -= this.sprite.height;
-  this.sprite.body.setSize(32, 32, 0, this.sprite.height - 32);
+  this.sprite.body.setSize(32, 48, 0, this.sprite.height - 48);
   game.camera.follow(this.sprite);
   
   //  playerSprite physics properties. Give the little guy a slight bounce.
