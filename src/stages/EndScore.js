@@ -87,7 +87,7 @@ EndScore.prototype = {
            var heroLabels = {
                1 : 'Braun',
                2 : 'Macierewicz',
-               3 : 'Nie znam naziwska',
+               3 : 'Wippler',
                4 : 'Liroy'
            };
            scoreboard.push({

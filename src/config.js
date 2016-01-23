@@ -18,7 +18,8 @@ module.exports =
         SCORE       : 'score',
         HEART       : 'heart',
         TILES_PROPS : 'tiles-props',
-        PIG : 'pig'
+        PIG : 'pig',
+        POLICEMAN : 'bor'
     },
     directions : {
        LEFT :       0,

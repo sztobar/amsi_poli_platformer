@@ -15972,6 +15972,10 @@ var _Pig = require('./enemies/Pig');
 
 var _Pig2 = _interopRequireDefault(_Pig);
 
+var _Policeman = require('./enemies/Policeman');
+
+var _Policeman2 = _interopRequireDefault(_Policeman);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var IMAGES = require('./config').images;
@@ -15986,6 +15990,11 @@ exports.create = function (game, position, type) {
         case 'pig':
             enemy = new _Pig2.default(game, position);
             break;
+        case 'policeman':
+            enemy = new _Policeman2.default(game, position);
+            break;
+        case 'flying':
+            enemy = new FlyingEnemt(game, position);
         default:
             enemy = new _Farmer2.default(game, position);
             break;
@@ -16006,7 +16015,7 @@ var defaultConfiguration = function defaultConfiguration(game, enemySprite) {
     enemySprite.anchor.y = 0.5;
 };
 
-},{"./config":6,"./enemies/Farmer":7,"./enemies/Pig":8}],4:[function(require,module,exports){
+},{"./config":6,"./enemies/Farmer":7,"./enemies/Pig":8,"./enemies/Policeman":9}],4:[function(require,module,exports){
 "use strict";
 
 module.exports = {
@@ -16147,7 +16156,8 @@ module.exports = {
         SCORE: 'score',
         HEART: 'heart',
         TILES_PROPS: 'tiles-props',
-        PIG: 'pig'
+        PIG: 'pig',
+        POLICEMAN: 'bor'
     },
     directions: {
         LEFT: 0,
@@ -16246,25 +16256,13 @@ exports.default = Farmer;
 },{"./../config":6}],8:[function(require,module,exports){
 'use strict';
 
-var _createClass = function () {
-    function defineProperties(target, props) {
-        for (var i = 0; i < props.length; i++) {
-            var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
-        }
-    }return function (Constructor, protoProps, staticProps) {
-        if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
-    };
-}();
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-        throw new TypeError("Cannot call a class as a function");
-    }
-}
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /**
  * Created by mmitis on 23.01.16.
@@ -16334,6 +16332,147 @@ exports.default = Pig;
 },{"./../config":6}],9:[function(require,module,exports){
 'use strict';
 
+var _createClass = function () {
+    function defineProperties(target, props) {
+        for (var i = 0; i < props.length; i++) {
+            var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+        }
+    }return function (Constructor, protoProps, staticProps) {
+        if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+    };
+}();
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+        throw new TypeError("Cannot call a class as a function");
+    }
+}
+
+/**
+ * Created by mmitis on 23.01.16.
+ */
+var IMAGES = require('./../config').images;
+
+var Policeman = function () {
+    function Policeman(game, position) {
+        _classCallCheck(this, Policeman);
+
+        this.game = game;
+        this.sprite = game.add.sprite(60, 48, IMAGES.POLICEMAN);
+        this.right = false;
+        this.sprite.animations.add('left', [0, 1, 2, 3], 10, true);
+        this.sprite.animations.add('right', [5, 6, 7, 8], 10, true);
+        this.sprite.animations.add('idle', [4], 10, true);
+
+        this.sprite.animations.add('shotLeft', [2, 12], 14, true);
+        this.sprite.animations.add('shotRight', [7, 13], 14, true);
+        this.sprite.die = this.die.bind(this);
+        this.sprite.x = position[0];
+        this.sprite.y = position[1];
+        this.death = false;
+        this.direction = true;
+        this.projectilesGroup = game.add.group();
+        this.projectilesGroup.enableBody = true;
+        this.projectilesGroup.physicsBodyType = Phaser.Physics.ARCADE;
+        this.projectilesGroup.createMultiple(5, IMAGES.PROJECTILE);
+        this.projectilesGroup.setAll('anchor.x', 0.5);
+        this.projectilesGroup.setAll('anchor.y', 0.5);
+        this.projectilesGroup.setAll('outOfBoundsKill', true);
+        this.projectilesGroup.setAll('checkWorldBounds', true);
+        this._nextFire = 0;
+
+        var deathAnimation = this.sprite.animations.add('death', [4, 9, 10, 11], 10);
+        deathAnimation.onComplete.add(this.afterDeath.bind(this), this);
+    }
+
+    _createClass(Policeman, [{
+        key: 'getSprite',
+        value: function getSprite() {
+            return this.sprite;
+        }
+    }, {
+        key: 'die',
+        value: function die() {
+            this.death = true;
+            this.sprite.body.velocity.x = 0;
+            this.sprite.animations.play('death');
+        }
+    }, {
+        key: 'afterDeath',
+        value: function afterDeath() {
+            this.sprite.kill();
+        }
+    }, {
+        key: 'shot',
+        value: function shot() {
+            this._nextFire = this.game.time.now + 700;
+            var projectile = this.projectilesGroup.getFirstDead();
+            projectile.reset(this.sprite.position.x + this.sprite.width / 2, this.sprite.position.y);
+            if (this.direction) {
+                projectile.body.velocity.x = -160;
+            } else {
+                projectile.body.velocity.x = 160;
+            }
+        }
+    }, {
+        key: 'updateMovement',
+        value: function updateMovement(player, physics, onHit) {
+            physics.arcade.overlap(this.projectilesGroup, player, onHit, null, this);
+
+            if (Phaser.Point.distance(player, this.sprite.body) < 640) {
+                this.sprite.body.velocity.x = 0;
+                if (this.death == false) {
+                    if (Phaser.Point.distance(player, this.sprite.body) < 200) {
+                        if (this.game.time.now > this._nextFire && this.projectilesGroup.countDead() > 0) {
+                            if (player.x < this.sprite.x) {
+                                this.sprite.animations.play('shotLeft');
+                                this.sprite.body.velocity.x = -10;
+                                this.direction = true;
+                            } else {
+                                this.sprite.animations.play('shotRight');
+                                this.sprite.body.velocity.x = 10;
+                                this.direction = false;
+                            }
+                            this.shot(player);
+                        }
+                    } else {
+
+                        if (this.sprite.body.onWall() == true) {
+                            this.direction = !this.direction;
+                        }
+                        if (this.direction) {
+                            this.sprite.body.velocity.x = -30;
+                            this.sprite.animations.play('left');
+                        } else {
+                            this.sprite.body.velocity.x = 30;
+                            this.sprite.animations.play('right');
+                        }
+                    }
+                }
+            }
+            //Reset bullets
+            var cameraView = this.game.world.camera.view;
+            this.projectilesGroup.children.forEach(function (projectile) {
+                if (projectile.alive && !cameraView.intersects(projectile)) {
+                    projectile.kill();
+                }
+                projectile.rotation += 0.25;
+            });
+        }
+    }]);
+
+    return Policeman;
+}();
+
+exports.default = Policeman;
+
+},{"./../config":6}],10:[function(require,module,exports){
+'use strict';
+
 /* global Phaser */
 var IMAGES = require('../config').images;
 var CHAR_WIDTH = 200;
@@ -16390,7 +16529,7 @@ Life.prototype = {
 
 module.exports = Life;
 
-},{"../config":6}],10:[function(require,module,exports){
+},{"../config":6}],11:[function(require,module,exports){
 'use strict';
 
 /* global Phaser */
@@ -16437,7 +16576,7 @@ Score.prototype = {
 
 module.exports = Score;
 
-},{"../config":6}],11:[function(require,module,exports){
+},{"../config":6}],12:[function(require,module,exports){
 'use strict';
 
 /* global Phaser */
@@ -16459,7 +16598,7 @@ game.state.add('PlayerSelection', PlayerSelection);
 game.state.add('LevelRenderer', LevelRenderer);
 game.state.start('Boot');
 
-},{"./stages/Boot":13,"./stages/EndScore":14,"./stages/LevelRenderer":15,"./stages/MainMenu":16,"./stages/PlayerSelection":17,"./stages/Preloader":18,"./stages/Scoreboard":19}],12:[function(require,module,exports){
+},{"./stages/Boot":14,"./stages/EndScore":15,"./stages/LevelRenderer":16,"./stages/MainMenu":17,"./stages/PlayerSelection":18,"./stages/Preloader":19,"./stages/Scoreboard":20}],13:[function(require,module,exports){
 'use strict';
 
 /* global Phaser */
@@ -16483,7 +16622,7 @@ function Player(game, x, y) {
   //  We need to enable physics on the playerSprite
   game.physics.arcade.enable(this.sprite);
   this.sprite.position.y -= this.sprite.height;
-  this.sprite.body.setSize(32, 32, 0, this.sprite.height - 32);
+  this.sprite.body.setSize(32, 48, 0, this.sprite.height - 48);
   game.camera.follow(this.sprite);
 
   //  playerSprite physics properties. Give the little guy a slight bounce.
@@ -16636,7 +16775,7 @@ Player.prototype = {
 
 module.exports = Player;
 
-},{"./config":6}],13:[function(require,module,exports){
+},{"./config":6}],14:[function(require,module,exports){
 'use strict';
 
 /* global Phaser */
@@ -16662,7 +16801,7 @@ Boot.prototype = {
 
 module.exports = Boot;
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 "use strict";
 
 module.exports = EndScore;
@@ -16742,7 +16881,7 @@ EndScore.prototype = {
             var heroLabels = {
                 1: 'Braun',
                 2: 'Macierewicz',
-                3: 'Nie znam naziwska',
+                3: 'Wippler',
                 4: 'Liroy'
             };
             scoreboard.push({
@@ -16805,12 +16944,13 @@ EndScore.prototype = {
 
 };
 
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 'use strict';
 
 /* global _ */
 /* global PIXI */
 /* global Phaser */
+
 var config = require('../config');
 var Player = require('../player');
 var TiledLevel = require('../TiledLevel');
@@ -16843,7 +16983,7 @@ LevelRender.prototype = {
     this._enemiesArray = [];
 
     //Add enemy
-    var enemyObj = enemy.create(this, [1000, 0], 'pig');
+    var enemyObj = enemy.create(this, [200, 0], 'policeman');
     this._enemies.add(enemyObj.getSprite());
     this._enemiesArray.push(enemyObj);
 
@@ -16867,7 +17007,7 @@ LevelRender.prototype = {
   update: function update() {
     this.physics.arcade.collide(this._enemies, this.tiledMap.propsLayer, null, isObstacleTiles);
     this._enemiesArray.forEach(function (item) {
-      item.updateMovement(this._player.sprite);
+      item.updateMovement(this._player.sprite, this.physics, this.onKillPlayer.bind(this));
     }, this);
 
     this.physics.arcade.collide(this._player.sprite, this.tiledMap.propsLayer, null, isObstacleTiles);
@@ -16956,7 +17096,7 @@ function isTrapTiles(point, tile) {
   return tile.index === TILES.TRAP || tile.index === TILES.SPIKE;
 }
 
-},{"../EnemyFactory":3,"../Pause":4,"../TiledLevel":5,"../config":6,"../hud/life":9,"../hud/score":10,"../player":12}],16:[function(require,module,exports){
+},{"../EnemyFactory":3,"../Pause":4,"../TiledLevel":5,"../config":6,"../hud/life":10,"../hud/score":11,"../player":13}],17:[function(require,module,exports){
 "use strict";
 
 module.exports = MainMenu;
@@ -17030,7 +17170,7 @@ MainMenu.prototype = {
     openCredits: function openCredits() {}
 };
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 'use strict';
 
 module.exports = PlayerSelection;
@@ -17123,7 +17263,7 @@ PlayerSelection.prototype = {
     }
 };
 
-},{"./../config":6}],18:[function(require,module,exports){
+},{"./../config":6}],19:[function(require,module,exports){
 'use strict';
 
 /* global PIXI */
@@ -17159,10 +17299,10 @@ Preloader.prototype = {
         this.load.image(IMAGES.PROJECTILE, path + 'projectile.png');
         this.load.image(IMAGES.STAR, path + 'glos.png');
         this.load.spritesheet(IMAGES.ENEMY, path + 'farmer.png', 32, 48);
+        this.load.spritesheet(IMAGES.POLICEMAN, path + 'bor.png', 32, 48);
         this.load.spritesheet(IMAGES.PIG, path + 'swinia.png', 32, 48);
         this.load.image(IMAGES.FIREBALL, path + 'fireball.png');
         this.load.image(IMAGES.HEART, path + 'heart.png');
-
         this.load.spritesheet(IMAGES.SCORE, path + 'score.png');
 
         switch (this.game.stageSetup.level) {
@@ -17205,7 +17345,7 @@ Preloader.prototype = {
     }
 };
 
-},{"./../config":6}],19:[function(require,module,exports){
+},{"./../config":6}],20:[function(require,module,exports){
 "use strict";
 
 var moment = require('moment');
@@ -17248,7 +17388,7 @@ Scoreboard.prototype = {
     }
 };
 
-},{"moment":2}]},{},[11])
+},{"moment":2}]},{},[12])
 
 
 //# sourceMappingURL=build.js.map

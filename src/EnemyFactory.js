@@ -1,6 +1,7 @@
 var IMAGES = require('./config').images;
 import Farmer from './enemies/Farmer';
 import Pig from './enemies/Pig';
+import Policeman from './enemies/Policeman';
 
 exports.create = function(game, position, type ) {
     var enemy;
@@ -12,6 +13,11 @@ exports.create = function(game, position, type ) {
         case 'pig':
             enemy = new Pig(game, position);
             break;
+        case 'policeman':
+            enemy = new Policeman(game, position);
+            break;
+        case 'flying':
+            enemy = new FlyingEnemt(game, position);
         default:
             enemy = new Farmer(game, position);
             break;
