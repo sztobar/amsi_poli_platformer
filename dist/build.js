@@ -16332,25 +16332,13 @@ exports.default = Pig;
 },{"./../config":6}],9:[function(require,module,exports){
 'use strict';
 
-var _createClass = function () {
-    function defineProperties(target, props) {
-        for (var i = 0; i < props.length; i++) {
-            var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
-        }
-    }return function (Constructor, protoProps, staticProps) {
-        if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
-    };
-}();
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-        throw new TypeError("Cannot call a class as a function");
-    }
-}
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /**
  * Created by mmitis on 23.01.16.
@@ -16950,7 +16938,6 @@ EndScore.prototype = {
 /* global _ */
 /* global PIXI */
 /* global Phaser */
-
 var config = require('../config');
 var Player = require('../player');
 var TiledLevel = require('../TiledLevel');
@@ -17268,6 +17255,7 @@ PlayerSelection.prototype = {
 
 /* global PIXI */
 /* global Phaser */
+
 var IMAGES = require('./../config').images;
 var path = '../../assets/images/';
 
@@ -17320,7 +17308,7 @@ Preloader.prototype = {
                 this.load.image('background', './../../assets/mapa-miasto/miasto-tlo.png');
                 this.load.audio('background-music', ['./../../assets/music/muzyka-miasto.mp3']);
                 break;
-            case 2:
+            case 3:
                 console.log('Loaded 3 level');
                 this.load.tilemap('level3', './../../assets/mapa-euro/mapa-euro.json', null, Phaser.Tilemap.TILED_JSON);
                 this.load.image('tiles', './../../assets/mapa-euro/tileset.png');

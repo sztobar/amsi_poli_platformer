@@ -53,7 +53,7 @@ Preloader.prototype = {
                 this.load.image('background', './../../assets/mapa-miasto/miasto-tlo.png');
                 this.load.audio('background-music', ['./../../assets/music/muzyka-miasto.mp3']);
                 break;
-            case 2:
+            case 3:
                 console.log('Loaded 3 level');
                 this.load.tilemap('level3', './../../assets/mapa-euro/mapa-euro.json', null, Phaser.Tilemap.TILED_JSON);
                 this.load.image('tiles', './../../assets/mapa-euro/tileset.png');
