@@ -16679,6 +16679,7 @@ game.state.start('Boot');
 
 /* global Phaser */
 /* global PIXI */
+
 var config = require('./config');
 var IMAGES = config.images;
 var DIRECTIONS = config.directions;
@@ -16711,8 +16712,8 @@ function Player(game, x, y) {
   this.sprite.animations.add('left', [0, 1, 2, 3], 10, true);
   this.sprite.animations.add('right', [5, 6, 7, 8], 10, true);
 
-  this.sprite.animations.add('shootleft', [12], 10, true);
-  this.sprite.animations.add('shootright', [13], 10, true);
+  this.sprite.animations.add('shootleft', [12], 5, true);
+  this.sprite.animations.add('shootright', [13], 5, true);
 
   var deathAnimation = this.sprite.animations.add('death', [9, 10, 9, 10, 11, 10, 11], 5);
   deathAnimation.onComplete.add(this.afterDeath, this);
@@ -16767,6 +16768,12 @@ Player.prototype = {
       this.sprite.body.velocity.x = VELOCITY;
       this.sprite.animations.play('right');
       this.direction = DIRECTIONS.RIGHT;
+    } else if (this._shootKey.isDown && this.direction == DIRECTIONS.RIGHT) {
+      //  Move to the right
+      this.sprite.animations.play('shootright');
+    } else if (this._shootKey.isDown && this.direction == DIRECTIONS.LEFT) {
+      //  Move to the right
+      this.sprite.animations.play('shootleft');
     } else {
       //  Stand still
       this.sprite.animations.stop();
@@ -16785,6 +16792,7 @@ Player.prototype = {
 
     if (this._makeShoot && this._game.time.now > this._nextFire && this.projectilesGroup.countDead() > 0) {
       this._nextFire = this._game.time.now + FIRE_RATE;
+      this.sprite.animations.play('shootright');
 
       var projectile = this.projectilesGroup.getFirstDead();
 
@@ -17383,85 +17391,85 @@ var GAME_HEIGHT = exports.GAME_HEIGHT = 960;
 module.exports = Preloader;
 
 function Preloader(game) {
-    this.game = game;
+        this.game = game;
 };
 
 Preloader.prototype = {
-    preload: function preload() {
+        preload: function preload() {
 
-        // set background color and preload image
-        this.stage.backgroundColor = '#B4D9E7';
-        this.preloadBar = this.add.sprite((GAME_WIDTH - 311) / 2, (GAME_HEIGHT - 27) / 2, 'preloaderBar');
-        this.load.setPreloadSprite(this.preloadBar);
+                // set background color and preload image
+                this.stage.backgroundColor = '#B4D9E7';
+                this.preloadBar = this.add.sprite((GAME_WIDTH - 311) / 2, (GAME_HEIGHT - 27) / 2, 'preloaderBar');
+                this.load.setPreloadSprite(this.preloadBar);
 
-        this.load.image(IMAGES.SKY, path + 'sky.png');
-        this.load.image(IMAGES.GROUND, path + 'platform.png');
+                this.load.image(IMAGES.SKY, path + 'sky.png');
+                this.load.image(IMAGES.GROUND, path + 'platform.png');
 
-        this.load.spritesheet(IMAGES.PLAYER_1, path + 'wippler.png', 32, 48);
-        this.load.spritesheet(IMAGES.PLAYER_2, path + 'macierewicz.png', 32, 48);
-        this.load.spritesheet(IMAGES.PLAYER_3, path + 'braun.png', 32, 48);
-        this.load.spritesheet(IMAGES.PLAYER_4, path + 'liroy.png', 32, 48);
+                this.load.spritesheet(IMAGES.PLAYER_1, path + 'wippler.png', 32, 48);
+                this.load.spritesheet(IMAGES.PLAYER_2, path + 'macierewicz.png', 32, 48);
+                this.load.spritesheet(IMAGES.PLAYER_3, path + 'braun.png', 32, 48);
+                this.load.spritesheet(IMAGES.PLAYER_4, path + 'liroy.png', 32, 48);
 
-        this.load.image(IMAGES.PROJECTILE, path + 'projectile.png');
-        this.load.image(IMAGES.STAR, path + 'glos.png');
+                this.load.image(IMAGES.PROJECTILE, path + 'projectile.png');
+                this.load.image(IMAGES.STAR, path + 'glos.png');
 
-        this.load.spritesheet(IMAGES.FARMER, path + 'farmer.png', 32, 48);
-        this.load.spritesheet(IMAGES.BOR, path + 'bor.png', 32, 48);
-        this.load.spritesheet(IMAGES.MERKEL, path + 'merkel.png', 32, 48);
-        this.load.spritesheet(IMAGES.GRONKIEWICZ, path + 'gronkiewicz.png', 32, 48);
+                this.load.spritesheet(IMAGES.FARMER, path + 'farmer.png', 32, 48);
+                this.load.spritesheet(IMAGES.BOR, path + 'bor.png', 32, 48);
+                this.load.spritesheet(IMAGES.MOGHERINI, path + 'mogherini.png', 32, 48);
+                this.load.spritesheet(IMAGES.JUNCKER, path + 'juncker.png', 32, 48);
 
-        this.load.spritesheet(IMAGES.PIG, path + 'swinia.png', 32, 48);
-        this.load.spritesheet(IMAGES.JOURNALIST, path + 'journalist.png', 32, 48);
-        this.load.spritesheet(IMAGES.BIZNESMAN, path + 'biznesmen.png', 32, 48);
-        this.load.spritesheet(IMAGES.SKATEBOARD, path + 'skate.png', 32, 48);
+                this.load.spritesheet(IMAGES.PIG, path + 'swinia.png', 32, 48);
+                this.load.spritesheet(IMAGES.JOURNALIST, path + 'journalist.png', 32, 48);
+                this.load.spritesheet(IMAGES.BIZNESMAN, path + 'biznesmen.png', 32, 48);
+                this.load.spritesheet(IMAGES.SKATEBOARD, path + 'skate.png', 32, 48);
 
-        this.load.spritesheet(IMAGES.SMOG, path + 'smog.png', 60, 36);
-        this.load.spritesheet(IMAGES.COMPOST, path + 'kompost.png', 60, 36);
-        this.load.spritesheet(IMAGES.CORUPT, path + 'korupcja.png', 60, 36);
-        this.load.spritesheet(IMAGES.POPRAWNOSC, path + 'poprawnosc.png', 60, 36);
+                this.load.spritesheet(IMAGES.SMOG, path + 'smog.png', 60, 36);
+                this.load.spritesheet(IMAGES.COMPOST, path + 'kompost.png', 60, 36);
+                this.load.spritesheet(IMAGES.CORUPT, path + 'korupcja.png', 60, 36);
+                this.load.spritesheet(IMAGES.POPRAWNOSC, path + 'poprawnosc.png', 60, 36);
 
-        this.load.image(IMAGES.FIREBALL, path + 'fireball.png');
-        this.load.image(IMAGES.HEART, path + 'heart.png');
-        this.load.spritesheet(IMAGES.SCORE, path + 'score.png');
+                this.load.image(IMAGES.FIREBALL, path + 'fireball.png');
+                this.load.image(IMAGES.HEART, path + 'heart.png');
+                this.load.spritesheet(IMAGES.SCORE, path + 'score.png');
 
-        switch (this.game.stageSetup.level) {
-            case 1:
-                console.log('Loaded 1 level');
-                this.load.tilemap('level1', './../../assets/mapa-wies/mapa-wies.json', null, Phaser.Tilemap.TILED_JSON);
-                this.load.image('tiles', './../../assets/mapa-wies/tileset.png');
-                this.load.image('background', './../../assets/mapa-wies/wies-tlo.png');
-                this.load.audio('background-music', ['./../../assets/music/muzyka-wies.mp3']);
-                break;
-            case 2:
-                console.log('Loaded 2 level');
-                this.load.tilemap('level2', './../../assets/mapa-miasto/mapa-miasto.json', null, Phaser.Tilemap.TILED_JSON);
-                this.load.image('tiles', './../../assets/mapa-miasto/tileset.png');
-                this.load.image('background', './../../assets/mapa-miasto/miasto-tlo.png');
-                this.load.audio('background-music', ['./../../assets/music/muzyka-miasto.mp3']);
-                break;
-            case 3:
-                console.log('Loaded 3 level');
-                this.load.tilemap('level3', './../../assets/mapa-euro/mapa-euro.json', null, Phaser.Tilemap.TILED_JSON);
-                this.load.image('tiles', './../../assets/mapa-euro/tileset.png');
-                this.load.image('background', './../../assets/mapa-euro/euro-tlo.png');
-                this.load.audio('background-music', ['./../../assets/music/muzyka-euro.mp3']);
-                break;
-            case 4:
-                console.log('Loaded 4 level');
-                this.load.tilemap('level4', './../../assets/mapa-sejm/mapa-sejm.json', null, Phaser.Tilemap.TILED_JSON);
-                this.load.image('tiles', './../../assets/mapa-sejm/tileset.png');
-                this.load.image('background', './../../assets/mapa-sejm/sejm-tlo.png');
-                this.load.audio('background-music', ['./../../assets/music/muzyka-sejm.mp3']);
-                break;
+                switch (this.game.stageSetup.level) {
+                        case 1:
+                                console.log('Loaded 1 level');
+                                this.load.tilemap('level1', './../../assets/mapa-wies/mapa-wies.json', null, Phaser.Tilemap.TILED_JSON);
+                                this.load.image('tiles', './../../assets/mapa-wies/tileset.png');
+                                this.load.image('background', './../../assets/mapa-wies/wies-tlo.png');
+                                this.load.audio('background-music', ['./../../assets/music/muzyka-wies.mp3']);
+                                break;
+                        case 2:
+                                console.log('Loaded 2 level');
+                                this.load.tilemap('level2', './../../assets/mapa-miasto/mapa-miasto.json', null, Phaser.Tilemap.TILED_JSON);
+                                this.load.image('tiles', './../../assets/mapa-miasto/tileset.png');
+                                this.load.image('background', './../../assets/mapa-miasto/miasto-tlo.png');
+                                this.load.audio('background-music', ['./../../assets/music/muzyka-miasto.mp3']);
+                                break;
+                        case 4:
+                                console.log('Loaded 4 level');
+                                this.load.tilemap('level4', './../../assets/mapa-euro/mapa-euro.json', null, Phaser.Tilemap.TILED_JSON);
+                                this.load.image('tiles', './../../assets/mapa-euro/tileset.png');
+                                this.load.image('background', './../../assets/mapa-euro/euro-tlo.png');
+                                this.load.audio('background-music', ['./../../assets/music/muzyka-euro.mp3']);
+                                break;
+                        case 3:
+                                console.log('Loaded 3 level');
+                                this.load.tilemap('level3', './../../assets/mapa-sejm/mapa-sejm.json', null, Phaser.Tilemap.TILED_JSON);
+                                this.load.image('tiles', './../../assets/mapa-sejm/tileset.png');
+                                this.load.image('background', './../../assets/mapa-sejm/sejm-tlo.png');
+                                this.load.audio('background-music', ['./../../assets/music/muzyka-sejm.mp3']);
+                                break;
 
+                }
+                this.load.image('tiles-props', './../../assets/images/tiles-props.png');
+                this.load.spritesheet(IMAGES.TILES_PROPS, './../../assets/images/tiles-props.png', 32, 32);
+        },
+        create: function create() {
+                // start the MainMenu state
+                this.state.start('LevelRenderer');
         }
-        this.load.image('tiles-props', './../../assets/images/tiles-props.png');
-        this.load.spritesheet(IMAGES.TILES_PROPS, './../../assets/images/tiles-props.png', 32, 32);
-    },
-    create: function create() {
-        // start the MainMenu state
-        this.state.start('LevelRenderer');
-    }
 };
 
 },{"./../config":7}],21:[function(require,module,exports){

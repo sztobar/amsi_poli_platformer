@@ -34,8 +34,8 @@ Preloader.prototype = {
 
         this.load.spritesheet(IMAGES.FARMER, path + 'farmer.png', 32, 48);
         this.load.spritesheet(IMAGES.BOR, path + 'bor.png', 32, 48);
-        this.load.spritesheet(IMAGES.MERKEL, path + 'merkel.png', 32, 48);
-        this.load.spritesheet(IMAGES.GRONKIEWICZ, path + 'gronkiewicz.png', 32, 48);
+        this.load.spritesheet(IMAGES.MOGHERINI, path + 'mogherini.png', 32, 48);
+        this.load.spritesheet(IMAGES.JUNCKER, path + 'juncker.png', 32, 48);
 
         this.load.spritesheet(IMAGES.PIG, path + 'swinia.png', 32, 48);
         this.load.spritesheet(IMAGES.JOURNALIST, path + 'journalist.png', 32, 48);
@@ -67,16 +67,16 @@ Preloader.prototype = {
                 this.load.image('background', './../../assets/mapa-miasto/miasto-tlo.png');
                 this.load.audio('background-music', ['./../../assets/music/muzyka-miasto.mp3']);
                 break;
-            case 3:
-                console.log('Loaded 3 level');
-                this.load.tilemap('level3', './../../assets/mapa-euro/mapa-euro.json', null, Phaser.Tilemap.TILED_JSON);
+            case 4:
+                console.log('Loaded 4 level');
+                this.load.tilemap('level4', './../../assets/mapa-euro/mapa-euro.json', null, Phaser.Tilemap.TILED_JSON);
                 this.load.image('tiles', './../../assets/mapa-euro/tileset.png');
                 this.load.image('background', './../../assets/mapa-euro/euro-tlo.png');
                 this.load.audio('background-music', ['./../../assets/music/muzyka-euro.mp3']);
                 break;
-            case 4:
-                console.log('Loaded 4 level');
-                this.load.tilemap('level4', './../../assets/mapa-sejm/mapa-sejm.json', null, Phaser.Tilemap.TILED_JSON);
+            case 3:
+                console.log('Loaded 3 level');
+                this.load.tilemap('level3', './../../assets/mapa-sejm/mapa-sejm.json', null, Phaser.Tilemap.TILED_JSON);
                 this.load.image('tiles', './../../assets/mapa-sejm/tileset.png');
                 this.load.image('background', './../../assets/mapa-sejm/sejm-tlo.png');
                 this.load.audio('background-music', ['./../../assets/music/muzyka-sejm.mp3']);

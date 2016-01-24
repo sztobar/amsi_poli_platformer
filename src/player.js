@@ -32,8 +32,8 @@ function Player(game, x, y) {
   this.sprite.animations.add('left', [0, 1, 2, 3], 10, true);
   this.sprite.animations.add('right', [5, 6, 7, 8], 10, true);
   
-  this.sprite.animations.add('shootleft', [12], 10, true);
-  this.sprite.animations.add('shootright', [13], 10, true);
+  this.sprite.animations.add('shootleft', [12], 5, true);
+  this.sprite.animations.add('shootright', [13], 5, true);
   
   var deathAnimation = this.sprite.animations.add('death', [9,10,9,10,11,10,11],5);
   deathAnimation.onComplete.add(this.afterDeath, this);
@@ -88,7 +88,17 @@ Player.prototype = {
       this.sprite.body.velocity.x = VELOCITY;
       this.sprite.animations.play('right');
       this.direction = DIRECTIONS.RIGHT;
-    } else {
+    } else if (this._shootKey.isDown && this.direction == DIRECTIONS.RIGHT) {
+      //  Move to the right
+      this.sprite.animations.play('shootright');
+    } else if (this._shootKey.isDown && this.direction == DIRECTIONS.LEFT) {
+      //  Move to the right
+      this.sprite.animations.play('shootleft');
+    }
+
+
+
+	else {
       //  Stand still
       this.sprite.animations.stop();
       this.sprite.frame = 4;
@@ -107,7 +117,8 @@ Player.prototype = {
     
     if (this._makeShoot && this._game.time.now > this._nextFire && this.projectilesGroup.countDead() > 0) {
       this._nextFire = this._game.time.now + FIRE_RATE;
-
+	  this.sprite.animations.play('shootright');
+     
       var projectile = this.projectilesGroup.getFirstDead();
 
       projectile.reset(this.sprite.position.x + this.sprite.width/2, this.sprite.position.y + this.sprite.height/2);
