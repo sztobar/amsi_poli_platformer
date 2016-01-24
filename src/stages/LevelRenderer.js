@@ -54,8 +54,6 @@ LevelRender.prototype = {
       this._enemiesArray.push(enemyObj);
     }
 
-
-
     this.blockGroup = this.tiledMap.createBlockGroup();
     for (let enemyBlock in this.blockGroup.children){
       this.blockGroup.children[enemyBlock].y = this.blockGroup.children[enemyBlock].y - 32;

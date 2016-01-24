@@ -53,7 +53,7 @@ export default class Shooter {
         this._nextFire = this.game.time.now + 700;
         var projectile = this.projectilesGroup.getFirstDead();
         projectile.reset(this.sprite.position.x + this.sprite.width/2, this.sprite.position.y );
-        if (this.direction) {
+        if (this.sprite.direction) {
             projectile.body.velocity.x = -160;
         } else {
             projectile.body.velocity.x = 160;
