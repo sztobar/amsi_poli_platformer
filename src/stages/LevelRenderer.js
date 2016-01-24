@@ -8,6 +8,7 @@ var enemy = require('../EnemyFactory');
 var pauseUtils = require('../Pause');
 var Score = require('../hud/score');
 var Life = require('../hud/life');
+var Speaker = require('../hud/speaker');
 
 var IMAGES = config.images;
 var TILES = config.tiles;
@@ -59,6 +60,8 @@ LevelRender.prototype = {
 
     //  Player life
     this._life = new Life(this);
+    
+    this.speaker = new Speaker(this);
 
     this._debugMode = false;
 

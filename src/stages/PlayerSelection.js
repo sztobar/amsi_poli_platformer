@@ -1,6 +1,7 @@
 module.exports = PlayerSelection;
 
 var IMAGES = require('./../config').images;
+var Speaker = require('../hud/speaker');
 var path = '../../assets/images/';
 var borderSprite, playerTab, currentPosX = 0, currentPosY = 0;
 var sizeAvatar = 150;
@@ -57,6 +58,8 @@ PlayerSelection.prototype = {
                 sprite.events.onInputDown.add(this.clickPlayer, this);
             }
         }
+
+        this.speaker = new Speaker(this);
     },
     changeMenuPos: function(){
         if (this._upKey.isDown) {
