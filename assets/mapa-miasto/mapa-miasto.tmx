@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="left-down" width="240" height="40" tilewidth="32" tileheight="32" nextobjectid="89">
+<map version="1.0" orientation="orthogonal" renderorder="left-down" width="240" height="40" tilewidth="32" tileheight="32" nextobjectid="110">
  <tileset firstgid="1" name="tileset" tilewidth="32" tileheight="32" tilecount="16">
   <image source="tileset.png" trans="ffffff" width="128" height="128"/>
  </tileset>
@@ -88,5 +88,23 @@
   <object id="86" gid="23" x="2336" y="928" width="32" height="32"/>
   <object id="87" gid="23" x="4160" y="896" width="32" height="32"/>
   <object id="88" gid="23" x="5440" y="992" width="32" height="32"/>
+  <object id="89" gid="25" x="544" y="1088" width="32" height="32"/>
+  <object id="91" gid="25" x="992" y="992" width="32" height="32"/>
+  <object id="92" gid="25" x="1152" y="864" width="32" height="32"/>
+  <object id="95" gid="25" x="1440" y="1024" width="32" height="32"/>
+  <object id="96" gid="25" x="1760" y="768" width="32" height="32"/>
+  <object id="97" gid="25" x="2272" y="992" width="32" height="32"/>
+  <object id="98" gid="25" x="3008" y="800" width="32" height="32"/>
+  <object id="99" gid="25" x="3328" y="800" width="32" height="32"/>
+  <object id="100" gid="25" x="3776" y="800" width="32" height="32"/>
+  <object id="101" gid="25" x="4256" y="896" width="32" height="32"/>
+  <object id="102" gid="25" x="4896" y="832" width="32" height="32"/>
+  <object id="103" gid="25" x="5184" y="512" width="32" height="32"/>
+  <object id="104" gid="25" x="5184" y="736" width="32" height="32"/>
+  <object id="105" gid="25" x="5312" y="992" width="32" height="32"/>
+  <object id="106" gid="25" x="5600" y="992" width="32" height="32"/>
+  <object id="107" gid="25" x="5856" y="928" width="32" height="32"/>
+  <object id="108" gid="25" x="6272" y="928" width="32" height="32"/>
+  <object id="109" gid="25" x="7360" y="832" width="32" height="32"/>
  </objectgroup>
 </map>
