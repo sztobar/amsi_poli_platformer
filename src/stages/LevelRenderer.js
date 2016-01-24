@@ -83,10 +83,13 @@ LevelRender.prototype = {
   },
   update: function() {
     this.physics.arcade.collide(this._enemies, this.tiledMap.propsLayer, null, isObstacleTiles);
-    this._enemiesArray.forEach(function(item){
+    
+	this._enemiesArray.forEach(function(item){
       item.updateMovement(this._player.sprite, this.physics, this.onKillPlayer.bind(this));
+	  item.projectilesGroup && this.physics.arcade.collide(item.projectilesGroup, this.tiledMap.propsLayer, function(p) { p.kill(); }, isObstacleTiles);
     }, this);
-    this.physics.arcade.collide(this._enemies, this.blockGroup, this.directionEnemyChange, function(){ return true });
+    
+	this.physics.arcade.collide(this._enemies, this.blockGroup, this.directionEnemyChange, function(){ return true });
 
     this.physics.arcade.collide(this._player.sprite, this.tiledMap.propsLayer, null, isObstacleTiles);
     this.physics.arcade.collide(this._player.projectilesGroup, this.tiledMap.propsLayer, function(p) { p.kill(); }, isObstacleTiles);
@@ -96,7 +99,7 @@ LevelRender.prototype = {
     this.physics.arcade.overlap(this._player.sprite, this.pointsGroup, this.collectStar, null, this);
     this.physics.arcade.overlap(this._player.sprite, this.checkpointsGroup, this.onCheckpointCollide, null, this);
 
-    this.physics.arcade.overlap(this._player.sprite, this._enemies , this.onKillPlayer , null, this);
+    //this.physics.arcade.overlap(this._player.sprite, this._enemies , this.onKillPlayer , null, this);
 
     //Enemy actions
     this.physics.arcade.overlap(this._player.sprite, this._enemies , this.onKillPlayer , null, this);
@@ -134,7 +137,7 @@ LevelRender.prototype = {
     this._player.die();
   },
   onKillPlayer : function (player, enemy) {
-    if (this._player.immovable) { return; }
+	if (_.get(enemy, 'animations.currentAnim.name') === 'death' || this._player.immovable) { return; }
     var lifeCount = this._life.dec();
     if (lifeCount === 0) {
       // od dead reset life counter and subtract points
@@ -153,8 +156,9 @@ LevelRender.prototype = {
     checkpoint.kill();
   }, 
   toggleDebugMode: function() {
-    this._debugMode = !this._debugMode;
-    this.tiledMap.propsLayer.visible = this._debugMode;
+	  this.endLevel();
+    //this._debugMode = !this._debugMode;
+    //this.tiledMap.propsLayer.visible = this._debugMode;
   },
   directionEnemyChange : function(enemySprite, tile){
     if(enemySprite.colided){

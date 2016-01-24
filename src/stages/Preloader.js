@@ -36,6 +36,8 @@ Preloader.prototype = {
         this.load.spritesheet(IMAGES.BOR, path + 'bor.png', 32, 48);
         this.load.spritesheet(IMAGES.MOGHERINI, path + 'mogherini.png', 32, 48);
         this.load.spritesheet(IMAGES.JUNCKER, path + 'juncker.png', 32, 48);
+        this.load.spritesheet(IMAGES.MERKEL, path + 'merkel.png', 32, 48);
+        this.load.spritesheet(IMAGES.GRONKIEWICZ, path + 'gronkiewicz.png', 32, 48);
 
         this.load.spritesheet(IMAGES.PIG, path + 'swinia.png', 32, 48);
         this.load.spritesheet(IMAGES.JOURNALIST, path + 'journalist.png', 32, 48);
@@ -51,6 +53,8 @@ Preloader.prototype = {
         this.load.image(IMAGES.FIREBALL, path + 'fireball.png');
         this.load.image(IMAGES.HEART, path + 'heart.png');
         this.load.spritesheet(IMAGES.SCORE, path + 'score.png');
+			
+        this.load.spritesheet(IMAGES.SPEAKER, path + 'speaker.png', 100, 100);
 
         switch(this.game.stageSetup.level){
             case 1:

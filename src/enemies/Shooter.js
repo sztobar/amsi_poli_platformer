@@ -50,7 +50,7 @@ export default class Shooter {
 
 
     shot(){
-        this._nextFire = this.game.time.now + 700;
+        this._nextFire = this.game.time.now + 1500;
         var projectile = this.projectilesGroup.getFirstDead();
         projectile.reset(this.sprite.position.x + this.sprite.width/2, this.sprite.position.y );
         if (this.sprite.direction) {

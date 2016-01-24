@@ -16139,6 +16139,7 @@ TiledLevel.prototype = {
   },
   createCheckpointsGroup: function createCheckpointsGroup() {
     var group = this.game.add.group();
+    group.enableBody = true;
     this.tilemap.createFromObjects('objects', TILES.CHECKPOINT, IMAGES.TILES_PROPS, 6, true, false, group, Phaser.Sprite, true);
     return group;
   },
@@ -16346,25 +16347,13 @@ exports.default = Cloud;
 },{"./../config":7}],9:[function(require,module,exports){
 'use strict';
 
-var _createClass = function () {
-    function defineProperties(target, props) {
-        for (var i = 0; i < props.length; i++) {
-            var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
-        }
-    }return function (Constructor, protoProps, staticProps) {
-        if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
-    };
-}();
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-        throw new TypeError("Cannot call a class as a function");
-    }
-}
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /**
  * Created by mmitis on 23.01.16.
@@ -16423,7 +16412,7 @@ var Shooter = function () {
     }, {
         key: 'shot',
         value: function shot() {
-            this._nextFire = this.game.time.now + 700;
+            this._nextFire = this.game.time.now + 1500;
             var projectile = this.projectilesGroup.getFirstDead();
             projectile.reset(this.sprite.position.x + this.sprite.width / 2, this.sprite.position.y);
             if (this.sprite.direction) {
@@ -16964,6 +16953,10 @@ EndScore.prototype = {
     init: function init(stageSetup) {
         this.stageSetup = stageSetup;
     },
+    preload: function preload() {
+        this.load.spritesheet(IMAGES.MAINMENU, path + 'menu-tlo.png', 640, 480);
+        this.load.spritesheet(IMAGES.MENUTITLE, path + 'menu-title.png', 267, 58);
+    },
     create: function create() {
         this._upKey = this.game.input.keyboard.addKey(Phaser.Keyboard.UP);
         this._downKey = this.game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
@@ -17182,9 +17175,14 @@ LevelRender.prototype = {
   },
   update: function update() {
     this.physics.arcade.collide(this._enemies, this.tiledMap.propsLayer, null, isObstacleTiles);
+
     this._enemiesArray.forEach(function (item) {
       item.updateMovement(this._player.sprite, this.physics, this.onKillPlayer.bind(this));
+      item.projectilesGroup && this.physics.arcade.collide(item.projectilesGroup, this.tiledMap.propsLayer, function (p) {
+        p.kill();
+      }, isObstacleTiles);
     }, this);
+
     this.physics.arcade.collide(this._enemies, this.blockGroup, this.directionEnemyChange, function () {
       return true;
     });
@@ -17199,7 +17197,7 @@ LevelRender.prototype = {
     this.physics.arcade.overlap(this._player.sprite, this.pointsGroup, this.collectStar, null, this);
     this.physics.arcade.overlap(this._player.sprite, this.checkpointsGroup, this.onCheckpointCollide, null, this);
 
-    this.physics.arcade.overlap(this._player.sprite, this._enemies, this.onKillPlayer, null, this);
+    //this.physics.arcade.overlap(this._player.sprite, this._enemies , this.onKillPlayer , null, this);
 
     //Enemy actions
     this.physics.arcade.overlap(this._player.sprite, this._enemies, this.onKillPlayer, null, this);
@@ -17239,7 +17237,7 @@ LevelRender.prototype = {
     this._player.die();
   },
   onKillPlayer: function onKillPlayer(player, enemy) {
-    if (this._player.immovable) {
+    if (_.get(enemy, 'animations.currentAnim.name') === 'death' || this._player.immovable) {
       return;
     }
     var lifeCount = this._life.dec();
@@ -17259,8 +17257,9 @@ LevelRender.prototype = {
     checkpoint.kill();
   },
   toggleDebugMode: function toggleDebugMode() {
-    this._debugMode = !this._debugMode;
-    this.tiledMap.propsLayer.visible = this._debugMode;
+    this.endLevel();
+    //this._debugMode = !this._debugMode;
+    //this.tiledMap.propsLayer.visible = this._debugMode;
   },
   directionEnemyChange: function directionEnemyChange(enemySprite, tile) {
     if (enemySprite.colided) {
@@ -17470,6 +17469,7 @@ PlayerSelection.prototype = {
 
 /* global PIXI */
 /* global Phaser */
+
 var IMAGES = require('./../config').images;
 var path = '../../assets/images/';
 
@@ -17505,6 +17505,8 @@ Preloader.prototype = {
                 this.load.spritesheet(IMAGES.BOR, path + 'bor.png', 32, 48);
                 this.load.spritesheet(IMAGES.MOGHERINI, path + 'mogherini.png', 32, 48);
                 this.load.spritesheet(IMAGES.JUNCKER, path + 'juncker.png', 32, 48);
+                this.load.spritesheet(IMAGES.MERKEL, path + 'merkel.png', 32, 48);
+                this.load.spritesheet(IMAGES.GRONKIEWICZ, path + 'gronkiewicz.png', 32, 48);
 
                 this.load.spritesheet(IMAGES.PIG, path + 'swinia.png', 32, 48);
                 this.load.spritesheet(IMAGES.JOURNALIST, path + 'journalist.png', 32, 48);
@@ -17519,6 +17521,8 @@ Preloader.prototype = {
                 this.load.image(IMAGES.FIREBALL, path + 'fireball.png');
                 this.load.image(IMAGES.HEART, path + 'heart.png');
                 this.load.spritesheet(IMAGES.SCORE, path + 'score.png');
+
+                this.load.spritesheet(IMAGES.SPEAKER, path + 'speaker.png', 100, 100);
 
                 switch (this.game.stageSetup.level) {
                         case 1:

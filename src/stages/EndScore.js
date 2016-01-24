@@ -12,6 +12,10 @@ EndScore.prototype = {
     init: function (stageSetup) {
         this.stageSetup = stageSetup;
     },
+	preload: function() {
+        this.load.spritesheet(IMAGES.MAINMENU, path + 'menu-tlo.png', 640, 480);
+        this.load.spritesheet(IMAGES.MENUTITLE, path + 'menu-title.png', 267, 58);
+	},
     create: function () {
         this._upKey = this.game.input.keyboard.addKey(Phaser.Keyboard.UP);
         this._downKey = this.game.input.keyboard.addKey(Phaser.Keyboard.DOWN);

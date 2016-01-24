@@ -63,6 +63,7 @@ TiledLevel.prototype = {
   },
   createCheckpointsGroup: function() {
     var group  = this.game.add.group();
+    group.enableBody = true;
     this.tilemap.createFromObjects('objects', TILES.CHECKPOINT, IMAGES.TILES_PROPS, 6, true, false, group, Phaser.Sprite, true);
     return group;
   },
