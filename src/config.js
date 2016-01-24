@@ -50,6 +50,7 @@ module.exports =
       POINT: 24,
       ENEMYWALKER: 25,
       ENEMYSHOOT: 26,
-      ENEMYFLY: 27
+      ENEMYFLY: 27,
+      ENEMYBORDER: 28
     }
 };

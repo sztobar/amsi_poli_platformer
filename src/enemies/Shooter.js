@@ -19,7 +19,7 @@ export default class Shooter {
         this.sprite.x = position[0];
         this.sprite.y = position[1];
         this.death = false;
-        this.direction = true;
+        this.sprite.direction = true;
         this.projectilesGroup = game.add.group();
         this.projectilesGroup.enableBody = true;
         this.projectilesGroup.physicsBodyType = Phaser.Physics.ARCADE;
@@ -70,11 +70,11 @@ export default class Shooter {
                         if (player.x < this.sprite.x) {
                             this.sprite.animations.play('shotLeft');
                             this.sprite.body.velocity.x = -10;
-                            this.direction = true;
+                            this.sprite.direction = true;
                         } else {
                             this.sprite.animations.play('shotRight');
                             this.sprite.body.velocity.x = 10;
-                            this.direction = false;
+                            this.sprite.direction = false;
 
                         }
                         this.shot(player);
@@ -83,9 +83,9 @@ export default class Shooter {
                 } else {
 
                     if(this.sprite.body.onWall() == true){
-                        this.direction = !this.direction;
+                        this.sprite.direction = !this.sprite.direction;
                     }
-                    if(this.direction){
+                    if(this.sprite.direction){
                         this.sprite.body.velocity.x = -30;
                         this.sprite.animations.play('left');
                     } else {

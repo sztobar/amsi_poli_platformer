@@ -39,15 +39,11 @@ function TiledLevel(game, id ) {
   for (var y = 0; y < layer.height; y++) {
     for (var x = 0; x < layer.width; x++) {
       var tile = layer.data[y][x];
-      if(tile.index > 23){
-        console.log(tile);
-      }
       if (tile.index === TILES.PLATFORM) {
         tile.setCollision(false, false, true, false);
       }
       else if (tile.index === TILES.ENEMYFLY || tile.index === TILES.ENEMYSHOOT || tile.index === TILES.ENEMYWALKER) {
 
-         this.enemies.push({ x: tile.x , y : tile.y});
       }
       else if (tile.index === TILES.SPIKE ||
           tile.index === TILES.TRAP ||
@@ -67,7 +63,6 @@ TiledLevel.prototype = {
   },
   createCheckpointsGroup: function() {
     var group  = this.game.add.group();
-    group.enableBody = true;
     this.tilemap.createFromObjects('objects', TILES.CHECKPOINT, IMAGES.TILES_PROPS, 6, true, false, group, Phaser.Sprite, true);
     return group;
   },
@@ -84,6 +79,13 @@ TiledLevel.prototype = {
   createEnemiesFlyGroup: function() {
     var group  = this.game.add.group();
     this.tilemap.createFromObjects('objects', TILES.ENEMYWALKER, IMAGES.TILES_PROPS, 9, false, false, group, Phaser.Sprite, false);
+    return group;
+  },
+  createBlockGroup: function() {
+    var group  = this.game.add.group();
+    this.tilemap.createFromObjects('objects', TILES.ENEMYBORDER, IMAGES.TILES_PROPS, 2 , true, false, group, Phaser.Sprite, false);
+    group.enableBody = true;
+
     return group;
   },
   getEndPoint : function(){

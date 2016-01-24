@@ -22,7 +22,6 @@ LevelRender.prototype = {
   create: function() {
     this.physics.startSystem(Phaser.Physics.ARCADE);
     this.tiledMap = new TiledLevel(this.game, this.game.stageSetup.level);
-    console.log(this.tiledMap.enemies);
     // window.player for debugging purpose
     window.player = this._player = new Player(this, this.tiledMap.levelStart.x, this.tiledMap.levelStart.y);
 
@@ -36,38 +35,48 @@ LevelRender.prototype = {
     this.enemiesWalkerGroup = this.tiledMap.createEnemiesWalkerGroup();
 
     this._enemies = this.game.add.physicsGroup();
-    this._enemiesArray = []
+    this._enemiesArray = [];
     //Add enemies (flying)
     for (let enemyIndex in this.enemiesFlyGroup.children){
-      let enemyObj = enemy.create(this, [ this.enemiesFlyGroup.children[enemyIndex].x, this.enemiesFlyGroup.children[enemyIndex].y ], 'fly', this.game.stageSetup.level );
+      let enemyObj = enemy.create(this, [ this.enemiesFlyGroup.children[enemyIndex].x, this.enemiesFlyGroup.children[enemyIndex].y-32 ], 'walk', this.game.stageSetup.level );
       this._enemies.add(enemyObj.getSprite());
       this._enemiesArray.push(enemyObj);
     }
     for (let enemyIndex in this.enemiesShootGroup.children){
-      let enemyObj = enemy.create(this, [ this.enemiesShootGroup.children[enemyIndex].x, this.enemiesShootGroup.children[enemyIndex].y ], 'shoot', this.game.stageSetup.level );
+      let enemyObj = enemy.create(this, [ this.enemiesShootGroup.children[enemyIndex].x, this.enemiesShootGroup.children[enemyIndex].y-32 ], 'shoot', this.game.stageSetup.level );
       this._enemies.add(enemyObj.getSprite());
       this._enemiesArray.push(enemyObj);
     }
     for (let enemyIndex in this.enemiesWalkerGroup.children){
-      let enemyObj = enemy.create(this, [ this.enemiesWalkerGroup.children[enemyIndex].x, this.enemiesWalkerGroup.children[enemyIndex].y ], 'walk', this.game.stageSetup.level );
+      let enemyObj = enemy.create(this, [ this.enemiesWalkerGroup.children[enemyIndex].x, this.enemiesWalkerGroup.children[enemyIndex].y-32 ], 'fly', this.game.stageSetup.level );
       this._enemies.add(enemyObj.getSprite());
       this._enemiesArray.push(enemyObj);
     }
 
+
+
+    this.blockGroup = this.tiledMap.createBlockGroup();
+    for (let enemyBlock in this.blockGroup.children){
+      this.blockGroup.children[enemyBlock].y = this.blockGroup.children[enemyBlock].y - 32;
+      this.game.physics.arcade.enable(this.blockGroup.children[enemyBlock]);
+      this.blockGroup.children[enemyBlock].body.collideWorldBounds = true;
+      this.blockGroup.children[enemyBlock].body.bounce.y = 0;
+      this.blockGroup.children[enemyBlock].body.gravity.y = 0;
+      this.blockGroup.children[enemyBlock].body.immovable = true;
+      this.blockGroup.children[enemyBlock].body.moves = false;
+      this.blockGroup.children[enemyBlock].alpha = 0;
+    }
     //  The score
     this._score = new Score(this, this.game.stageSetup.score);
 
     //  Player life
     this._life = new Life(this);
-
     this._debugMode = false;
-
     //Pause handling
     var pauseKey = this.input.keyboard.addKey(Phaser.KeyCode.P);
     pauseKey.onUp.add(function(){
       pauseUtils.pause(this.game);
     }, this);
-
 
     var spaceKey = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
     spaceKey.onUp.add(this.toggleDebugMode, this);
@@ -77,6 +86,7 @@ LevelRender.prototype = {
     this._enemiesArray.forEach(function(item){
       item.updateMovement(this._player.sprite, this.physics, this.onKillPlayer.bind(this));
     }, this);
+    this.physics.arcade.collide(this._enemies, this.blockGroup, this.directionEnemyChange, function(){ return true });
 
     this.physics.arcade.collide(this._player.sprite, this.tiledMap.propsLayer, null, isObstacleTiles);
     this.physics.arcade.collide(this._player.projectilesGroup, this.tiledMap.propsLayer, function(p) { p.kill(); }, isObstacleTiles);
@@ -91,7 +101,6 @@ LevelRender.prototype = {
     //Enemy actions
     this.physics.arcade.overlap(this._player.sprite, this._enemies , this.onKillPlayer , null, this);
     this.physics.arcade.overlap(this._player.projectilesGroup,this._enemies , this.onShotEnemy , null, this);
-
     //End level
     this.physics.arcade.overlap(this._player.sprite, this.tiledMap.getEndPoint() , this.endLevel , null, this);
 
@@ -146,8 +155,14 @@ LevelRender.prototype = {
   toggleDebugMode: function() {
     this._debugMode = !this._debugMode;
     this.tiledMap.propsLayer.visible = this._debugMode;
+  },
+  directionEnemyChange : function(enemySprite, tile){
+    if(enemySprite.colided){
+      enemySprite.direction = !enemySprite.direction;
+    }
   }
 };
+
 
 module.exports = LevelRender;
 

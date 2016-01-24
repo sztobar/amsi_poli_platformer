@@ -36,7 +36,7 @@ var defaultConfiguration = (game, enemySprite) =>{
     enemySprite.body.bounce.y = 0.1;
     enemySprite.body.gravity.y = 350;
     enemySprite.body.collideWorldBounds = true;
-
+    enemySprite.colided = true;
     enemySprite.anchor.x = 0.5;
     enemySprite.anchor.y = 0.5;
 };

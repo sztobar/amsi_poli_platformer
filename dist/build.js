@@ -16013,7 +16013,7 @@ var defaultConfiguration = function defaultConfiguration(game, enemySprite) {
     enemySprite.body.bounce.y = 0.1;
     enemySprite.body.gravity.y = 350;
     enemySprite.body.collideWorldBounds = true;
-
+    enemySprite.colided = true;
     enemySprite.anchor.x = 0.5;
     enemySprite.anchor.y = 0.5;
 };
@@ -16121,15 +16121,9 @@ function TiledLevel(game, id) {
   for (var y = 0; y < layer.height; y++) {
     for (var x = 0; x < layer.width; x++) {
       var tile = layer.data[y][x];
-      if (tile.index > 23) {
-        console.log(tile);
-      }
       if (tile.index === TILES.PLATFORM) {
         tile.setCollision(false, false, true, false);
-      } else if (tile.index === TILES.ENEMYFLY || tile.index === TILES.ENEMYSHOOT || tile.index === TILES.ENEMYWALKER) {
-
-        this.enemies.push({ x: tile.x, y: tile.y });
-      } else if (tile.index === TILES.SPIKE || tile.index === TILES.TRAP || tile.index === TILES.OBSTACLE) {
+      } else if (tile.index === TILES.ENEMYFLY || tile.index === TILES.ENEMYSHOOT || tile.index === TILES.ENEMYWALKER) {} else if (tile.index === TILES.SPIKE || tile.index === TILES.TRAP || tile.index === TILES.OBSTACLE) {
         tile.setCollision(true, true, true, true);
       }
     }
@@ -16145,7 +16139,6 @@ TiledLevel.prototype = {
   },
   createCheckpointsGroup: function createCheckpointsGroup() {
     var group = this.game.add.group();
-    group.enableBody = true;
     this.tilemap.createFromObjects('objects', TILES.CHECKPOINT, IMAGES.TILES_PROPS, 6, true, false, group, Phaser.Sprite, true);
     return group;
   },
@@ -16162,6 +16155,13 @@ TiledLevel.prototype = {
   createEnemiesFlyGroup: function createEnemiesFlyGroup() {
     var group = this.game.add.group();
     this.tilemap.createFromObjects('objects', TILES.ENEMYWALKER, IMAGES.TILES_PROPS, 9, false, false, group, Phaser.Sprite, false);
+    return group;
+  },
+  createBlockGroup: function createBlockGroup() {
+    var group = this.game.add.group();
+    this.tilemap.createFromObjects('objects', TILES.ENEMYBORDER, IMAGES.TILES_PROPS, 2, true, false, group, Phaser.Sprite, false);
+    group.enableBody = true;
+
     return group;
   },
   getEndPoint: function getEndPoint() {
@@ -16239,7 +16239,8 @@ module.exports = {
         POINT: 24,
         ENEMYWALKER: 25,
         ENEMYSHOOT: 26,
-        ENEMYFLY: 27
+        ENEMYFLY: 27,
+        ENEMYBORDER: 28
     }
 };
 
@@ -16374,7 +16375,7 @@ var Shooter = function () {
         this.sprite.x = position[0];
         this.sprite.y = position[1];
         this.death = false;
-        this.direction = true;
+        this.sprite.direction = true;
         this.projectilesGroup = game.add.group();
         this.projectilesGroup.enableBody = true;
         this.projectilesGroup.physicsBodyType = Phaser.Physics.ARCADE;
@@ -16431,20 +16432,20 @@ var Shooter = function () {
                             if (player.x < this.sprite.x) {
                                 this.sprite.animations.play('shotLeft');
                                 this.sprite.body.velocity.x = -10;
-                                this.direction = true;
+                                this.sprite.direction = true;
                             } else {
                                 this.sprite.animations.play('shotRight');
                                 this.sprite.body.velocity.x = 10;
-                                this.direction = false;
+                                this.sprite.direction = false;
                             }
                             this.shot(player);
                         }
                     } else {
 
                         if (this.sprite.body.onWall() == true) {
-                            this.direction = !this.direction;
+                            this.sprite.direction = !this.sprite.direction;
                         }
-                        if (this.direction) {
+                        if (this.sprite.direction) {
                             this.sprite.body.velocity.x = -30;
                             this.sprite.animations.play('left');
                         } else {
@@ -16499,7 +16500,7 @@ var Walker = function () {
         this.sprite.x = position[0];
         this.sprite.y = position[1];
         this.death = false;
-        this.direction = true;
+        this.sprite.direction = true;
         var deathAnimation = this.sprite.animations.add('death', [4, 9, 10, 11], 10);
         deathAnimation.onComplete.add(this.afterDeath.bind(this), this);
     }
@@ -16527,9 +16528,9 @@ var Walker = function () {
             if (Phaser.Point.distance(player, this.sprite.body) < 640) {
                 if (this.death == false) {
                     if (this.sprite.body.onWall() == true) {
-                        this.direction = !this.direction;
+                        this.sprite.direction = !this.sprite.direction;
                     }
-                    if (this.direction) {
+                    if (this.sprite.direction) {
                         this.sprite.body.velocity.x = -30;
                         this.sprite.animations.play('left');
                     } else {
@@ -16679,7 +16680,6 @@ game.state.start('Boot');
 
 /* global Phaser */
 /* global PIXI */
-
 var config = require('./config');
 var IMAGES = config.images;
 var DIRECTIONS = config.directions;
@@ -17038,6 +17038,7 @@ EndScore.prototype = {
 /* global _ */
 /* global PIXI */
 /* global Phaser */
+
 var config = require('../config');
 var Player = require('../player');
 var TiledLevel = require('../TiledLevel');
@@ -17059,7 +17060,6 @@ LevelRender.prototype = {
   create: function create() {
     this.physics.startSystem(Phaser.Physics.ARCADE);
     this.tiledMap = new TiledLevel(this.game, this.game.stageSetup.level);
-    console.log(this.tiledMap.enemies);
     // window.player for debugging purpose
     window.player = this._player = new Player(this, this.tiledMap.levelStart.x, this.tiledMap.levelStart.y);
 
@@ -17075,29 +17075,38 @@ LevelRender.prototype = {
     this._enemiesArray = [];
     //Add enemies (flying)
     for (var enemyIndex in this.enemiesFlyGroup.children) {
-      var enemyObj = enemy.create(this, [this.enemiesFlyGroup.children[enemyIndex].x, this.enemiesFlyGroup.children[enemyIndex].y], 'fly', this.game.stageSetup.level);
+      var enemyObj = enemy.create(this, [this.enemiesFlyGroup.children[enemyIndex].x, this.enemiesFlyGroup.children[enemyIndex].y - 32], 'walk', this.game.stageSetup.level);
       this._enemies.add(enemyObj.getSprite());
       this._enemiesArray.push(enemyObj);
     }
     for (var enemyIndex in this.enemiesShootGroup.children) {
-      var enemyObj = enemy.create(this, [this.enemiesShootGroup.children[enemyIndex].x, this.enemiesShootGroup.children[enemyIndex].y], 'shoot', this.game.stageSetup.level);
+      var enemyObj = enemy.create(this, [this.enemiesShootGroup.children[enemyIndex].x, this.enemiesShootGroup.children[enemyIndex].y - 32], 'shoot', this.game.stageSetup.level);
       this._enemies.add(enemyObj.getSprite());
       this._enemiesArray.push(enemyObj);
     }
     for (var enemyIndex in this.enemiesWalkerGroup.children) {
-      var enemyObj = enemy.create(this, [this.enemiesWalkerGroup.children[enemyIndex].x, this.enemiesWalkerGroup.children[enemyIndex].y], 'walk', this.game.stageSetup.level);
+      var enemyObj = enemy.create(this, [this.enemiesWalkerGroup.children[enemyIndex].x, this.enemiesWalkerGroup.children[enemyIndex].y - 32], 'fly', this.game.stageSetup.level);
       this._enemies.add(enemyObj.getSprite());
       this._enemiesArray.push(enemyObj);
     }
 
+    this.blockGroup = this.tiledMap.createBlockGroup();
+    for (var enemyBlock in this.blockGroup.children) {
+      this.blockGroup.children[enemyBlock].y = this.blockGroup.children[enemyBlock].y - 32;
+      this.game.physics.arcade.enable(this.blockGroup.children[enemyBlock]);
+      this.blockGroup.children[enemyBlock].body.collideWorldBounds = true;
+      this.blockGroup.children[enemyBlock].body.bounce.y = 0;
+      this.blockGroup.children[enemyBlock].body.gravity.y = 0;
+      this.blockGroup.children[enemyBlock].body.immovable = true;
+      this.blockGroup.children[enemyBlock].body.moves = false;
+      this.blockGroup.children[enemyBlock].alpha = 0;
+    }
     //  The score
     this._score = new Score(this, this.game.stageSetup.score);
 
     //  Player life
     this._life = new Life(this);
-
     this._debugMode = false;
-
     //Pause handling
     var pauseKey = this.input.keyboard.addKey(Phaser.KeyCode.P);
     pauseKey.onUp.add(function () {
@@ -17112,6 +17121,9 @@ LevelRender.prototype = {
     this._enemiesArray.forEach(function (item) {
       item.updateMovement(this._player.sprite, this.physics, this.onKillPlayer.bind(this));
     }, this);
+    this.physics.arcade.collide(this._enemies, this.blockGroup, this.directionEnemyChange, function () {
+      return true;
+    });
 
     this.physics.arcade.collide(this._player.sprite, this.tiledMap.propsLayer, null, isObstacleTiles);
     this.physics.arcade.collide(this._player.projectilesGroup, this.tiledMap.propsLayer, function (p) {
@@ -17128,7 +17140,6 @@ LevelRender.prototype = {
     //Enemy actions
     this.physics.arcade.overlap(this._player.sprite, this._enemies, this.onKillPlayer, null, this);
     this.physics.arcade.overlap(this._player.projectilesGroup, this._enemies, this.onShotEnemy, null, this);
-
     //End level
     this.physics.arcade.overlap(this._player.sprite, this.tiledMap.getEndPoint(), this.endLevel, null, this);
 
@@ -17186,6 +17197,11 @@ LevelRender.prototype = {
   toggleDebugMode: function toggleDebugMode() {
     this._debugMode = !this._debugMode;
     this.tiledMap.propsLayer.visible = this._debugMode;
+  },
+  directionEnemyChange: function directionEnemyChange(enemySprite, tile) {
+    if (enemySprite.colided) {
+      enemySprite.direction = !enemySprite.direction;
+    }
   }
 };
 
