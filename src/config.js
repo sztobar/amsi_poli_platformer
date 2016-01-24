@@ -31,7 +31,8 @@ module.exports =
         MERKEL      : 'merkel',
         GRONKIEWICZ: 'gronkiewicz',
         MAINMENU    : 'menu-tlo',
-        MENUTITLE   : 'menu-title'
+        MENUTITLE   : 'menu-title',
+        SPEAKER     : 'speaker'
     },
     directions : {
        LEFT :       0,

@@ -16220,7 +16220,8 @@ module.exports = {
         MERKEL: 'merkel',
         GRONKIEWICZ: 'gronkiewicz',
         MAINMENU: 'menu-tlo',
-        MENUTITLE: 'menu-title'
+        MENUTITLE: 'menu-title',
+        SPEAKER: 'speaker'
     },
     directions: {
         LEFT: 0,
@@ -16656,6 +16657,55 @@ module.exports = Score;
 },{"../config":7}],13:[function(require,module,exports){
 'use strict';
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var IMAGES = require('../config').images;
+
+var on = true;
+
+module.exports = function () {
+  function Speaker(game) {
+    _classCallCheck(this, Speaker);
+
+    this.game = game;
+    var x = this.game.camera.view.width - 70;
+    var y = this.game.camera.view.height - 50;
+    var sprite = this.sprite = game.add.sprite(x, y, IMAGES.SPEAKER);
+    sprite.scale.set(0.5, 0.5);
+    sprite.inputEnabled = true;
+    sprite.input.useHandCursor = true;
+    sprite.events.onInputDown.add(this.onClick, this);
+    sprite.fixedToCamera = true;
+    sprite.alpha = 0.9;
+
+    this.sprite.animations.add('on', [0], 10, true);
+    this.sprite.animations.add('off', [1], 10, true);
+
+    this.setFrame();
+  }
+
+  _createClass(Speaker, [{
+    key: 'onClick',
+    value: function onClick() {
+      on = !on;
+      this.game.sound.mute = !on;
+      this.setFrame();
+    }
+  }, {
+    key: 'setFrame',
+    value: function setFrame() {
+      this.sprite.animations.play(on ? 'on' : 'off');
+    }
+  }]);
+
+  return Speaker;
+}();
+
+},{"../config":7}],14:[function(require,module,exports){
+'use strict';
+
 /* global Phaser */
 var Boot = require('./stages/Boot'),
     Preloader = require('./stages/Preloader'),
@@ -16675,7 +16725,7 @@ game.state.add('PlayerSelection', PlayerSelection);
 game.state.add('LevelRenderer', LevelRenderer);
 game.state.start('Boot');
 
-},{"./stages/Boot":15,"./stages/EndScore":16,"./stages/LevelRenderer":17,"./stages/MainMenu":18,"./stages/PlayerSelection":19,"./stages/Preloader":20,"./stages/Scoreboard":21}],14:[function(require,module,exports){
+},{"./stages/Boot":16,"./stages/EndScore":17,"./stages/LevelRenderer":18,"./stages/MainMenu":19,"./stages/PlayerSelection":20,"./stages/Preloader":21,"./stages/Scoreboard":22}],15:[function(require,module,exports){
 'use strict';
 
 /* global Phaser */
@@ -16859,7 +16909,7 @@ Player.prototype = {
 
 module.exports = Player;
 
-},{"./config":7}],15:[function(require,module,exports){
+},{"./config":7}],16:[function(require,module,exports){
 'use strict';
 
 /* global Phaser */
@@ -16885,7 +16935,7 @@ Boot.prototype = {
 
 module.exports = Boot;
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 'use strict';
 
 module.exports = EndScore;
@@ -17032,13 +17082,12 @@ EndScore.prototype = {
 
 };
 
-},{"./../config":7}],17:[function(require,module,exports){
+},{"./../config":7}],18:[function(require,module,exports){
 'use strict';
 
 /* global _ */
 /* global PIXI */
 /* global Phaser */
-
 var config = require('../config');
 var Player = require('../player');
 var TiledLevel = require('../TiledLevel');
@@ -17046,6 +17095,7 @@ var enemy = require('../EnemyFactory');
 var pauseUtils = require('../Pause');
 var Score = require('../hud/score');
 var Life = require('../hud/life');
+var Speaker = require('../hud/speaker');
 
 var IMAGES = config.images;
 var TILES = config.tiles;
@@ -17106,6 +17156,7 @@ LevelRender.prototype = {
 
     //  Player life
     this._life = new Life(this);
+    this.speaker = new Speaker(this);
     this._debugMode = false;
     //Pause handling
     var pauseKey = this.input.keyboard.addKey(Phaser.KeyCode.P);
@@ -17215,7 +17266,7 @@ function isTrapTiles(point, tile) {
   return tile.index === TILES.TRAP || tile.index === TILES.SPIKE;
 }
 
-},{"../EnemyFactory":3,"../Pause":5,"../TiledLevel":6,"../config":7,"../hud/life":11,"../hud/score":12,"../player":14}],18:[function(require,module,exports){
+},{"../EnemyFactory":3,"../Pause":5,"../TiledLevel":6,"../config":7,"../hud/life":11,"../hud/score":12,"../hud/speaker":13,"../player":15}],19:[function(require,module,exports){
 'use strict';
 
 module.exports = MainMenu;
@@ -17223,6 +17274,7 @@ function MainMenu(game) {
     this.currentlySelected = 0;
 };
 var IMAGES = require('./../config').images;
+var Speaker = require('../hud/speaker');
 var path = '../../assets/images/';
 
 var style = { font: "bold 32px Arial", fill: "#ecf0f1", boundsAlignH: "center", boundsAlignV: "middle" };
@@ -17233,6 +17285,8 @@ MainMenu.prototype = {
     preload: function preload() {
         this.load.spritesheet(IMAGES.MAINMENU, path + 'menu-tlo.png', 640, 480);
         this.load.spritesheet(IMAGES.MENUTITLE, path + 'menu-title.png', 267, 58);
+
+        this.load.spritesheet(IMAGES.SPEAKER, path + 'speaker.png', 100, 100);
     },
 
     create: function create() {
@@ -17269,6 +17323,8 @@ MainMenu.prototype = {
 
         menuTexts[0].setStyle(selectedStyle);
         this.currentlySelected = 0;
+
+        this.speaker = new Speaker(this);
     },
 
     start: function start() {
@@ -17298,12 +17354,13 @@ MainMenu.prototype = {
     openCredits: function openCredits() {}
 };
 
-},{"./../config":7}],19:[function(require,module,exports){
+},{"../hud/speaker":13,"./../config":7}],20:[function(require,module,exports){
 'use strict';
 
 module.exports = PlayerSelection;
 
 var IMAGES = require('./../config').images;
+var Speaker = require('../hud/speaker');
 var path = '../../assets/images/';
 var borderSprite,
     playerTab,
@@ -17355,6 +17412,8 @@ PlayerSelection.prototype = {
                 sprite.events.onInputDown.add(this.clickPlayer, this);
             }
         }
+
+        this.speaker = new Speaker(this);
     },
     changeMenuPos: function changeMenuPos() {
         if (this._upKey.isDown) {
@@ -17393,7 +17452,7 @@ PlayerSelection.prototype = {
     }
 };
 
-},{"./../config":7}],20:[function(require,module,exports){
+},{"../hud/speaker":13,"./../config":7}],21:[function(require,module,exports){
 'use strict';
 
 /* global PIXI */
@@ -17488,7 +17547,7 @@ Preloader.prototype = {
         }
 };
 
-},{"./../config":7}],21:[function(require,module,exports){
+},{"./../config":7}],22:[function(require,module,exports){
 'use strict';
 
 var moment = require('moment');
@@ -17533,7 +17592,7 @@ Scoreboard.prototype = {
     }
 };
 
-},{"./../config":7,"moment":2}]},{},[13])
+},{"./../config":7,"moment":2}]},{},[14])
 
 
 //# sourceMappingURL=build.js.map

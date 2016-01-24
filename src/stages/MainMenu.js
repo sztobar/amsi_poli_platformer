@@ -3,6 +3,7 @@ function MainMenu(game){
     this.currentlySelected = 0;
 };
 var IMAGES = require('./../config').images;
+var Speaker = require('../hud/speaker');
 var path = '../../assets/images/';
 
 var style = { font: "bold 32px Arial", fill: "#ecf0f1", boundsAlignH: "center", boundsAlignV: "middle" };
@@ -13,6 +14,8 @@ MainMenu.prototype = {
     preload: function() {
         this.load.spritesheet(IMAGES.MAINMENU, path + 'menu-tlo.png', 640, 480);
         this.load.spritesheet(IMAGES.MENUTITLE, path + 'menu-title.png', 267, 58);
+
+        this.load.spritesheet(IMAGES.SPEAKER, path + 'speaker.png', 100, 100);
 
 
     },
@@ -55,6 +58,7 @@ MainMenu.prototype = {
         menuTexts[0].setStyle(selectedStyle);
         this.currentlySelected = 0;
 
+        this.speaker = new Speaker(this);
     },
 
     start : function(){
