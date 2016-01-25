@@ -15976,6 +15976,10 @@ var _Walker = require('./enemies/Walker');
 
 var _Walker2 = _interopRequireDefault(_Walker);
 
+var _Boss = require('./enemies/Boss1');
+
+var _Boss2 = _interopRequireDefault(_Boss);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var IMAGES = require('./config').images;
@@ -15990,14 +15994,21 @@ exports.create = function (game, position, type, map) {
             enemy = new _Shooter2.default(game, position, LevelSetups.enemies[map - 1].shoot, IMAGES.PROJECTILE);
             defaultConfiguration(game, enemy.getSprite());
             break;
+
         case 'walk':
             enemy = new _Walker2.default(game, position, LevelSetups.enemies[map - 1].walker);
             defaultConfiguration(game, enemy.getSprite());
-
             break;
+
         case 'fly':
             enemy = new _Cloud2.default(game, position, LevelSetups.enemies[map - 1].fly);
             break;
+
+        case 'boss1':
+            enemy = new _Boss2.default(game, position, LevelSetups.enemies[map - 1].boss1, IMAGES.PROJECTILE);
+            //           defaultConfiguration(game, enemy.getSprite());
+            break;
+
         default:
             enemy = new _Shooter2.default(game, position, LevelSetups.enemies[map - 1].shoot, IMAGES.PROJECTILE);
             defaultConfiguration(game, enemy.getSprite());
@@ -16018,7 +16029,7 @@ var defaultConfiguration = function defaultConfiguration(game, enemySprite) {
     enemySprite.anchor.y = 0.5;
 };
 
-},{"./LevelSetups":4,"./config":7,"./enemies/Cloud":8,"./enemies/Shooter":9,"./enemies/Walker":10}],4:[function(require,module,exports){
+},{"./LevelSetups":4,"./config":7,"./enemies/Boss1":8,"./enemies/Cloud":9,"./enemies/Shooter":10,"./enemies/Walker":11}],4:[function(require,module,exports){
 'use strict';
 
 /**
@@ -16041,9 +16052,14 @@ module.exports = {
         walker: IMAGES.JOURNALIST,
         fly: IMAGES.CORUPT
     }, {
-        shoot: IMAGES.MERKEL,
-        walker: IMAGES.GRONKIEWICZ,
+        shoot: IMAGES.MOGHERINI,
+        walker: IMAGES.JUNCKER,
         fly: IMAGES.POPRAWNOSC
+    }, {
+        shoot: IMAGES.GRONKIEWICZ,
+        walker: IMAGES.PAWLAK,
+        fly: IMAGES.KACZYNSKI,
+        boss1: IMAGES.MERKEL
     }]
 };
 
@@ -16123,7 +16139,7 @@ function TiledLevel(game, id) {
       var tile = layer.data[y][x];
       if (tile.index === TILES.PLATFORM) {
         tile.setCollision(false, false, true, false);
-      } else if (tile.index === TILES.ENEMYFLY || tile.index === TILES.ENEMYSHOOT || tile.index === TILES.ENEMYWALKER) {} else if (tile.index === TILES.SPIKE || tile.index === TILES.TRAP || tile.index === TILES.OBSTACLE) {
+      } else if (tile.index === TILES.ENEMYFLY || tile.index === TILES.ENEMYSHOOT || tile.index === TILES.ENEMYWALKER || tile.index === TILES.ENEMYBOSS1) {} else if (tile.index === TILES.SPIKE || tile.index === TILES.TRAP || tile.index === TILES.OBSTACLE) {
         tile.setCollision(true, true, true, true);
       }
     }
@@ -16156,6 +16172,11 @@ TiledLevel.prototype = {
   createEnemiesFlyGroup: function createEnemiesFlyGroup() {
     var group = this.game.add.group();
     this.tilemap.createFromObjects('objects', TILES.ENEMYWALKER, IMAGES.TILES_PROPS, 9, false, false, group, Phaser.Sprite, false);
+    return group;
+  },
+  createEnemiesBoss1Group: function createEnemiesBoss1Group() {
+    var group = this.game.add.group();
+    this.tilemap.createFromObjects('objects', TILES.ENEMYBOSS1, IMAGES.TILES_PROPS, 12, false, false, group, Phaser.Sprite, false);
     return group;
   },
   createBlockGroup: function createBlockGroup() {
@@ -16220,6 +16241,10 @@ module.exports = {
         SKATEBOARD: 'skate',
         MERKEL: 'merkel',
         GRONKIEWICZ: 'gronkiewicz',
+        PAWLAK: 'pawlak',
+        JUNCKER: 'juncker',
+        MOGHERINI: 'mogherini',
+        KACZYNSKI: 'kaczynski',
         MAINMENU: 'menu-tlo',
         MENUTITLE: 'menu-title',
         SPEAKER: 'speaker'
@@ -16227,10 +16252,6 @@ module.exports = {
     directions: {
         LEFT: 0,
         RIGHT: 1
-    },
-    gameSize: {
-        width: 640,
-        height: 960
     },
     tiles: {
         OBSTACLE: 17,
@@ -16242,11 +16263,141 @@ module.exports = {
         ENEMYWALKER: 25,
         ENEMYSHOOT: 26,
         ENEMYFLY: 27,
-        ENEMYBORDER: 28
+        ENEMYBORDER: 28,
+        ENEMYBOSS1: 29
     }
 };
 
 },{}],8:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+/**
+ * Created by mmitis on 23.01.16.
+ */
+var IMAGES = require('./../config').images;
+
+var Boss1 = function () {
+    function Boss1(game, position, spriteMan, spriteBullet) {
+        _classCallCheck(this, Boss1);
+
+        this.game = game;
+        this.sprite = game.add.sprite(32, 48, spriteMan);
+        this.right = false;
+        this.sprite.animations.add('left', [0, 1, 2, 3], 10, true);
+        this.sprite.animations.add('right', [5, 6, 7, 8], 10, true);
+        this.sprite.animations.add('idle', [4], 10, true);
+
+        this.sprite.animations.add('shotLeft', [2, 12], 14, true);
+        this.sprite.animations.add('shotRight', [7, 13], 14, true);
+        this.sprite.die = this.die.bind(this);
+        this.sprite.x = position[0];
+        this.sprite.y = position[1];
+        this.death = false;
+        this.sprite.direction = true;
+        this.projectilesGroup = game.add.group();
+        this.projectilesGroup.enableBody = true;
+        this.projectilesGroup.physicsBodyType = Phaser.Physics.ARCADE;
+        this.projectilesGroup.createMultiple(5, spriteBullet);
+        this.projectilesGroup.setAll('anchor.x', 0.5);
+        this.projectilesGroup.setAll('anchor.y', 0.5);
+        this.projectilesGroup.setAll('outOfBoundsKill', true);
+        this.projectilesGroup.setAll('checkWorldBounds', true);
+        this._nextFire = 0;
+
+        var deathAnimation = this.sprite.animations.add('death', [4, 9, 10, 11], 10);
+        deathAnimation.onComplete.add(this.afterDeath.bind(this), this);
+    }
+
+    _createClass(Boss1, [{
+        key: 'getSprite',
+        value: function getSprite() {
+            return this.sprite;
+        }
+    }, {
+        key: 'die',
+        value: function die() {
+            this.death = true;
+            this.sprite.body.velocity.x = 0;
+            this.sprite.animations.play('death');
+        }
+    }, {
+        key: 'afterDeath',
+        value: function afterDeath() {
+            this.sprite.kill();
+        }
+    }, {
+        key: 'shot',
+        value: function shot() {
+            this._nextFire = this.game.time.now + 1500;
+            var projectile = this.projectilesGroup.getFirstDead();
+            projectile.reset(this.sprite.position.x + this.sprite.width / 2, this.sprite.position.y);
+            if (this.sprite.direction) {
+                projectile.body.velocity.x = -160;
+            } else {
+                projectile.body.velocity.x = 160;
+            }
+        }
+    }, {
+        key: 'updateMovement',
+        value: function updateMovement(player, physics, onHit) {
+            physics.arcade.overlap(this.projectilesGroup, player, onHit, null, this);
+
+            if (Phaser.Point.distance(player, this.sprite.body) < 640) {
+                this.sprite.body.velocity.x = 0;
+                if (this.death == false) {
+                    if (Phaser.Point.distance(player, this.sprite.body) < 200) {
+                        if (this.game.time.now > this._nextFire && this.projectilesGroup.countDead() > 0) {
+                            if (player.x < this.sprite.x) {
+                                this.sprite.animations.play('shotLeft');
+                                this.sprite.body.velocity.x = -10;
+                                this.sprite.direction = true;
+                            } else {
+                                this.sprite.animations.play('shotRight');
+                                this.sprite.body.velocity.x = 10;
+                                this.sprite.direction = false;
+                            }
+                            this.shot(player);
+                        }
+                    } else {
+
+                        if (this.sprite.body.onWall() == true) {
+                            this.sprite.direction = !this.sprite.direction;
+                        }
+                        if (this.sprite.direction) {
+                            this.sprite.body.velocity.x = -30;
+                            this.sprite.animations.play('left');
+                        } else {
+                            this.sprite.body.velocity.x = 30;
+                            this.sprite.animations.play('right');
+                        }
+                    }
+                }
+            }
+            //Reset bullets
+            var cameraView = this.game.world.camera.view;
+            this.projectilesGroup.children.forEach(function (projectile) {
+                if (projectile.alive && !cameraView.intersects(projectile)) {
+                    projectile.kill();
+                }
+                projectile.rotation += 0.25;
+            });
+        }
+    }]);
+
+    return Boss1;
+}();
+
+exports.default = Boss1;
+
+},{"./../config":7}],9:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -16344,7 +16495,7 @@ var Cloud = function () {
 
 exports.default = Cloud;
 
-},{"./../config":7}],9:[function(require,module,exports){
+},{"./../config":7}],10:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -16473,7 +16624,7 @@ var Shooter = function () {
 
 exports.default = Shooter;
 
-},{"./../config":7}],10:[function(require,module,exports){
+},{"./../config":7}],11:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -16549,7 +16700,7 @@ var Walker = function () {
 
 exports.default = Walker;
 
-},{"./../config":7}],11:[function(require,module,exports){
+},{"./../config":7}],12:[function(require,module,exports){
 'use strict';
 
 /* global Phaser */
@@ -16608,7 +16759,7 @@ Life.prototype = {
 
 module.exports = Life;
 
-},{"../config":7}],12:[function(require,module,exports){
+},{"../config":7}],13:[function(require,module,exports){
 'use strict';
 
 /* global Phaser */
@@ -16655,7 +16806,7 @@ Score.prototype = {
 
 module.exports = Score;
 
-},{"../config":7}],13:[function(require,module,exports){
+},{"../config":7}],14:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -16704,7 +16855,7 @@ module.exports = function () {
   return Speaker;
 }();
 
-},{"../config":7}],14:[function(require,module,exports){
+},{"../config":7}],15:[function(require,module,exports){
 'use strict';
 
 /* global Phaser */
@@ -16726,7 +16877,7 @@ game.state.add('PlayerSelection', PlayerSelection);
 game.state.add('LevelRenderer', LevelRenderer);
 game.state.start('Boot');
 
-},{"./stages/Boot":16,"./stages/EndScore":17,"./stages/LevelRenderer":18,"./stages/MainMenu":19,"./stages/PlayerSelection":20,"./stages/Preloader":21,"./stages/Scoreboard":22}],15:[function(require,module,exports){
+},{"./stages/Boot":17,"./stages/EndScore":18,"./stages/LevelRenderer":19,"./stages/MainMenu":20,"./stages/PlayerSelection":21,"./stages/Preloader":22,"./stages/Scoreboard":23}],16:[function(require,module,exports){
 'use strict';
 
 /* global Phaser */
@@ -16741,7 +16892,6 @@ var PROJECTILE_VELOCITY = VELOCITY * 2;
 
 function Player(game, x, y) {
   this._game = game;
-
   this._checkpoint = new Phaser.PIXI.Point(x, y);
   // The playerSprite and its settings
   console.log('Loaded', 'PLAYER_' + this._game.game.currentSelectHero);
@@ -16910,7 +17060,7 @@ Player.prototype = {
 
 module.exports = Player;
 
-},{"./config":7}],16:[function(require,module,exports){
+},{"./config":7}],17:[function(require,module,exports){
 'use strict';
 
 /* global Phaser */
@@ -16936,7 +17086,7 @@ Boot.prototype = {
 
 module.exports = Boot;
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 'use strict';
 
 module.exports = EndScore;
@@ -17087,7 +17237,7 @@ EndScore.prototype = {
 
 };
 
-},{"./../config":7}],18:[function(require,module,exports){
+},{"./../config":7}],19:[function(require,module,exports){
 'use strict';
 
 /* global _ */
@@ -17119,12 +17269,15 @@ LevelRender.prototype = {
     // window.player for debugging purpose
     window.player = this._player = new Player(this, this.tiledMap.levelStart.x, this.tiledMap.levelStart.y);
 
-    this.game.sound.play('background-music');
+    //    this.game.sound.volume = 0.1;
+    this.game.sound.play('background-music', 0.1, true);
+    this.game.sound.loop = true;
     this.pointsGroup = this.tiledMap.createPointsGroup();
     this.checkpointsGroup = this.tiledMap.createCheckpointsGroup();
 
     this.enemiesFlyGroup = this.tiledMap.createEnemiesFlyGroup();
     this.enemiesShootGroup = this.tiledMap.createEnemiesShootGroup();
+    this.enemiesBoss1Group = this.tiledMap.createEnemiesBoss1Group();
     this.enemiesWalkerGroup = this.tiledMap.createEnemiesWalkerGroup();
 
     this._enemies = this.game.add.physicsGroup();
@@ -17137,6 +17290,11 @@ LevelRender.prototype = {
     }
     for (var enemyIndex in this.enemiesShootGroup.children) {
       var enemyObj = enemy.create(this, [this.enemiesShootGroup.children[enemyIndex].x, this.enemiesShootGroup.children[enemyIndex].y - 32], 'shoot', this.game.stageSetup.level);
+      this._enemies.add(enemyObj.getSprite());
+      this._enemiesArray.push(enemyObj);
+    }
+    for (var enemyIndex in this.enemiesBoss1Group.children) {
+      var enemyObj = enemy.create(this, [this.enemiesBoss1Group.children[enemyIndex].x, this.enemiesBoss1Group.children[enemyIndex].y - 32], 'boss1', this.game.stageSetup.level);
       this._enemies.add(enemyObj.getSprite());
       this._enemiesArray.push(enemyObj);
     }
@@ -17251,6 +17409,7 @@ LevelRender.prototype = {
   onShotEnemy: function onShotEnemy(bullet, enemy) {
     bullet.kill();
     enemy.die();
+    this._score.inc(5);
   },
   onCheckpointCollide: function onCheckpointCollide(player, checkpoint) {
     this._player.setCheckpoint(checkpoint.position.x, checkpoint.position.y + checkpoint.height);
@@ -17278,7 +17437,7 @@ function isTrapTiles(point, tile) {
   return tile.index === TILES.TRAP || tile.index === TILES.SPIKE;
 }
 
-},{"../EnemyFactory":3,"../Pause":5,"../TiledLevel":6,"../config":7,"../hud/life":11,"../hud/score":12,"../hud/speaker":13,"../player":15}],19:[function(require,module,exports){
+},{"../EnemyFactory":3,"../Pause":5,"../TiledLevel":6,"../config":7,"../hud/life":12,"../hud/score":13,"../hud/speaker":14,"../player":16}],20:[function(require,module,exports){
 'use strict';
 
 module.exports = MainMenu;
@@ -17366,7 +17525,7 @@ MainMenu.prototype = {
     openCredits: function openCredits() {}
 };
 
-},{"../hud/speaker":13,"./../config":7}],20:[function(require,module,exports){
+},{"../hud/speaker":14,"./../config":7}],21:[function(require,module,exports){
 'use strict';
 
 module.exports = PlayerSelection;
@@ -17464,12 +17623,11 @@ PlayerSelection.prototype = {
     }
 };
 
-},{"../hud/speaker":13,"./../config":7}],21:[function(require,module,exports){
+},{"../hud/speaker":14,"./../config":7}],22:[function(require,module,exports){
 'use strict';
 
 /* global PIXI */
 /* global Phaser */
-
 var IMAGES = require('./../config').images;
 var path = '../../assets/images/';
 
@@ -17479,92 +17637,104 @@ var GAME_HEIGHT = exports.GAME_HEIGHT = 960;
 module.exports = Preloader;
 
 function Preloader(game) {
-        this.game = game;
+    this.game = game;
 };
 
 Preloader.prototype = {
-        preload: function preload() {
+    preload: function preload() {
 
-                // set background color and preload image
-                this.stage.backgroundColor = '#B4D9E7';
-                this.preloadBar = this.add.sprite((GAME_WIDTH - 311) / 2, (GAME_HEIGHT - 27) / 2, 'preloaderBar');
-                this.load.setPreloadSprite(this.preloadBar);
+        // set background color and preload image
+        this.stage.backgroundColor = '#B4D9E7';
+        this.preloadBar = this.add.sprite((GAME_WIDTH - 311) / 2, (GAME_HEIGHT - 27) / 2, 'preloaderBar');
+        this.load.setPreloadSprite(this.preloadBar);
 
-                this.load.image(IMAGES.SKY, path + 'sky.png');
-                this.load.image(IMAGES.GROUND, path + 'platform.png');
+        // players
+        this.load.spritesheet(IMAGES.PLAYER_1, path + 'wippler.png', 32, 48);
+        this.load.spritesheet(IMAGES.PLAYER_2, path + 'macierewicz.png', 32, 48);
+        this.load.spritesheet(IMAGES.PLAYER_3, path + 'braun.png', 32, 48);
+        this.load.spritesheet(IMAGES.PLAYER_4, path + 'liroy.png', 32, 48);
 
-                this.load.spritesheet(IMAGES.PLAYER_1, path + 'wippler.png', 32, 48);
-                this.load.spritesheet(IMAGES.PLAYER_2, path + 'macierewicz.png', 32, 48);
-                this.load.spritesheet(IMAGES.PLAYER_3, path + 'braun.png', 32, 48);
-                this.load.spritesheet(IMAGES.PLAYER_4, path + 'liroy.png', 32, 48);
+        //stuff
+        this.load.image(IMAGES.PROJECTILE, path + 'projectile.png');
+        this.load.image(IMAGES.STAR, path + 'glos.png');
 
-                this.load.image(IMAGES.PROJECTILE, path + 'projectile.png');
-                this.load.image(IMAGES.STAR, path + 'glos.png');
+        //hud
+        this.load.image(IMAGES.HEART, path + 'heart.png');
+        this.load.spritesheet(IMAGES.SCORE, path + 'score.png');
+        this.load.spritesheet(IMAGES.SPEAKER, path + 'speaker.png', 100, 100);
+        this.load.spritesheet(IMAGES.TILES_PROPS, './../../assets/images/tiles-props.png', 32, 32);
+        //this.load.image('tiles-props', './../../assets/images/tiles-props.png');						<--- tu był powod wyswietlania calego png z chorogiewka
 
+        switch (this.game.stageSetup.level) {
+            case 1:
+                console.log('Loaded 1 level');
+                this.load.tilemap('level1', './../../assets/mapa-wies/mapa-wies.json', null, Phaser.Tilemap.TILED_JSON);
+                this.load.image('tiles', './../../assets/mapa-wies/tileset.png');
+                this.load.image('background', './../../assets/mapa-wies/wies-tlo.png');
+                this.load.audio('background-music', ['./../../assets/music/muzyka-wies.mp3']);
+                //wies enemies
                 this.load.spritesheet(IMAGES.FARMER, path + 'farmer.png', 32, 48);
-                this.load.spritesheet(IMAGES.BOR, path + 'bor.png', 32, 48);
-                this.load.spritesheet(IMAGES.MOGHERINI, path + 'mogherini.png', 32, 48);
-                this.load.spritesheet(IMAGES.JUNCKER, path + 'juncker.png', 32, 48);
-                this.load.spritesheet(IMAGES.MERKEL, path + 'merkel.png', 32, 48);
-                this.load.spritesheet(IMAGES.GRONKIEWICZ, path + 'gronkiewicz.png', 32, 48);
-
                 this.load.spritesheet(IMAGES.PIG, path + 'swinia.png', 32, 48);
-                this.load.spritesheet(IMAGES.JOURNALIST, path + 'journalist.png', 32, 48);
+                this.load.spritesheet(IMAGES.COMPOST, path + 'kompost.png', 60, 36);
+                break;
+
+            case 2:
+                console.log('Loaded 2 level');
+                this.load.tilemap('level2', './../../assets/mapa-miasto/mapa-miasto.json', null, Phaser.Tilemap.TILED_JSON);
+                this.load.image('tiles', './../../assets/mapa-miasto/tileset.png');
+                this.load.image('background', './../../assets/mapa-miasto/miasto-tlo.png');
+                this.load.audio('background-music', ['./../../assets/music/muzyka-miasto.mp3']);
+                //miasto enemies
                 this.load.spritesheet(IMAGES.BIZNESMAN, path + 'biznesmen.png', 32, 48);
                 this.load.spritesheet(IMAGES.SKATEBOARD, path + 'skate.png', 32, 48);
-
                 this.load.spritesheet(IMAGES.SMOG, path + 'smog.png', 60, 36);
-                this.load.spritesheet(IMAGES.COMPOST, path + 'kompost.png', 60, 36);
+                break;
+
+            case 3:
+                console.log('Loaded 3 level');
+                this.load.tilemap('level3', './../../assets/mapa-sejm/mapa-sejm.json', null, Phaser.Tilemap.TILED_JSON);
+                this.load.image('tiles', './../../assets/mapa-sejm/tileset.png');
+                this.load.image('background', './../../assets/mapa-sejm/sejm-tlo.png');
+                this.load.audio('background-music', ['./../../assets/music/muzyka-sejm.mp3']);
+                //sejm enemies
+                this.load.spritesheet(IMAGES.BOR, path + 'bor.png', 32, 48);
+                this.load.spritesheet(IMAGES.JOURNALIST, path + 'journalist.png', 32, 48);
                 this.load.spritesheet(IMAGES.CORUPT, path + 'korupcja.png', 60, 36);
+                break;
+
+            case 4:
+                console.log('Loaded 4 level');
+                this.load.tilemap('level4', './../../assets/mapa-euro/mapa-euro.json', null, Phaser.Tilemap.TILED_JSON);
+                this.load.image('tiles', './../../assets/mapa-euro/tileset.png');
+                this.load.image('background', './../../assets/mapa-euro/euro-tlo.png');
+                this.load.audio('background-music', ['./../../assets/music/muzyka-euro.mp3']);
+                //euro enemies
+                this.load.spritesheet(IMAGES.MOGHERINI, path + 'mogherini.png', 32, 48);
+                this.load.spritesheet(IMAGES.JUNCKER, path + 'juncker.png', 32, 48);
                 this.load.spritesheet(IMAGES.POPRAWNOSC, path + 'poprawnosc.png', 60, 36);
+                break;
 
-                this.load.image(IMAGES.FIREBALL, path + 'fireball.png');
-                this.load.image(IMAGES.HEART, path + 'heart.png');
-                this.load.spritesheet(IMAGES.SCORE, path + 'score.png');
-
-                this.load.spritesheet(IMAGES.SPEAKER, path + 'speaker.png', 100, 100);
-
-                switch (this.game.stageSetup.level) {
-                        case 1:
-                                console.log('Loaded 1 level');
-                                this.load.tilemap('level1', './../../assets/mapa-wies/mapa-wies.json', null, Phaser.Tilemap.TILED_JSON);
-                                this.load.image('tiles', './../../assets/mapa-wies/tileset.png');
-                                this.load.image('background', './../../assets/mapa-wies/wies-tlo.png');
-                                this.load.audio('background-music', ['./../../assets/music/muzyka-wies.mp3']);
-                                break;
-                        case 2:
-                                console.log('Loaded 2 level');
-                                this.load.tilemap('level2', './../../assets/mapa-miasto/mapa-miasto.json', null, Phaser.Tilemap.TILED_JSON);
-                                this.load.image('tiles', './../../assets/mapa-miasto/tileset.png');
-                                this.load.image('background', './../../assets/mapa-miasto/miasto-tlo.png');
-                                this.load.audio('background-music', ['./../../assets/music/muzyka-miasto.mp3']);
-                                break;
-                        case 4:
-                                console.log('Loaded 4 level');
-                                this.load.tilemap('level4', './../../assets/mapa-euro/mapa-euro.json', null, Phaser.Tilemap.TILED_JSON);
-                                this.load.image('tiles', './../../assets/mapa-euro/tileset.png');
-                                this.load.image('background', './../../assets/mapa-euro/euro-tlo.png');
-                                this.load.audio('background-music', ['./../../assets/music/muzyka-euro.mp3']);
-                                break;
-                        case 3:
-                                console.log('Loaded 3 level');
-                                this.load.tilemap('level3', './../../assets/mapa-sejm/mapa-sejm.json', null, Phaser.Tilemap.TILED_JSON);
-                                this.load.image('tiles', './../../assets/mapa-sejm/tileset.png');
-                                this.load.image('background', './../../assets/mapa-sejm/sejm-tlo.png');
-                                this.load.audio('background-music', ['./../../assets/music/muzyka-sejm.mp3']);
-                                break;
-
-                }
-                this.load.image('tiles-props', './../../assets/images/tiles-props.png');
-                this.load.spritesheet(IMAGES.TILES_PROPS, './../../assets/images/tiles-props.png', 32, 32);
-        },
-        create: function create() {
-                // start the MainMenu state
-                this.state.start('LevelRenderer');
+            case 5:
+                console.log('Loaded 5 level');
+                this.load.tilemap('level5', './../../assets/mapa-boss/mapa-boss.json', null, Phaser.Tilemap.TILED_JSON);
+                this.load.image('tiles', './../../assets/mapa-boss/tileset.png');
+                this.load.image('background', './../../assets/mapa-boss/mapa-boss.png');
+                this.load.audio('background-music', ['./../../assets/music/muzyka-miasto.mp3']);
+                //bosses
+                this.load.spritesheet(IMAGES.MERKEL, path + 'merkel.png', 32, 48);
+                this.load.spritesheet(IMAGES.GRONKIEWICZ, path + 'gronkiewicz.png', 32, 48);
+                this.load.spritesheet(IMAGES.KACZYNSKI, path + 'kaczynski.png', 32, 48);
+                this.load.spritesheet(IMAGES.PAWLAK, path + 'pawlak.png', 32, 48);
+                break;
         }
+    },
+    create: function create() {
+        // start the MainMenu state
+        this.state.start('LevelRenderer');
+    }
 };
 
-},{"./../config":7}],22:[function(require,module,exports){
+},{"./../config":7}],23:[function(require,module,exports){
 'use strict';
 
 var moment = require('moment');
@@ -17609,7 +17779,7 @@ Scoreboard.prototype = {
     }
 };
 
-},{"./../config":7,"moment":2}]},{},[14])
+},{"./../config":7,"moment":2}]},{},[15])
 
 
 //# sourceMappingURL=build.js.map

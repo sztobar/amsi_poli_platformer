@@ -30,6 +30,10 @@ module.exports =
         SKATEBOARD  : 'skate',
         MERKEL      : 'merkel',
         GRONKIEWICZ: 'gronkiewicz',
+		PAWLAK: 'pawlak',
+		JUNCKER: 'juncker',
+		MOGHERINI: 'mogherini',
+		KACZYNSKI: 'kaczynski',
         MAINMENU    : 'menu-tlo',
         MENUTITLE   : 'menu-title',
         SPEAKER     : 'speaker'
@@ -38,20 +42,17 @@ module.exports =
        LEFT :       0,
        RIGHT :      1
     },
-    gameSize: {
-        width: 640,
-        height: 960
-    },
     tiles: {
-      OBSTACLE: 17,
-      PLATFORM: 18,
-      SPIKE: 21,
-      TRAP: 22,
-      CHECKPOINT: 23,
-      POINT: 24,
-      ENEMYWALKER: 25,
-      ENEMYSHOOT: 26,
-      ENEMYFLY: 27,
-      ENEMYBORDER: 28
+		OBSTACLE: 17,
+		PLATFORM: 18,
+		SPIKE: 21,
+		TRAP: 22,
+		CHECKPOINT: 23,
+		POINT: 24,
+		ENEMYWALKER: 25,
+		ENEMYSHOOT: 26,
+		ENEMYFLY: 27,
+		ENEMYBORDER: 28,
+		ENEMYBOSS1: 29
     }
 };

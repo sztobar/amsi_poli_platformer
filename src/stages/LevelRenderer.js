@@ -27,12 +27,15 @@ LevelRender.prototype = {
     window.player = this._player = new Player(this, this.tiledMap.levelStart.x, this.tiledMap.levelStart.y);
 
 
-    this.game.sound.play('background-music');
+//    this.game.sound.volume = 0.1;
+    this.game.sound.play('background-music', 0.1, true);
+    this.game.sound.loop = true;
     this.pointsGroup = this.tiledMap.createPointsGroup();
     this.checkpointsGroup = this.tiledMap.createCheckpointsGroup();
 
     this.enemiesFlyGroup = this.tiledMap.createEnemiesFlyGroup();
     this.enemiesShootGroup = this.tiledMap.createEnemiesShootGroup();
+    this.enemiesBoss1Group = this.tiledMap.createEnemiesBoss1Group();
     this.enemiesWalkerGroup = this.tiledMap.createEnemiesWalkerGroup();
 
     this._enemies = this.game.add.physicsGroup();
@@ -45,6 +48,11 @@ LevelRender.prototype = {
     }
     for (let enemyIndex in this.enemiesShootGroup.children){
       let enemyObj = enemy.create(this, [ this.enemiesShootGroup.children[enemyIndex].x, this.enemiesShootGroup.children[enemyIndex].y-32 ], 'shoot', this.game.stageSetup.level );
+      this._enemies.add(enemyObj.getSprite());
+      this._enemiesArray.push(enemyObj);
+    }   
+	for (let enemyIndex in this.enemiesBoss1Group.children){
+      let enemyObj = enemy.create(this, [ this.enemiesBoss1Group.children[enemyIndex].x, this.enemiesBoss1Group.children[enemyIndex].y-32 ], 'boss1', this.game.stageSetup.level );
       this._enemies.add(enemyObj.getSprite());
       this._enemiesArray.push(enemyObj);
     }
@@ -149,6 +157,7 @@ LevelRender.prototype = {
   onShotEnemy : function( bullet, enemy){
       bullet.kill();
       enemy.die();
+	  this._score.inc(5);
 
   },
   onCheckpointCollide: function(player, checkpoint) {

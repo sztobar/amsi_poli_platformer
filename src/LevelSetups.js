@@ -23,9 +23,15 @@ module.exports =
             fly: IMAGES.CORUPT
         },
         {
-            shoot: IMAGES.MERKEL,
-            walker: IMAGES.GRONKIEWICZ,
+            shoot: IMAGES.MOGHERINI,
+            walker: IMAGES.JUNCKER,
             fly: IMAGES.POPRAWNOSC
+        },
+        {
+            shoot: IMAGES.GRONKIEWICZ,
+            walker: IMAGES.PAWLAK,
+            fly: IMAGES.KACZYNSKI,
+            boss1: IMAGES.MERKEL,
         }
     ]
 }

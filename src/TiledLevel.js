@@ -42,7 +42,7 @@ function TiledLevel(game, id ) {
       if (tile.index === TILES.PLATFORM) {
         tile.setCollision(false, false, true, false);
       }
-      else if (tile.index === TILES.ENEMYFLY || tile.index === TILES.ENEMYSHOOT || tile.index === TILES.ENEMYWALKER) {
+      else if (tile.index === TILES.ENEMYFLY || tile.index === TILES.ENEMYSHOOT || tile.index === TILES.ENEMYWALKER || tile.index === TILES.ENEMYBOSS1) {
 
       }
       else if (tile.index === TILES.SPIKE ||
@@ -80,6 +80,11 @@ TiledLevel.prototype = {
   createEnemiesFlyGroup: function() {
     var group  = this.game.add.group();
     this.tilemap.createFromObjects('objects', TILES.ENEMYWALKER, IMAGES.TILES_PROPS, 9, false, false, group, Phaser.Sprite, false);
+    return group;
+  },
+  createEnemiesBoss1Group: function() {
+    var group  = this.game.add.group();
+    this.tilemap.createFromObjects('objects', TILES.ENEMYBOSS1, IMAGES.TILES_PROPS, 12, false, false, group, Phaser.Sprite, false);
     return group;
   },
   createBlockGroup: function() {

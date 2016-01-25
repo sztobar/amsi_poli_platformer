@@ -10,7 +10,6 @@ var PROJECTILE_VELOCITY = VELOCITY * 2;
 
 function Player(game, x, y) {
   this._game = game;
-
   this._checkpoint = new Phaser.PIXI.Point(x, y);
   // The playerSprite and its settings
   console.log('Loaded', 'PLAYER_'+ this._game.game.currentSelectHero);
