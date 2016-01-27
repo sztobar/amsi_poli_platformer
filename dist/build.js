@@ -15980,7 +15980,9 @@ var _Boss = require('./enemies/Boss1');
 
 var _Boss2 = _interopRequireDefault(_Boss);
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireDefault(obj) {
+    return obj && obj.__esModule ? obj : { default: obj };
+}
 
 var IMAGES = require('./config').images;
 var LevelSetups = require('./LevelSetups');
@@ -16006,7 +16008,7 @@ exports.create = function (game, position, type, map) {
 
         case 'boss1':
             enemy = new _Boss2.default(game, position, LevelSetups.enemies[map - 1].boss1, IMAGES.PROJECTILE);
-            //           defaultConfiguration(game, enemy.getSprite());
+            defaultConfiguration(game, enemy.getSprite());
             break;
 
         default:
@@ -16022,7 +16024,7 @@ var defaultConfiguration = function defaultConfiguration(game, enemySprite) {
     game.physics.arcade.enable(enemySprite);
     //  enemySprite physics properties. Give the little guy a slight bounce.
     enemySprite.body.bounce.y = 0.1;
-    enemySprite.body.gravity.y = 350;
+    enemySprite.body.gravity.y = 600;
     enemySprite.body.collideWorldBounds = true;
     enemySprite.colided = true;
     enemySprite.anchor.x = 0.5;
@@ -16271,18 +16273,31 @@ module.exports = {
 },{}],8:[function(require,module,exports){
 'use strict';
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var _createClass = function () {
+    function defineProperties(target, props) {
+        for (var i = 0; i < props.length; i++) {
+            var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+        }
+    }return function (Constructor, protoProps, staticProps) {
+        if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+    };
+}();
 
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+        throw new TypeError("Cannot call a class as a function");
+    }
+}
 
 /**
  * Created by mmitis on 23.01.16.
  */
 var IMAGES = require('./../config').images;
+var JUMP_SPEED = 300;
 
 var Boss1 = function () {
     function Boss1(game, position, spriteMan, spriteBullet) {
@@ -16301,7 +16316,7 @@ var Boss1 = function () {
         this.sprite.x = position[0];
         this.sprite.y = position[1];
         this.death = false;
-        this.sprite.direction = true;
+        this.sprite.direction = false;
         this.projectilesGroup = game.add.group();
         this.projectilesGroup.enableBody = true;
         this.projectilesGroup.physicsBodyType = Phaser.Physics.ARCADE;
@@ -16336,13 +16351,13 @@ var Boss1 = function () {
     }, {
         key: 'shot',
         value: function shot() {
-            this._nextFire = this.game.time.now + 1500;
+            this._nextFire = this.game.time.now + 1000;
             var projectile = this.projectilesGroup.getFirstDead();
             projectile.reset(this.sprite.position.x + this.sprite.width / 2, this.sprite.position.y);
             if (this.sprite.direction) {
-                projectile.body.velocity.x = -160;
+                projectile.body.velocity.x = -300;
             } else {
-                projectile.body.velocity.x = 160;
+                projectile.body.velocity.x = 300;
             }
         }
     }, {
@@ -16350,18 +16365,31 @@ var Boss1 = function () {
         value: function updateMovement(player, physics, onHit) {
             physics.arcade.overlap(this.projectilesGroup, player, onHit, null, this);
 
+            if (this.sprite.body.onFloor()) {
+                this._jumps = 1;
+            }
+
+            if (this._jumps > 0 && this._makeJump) {
+                this.sprite.body.velocity.y = -JUMP_SPEED;
+                this._makeJump = false;
+                this._jumps--;
+            }
+
             if (Phaser.Point.distance(player, this.sprite.body) < 640) {
-                this.sprite.body.velocity.x = 0;
                 if (this.death == false) {
-                    if (Phaser.Point.distance(player, this.sprite.body) < 200) {
+                    if (_.get(player, 'animations.currentAnim.name') === 'shootright') {
+                        this._makeJump = true;
+                    }
+
+                    if (Phaser.Point.distance(player, this.sprite.body) < 300) {
                         if (this.game.time.now > this._nextFire && this.projectilesGroup.countDead() > 0) {
                             if (player.x < this.sprite.x) {
                                 this.sprite.animations.play('shotLeft');
-                                this.sprite.body.velocity.x = -10;
+                                this.sprite.body.velocity.x = -100;
                                 this.sprite.direction = true;
                             } else {
                                 this.sprite.animations.play('shotRight');
-                                this.sprite.body.velocity.x = 10;
+                                this.sprite.body.velocity.x = 100;
                                 this.sprite.direction = false;
                             }
                             this.shot(player);
@@ -16372,10 +16400,10 @@ var Boss1 = function () {
                             this.sprite.direction = !this.sprite.direction;
                         }
                         if (this.sprite.direction) {
-                            this.sprite.body.velocity.x = -30;
+                            this.sprite.body.velocity.x = -50;
                             this.sprite.animations.play('left');
                         } else {
-                            this.sprite.body.velocity.x = 30;
+                            this.sprite.body.velocity.x = 50;
                             this.sprite.animations.play('right');
                         }
                     }
@@ -17003,7 +17031,6 @@ Player.prototype = {
       } else {
         projectile.body.velocity.x = -PROJECTILE_VELOCITY;
       }
-      //  Allow the player to jump if they are touching the ground.
     }
 
     var cameraView = this._game.world.camera.view;
@@ -17243,7 +17270,6 @@ EndScore.prototype = {
 /* global _ */
 /* global PIXI */
 /* global Phaser */
-
 var config = require('../config');
 var Player = require('../player');
 var TiledLevel = require('../TiledLevel');
@@ -17271,7 +17297,7 @@ LevelRender.prototype = {
 
     //    this.game.sound.volume = 0.1;
     this.game.sound.play('background-music', 0.1, true);
-    this.game.sound.loop = true;
+    //    this.game.sound.loop = true;
     this.pointsGroup = this.tiledMap.createPointsGroup();
     this.checkpointsGroup = this.tiledMap.createCheckpointsGroup();
 
@@ -17282,7 +17308,7 @@ LevelRender.prototype = {
 
     this._enemies = this.game.add.physicsGroup();
     this._enemiesArray = [];
-    //Add enemies (flying)
+
     for (var enemyIndex in this.enemiesFlyGroup.children) {
       var enemyObj = enemy.create(this, [this.enemiesFlyGroup.children[enemyIndex].x, this.enemiesFlyGroup.children[enemyIndex].y - 32], 'walk', this.game.stageSetup.level);
       this._enemies.add(enemyObj.getSprite());
@@ -17355,7 +17381,7 @@ LevelRender.prototype = {
     this.physics.arcade.overlap(this._player.sprite, this.pointsGroup, this.collectStar, null, this);
     this.physics.arcade.overlap(this._player.sprite, this.checkpointsGroup, this.onCheckpointCollide, null, this);
 
-    //this.physics.arcade.overlap(this._player.sprite, this._enemies , this.onKillPlayer , null, this);
+    this.physics.arcade.overlap(this._player.sprite, this._enemies, this.onKillPlayer, null, this);
 
     //Enemy actions
     this.physics.arcade.overlap(this._player.sprite, this._enemies, this.onKillPlayer, null, this);
@@ -17615,7 +17641,7 @@ PlayerSelection.prototype = {
     },
     loadGame: function loadGame() {
         this.game.stageSetup = {
-            level: 1,
+            level: 5,
             score: 0
         };
         this.game.currentSelectHero = playerTab[currentPosY][currentPosX];

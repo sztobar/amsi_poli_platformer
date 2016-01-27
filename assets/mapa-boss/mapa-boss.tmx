@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="left-down" width="50" height="40" tilewidth="32" tileheight="32" nextobjectid="297">
+<map version="1.0" orientation="orthogonal" renderorder="left-down" width="50" height="40" tilewidth="32" tileheight="32" nextobjectid="301">
  <tileset firstgid="1" name="tileset" tilewidth="32" tileheight="32" tilecount="16" columns="4">
   <image source="tileset.png" trans="ffffff" width="128" height="128"/>
  </tileset>
@@ -21,9 +21,7 @@
  </layer>
  <objectgroup name="objects" offsetx="0" offsety="-1.33333">
   <object id="12" name="start" gid="19" x="32" y="1120" width="32" height="32"/>
-  <object id="289" name="end" gid="19" x="1024" y="1118.67" width="32" height="32"/>
-  <object id="290" gid="25" x="171" y="914.333" width="32" height="32"/>
-  <object id="291" gid="26" x="708" y="1094.33" width="32" height="32"/>
-  <object id="292" gid="27" x="870" y="1082.33" width="32" height="32"/>
+  <object id="289" name="end" gid="19" x="1120" y="1118.67" width="32" height="32"/>
+  <object id="297" gid="29" x="403" y="1009.33" width="32" height="32"/>
  </objectgroup>
 </map>

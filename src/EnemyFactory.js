@@ -26,7 +26,7 @@ exports.create = function(game, position, type, map ) {
 
         case 'boss1':
             enemy = new Boss1(game, position, LevelSetups.enemies[map-1].boss1, IMAGES.PROJECTILE );
- //           defaultConfiguration(game, enemy.getSprite());
+            defaultConfiguration(game, enemy.getSprite());
             break;
 
 		default:
@@ -42,7 +42,7 @@ var defaultConfiguration = (game, enemySprite) =>{
     game.physics.arcade.enable(enemySprite);
     //  enemySprite physics properties. Give the little guy a slight bounce.
     enemySprite.body.bounce.y = 0.1;
-    enemySprite.body.gravity.y = 350;
+    enemySprite.body.gravity.y = 600;
     enemySprite.body.collideWorldBounds = true;
     enemySprite.colided = true;
     enemySprite.anchor.x = 0.5;

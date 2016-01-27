@@ -126,7 +126,6 @@ Player.prototype = {
       } else {
         projectile.body.velocity.x = -PROJECTILE_VELOCITY;        
       }
-    //  Allow the player to jump if they are touching the ground.
     }
     
     var cameraView = this._game.world.camera.view;

@@ -29,7 +29,7 @@ LevelRender.prototype = {
 
 //    this.game.sound.volume = 0.1;
     this.game.sound.play('background-music', 0.1, true);
-    this.game.sound.loop = true;
+//    this.game.sound.loop = true;
     this.pointsGroup = this.tiledMap.createPointsGroup();
     this.checkpointsGroup = this.tiledMap.createCheckpointsGroup();
 
@@ -40,8 +40,8 @@ LevelRender.prototype = {
 
     this._enemies = this.game.add.physicsGroup();
     this._enemiesArray = [];
-    //Add enemies (flying)
-    for (let enemyIndex in this.enemiesFlyGroup.children){
+ 
+	for (let enemyIndex in this.enemiesFlyGroup.children){
       let enemyObj = enemy.create(this, [ this.enemiesFlyGroup.children[enemyIndex].x, this.enemiesFlyGroup.children[enemyIndex].y-32 ], 'walk', this.game.stageSetup.level );
       this._enemies.add(enemyObj.getSprite());
       this._enemiesArray.push(enemyObj);
@@ -107,7 +107,7 @@ LevelRender.prototype = {
     this.physics.arcade.overlap(this._player.sprite, this.pointsGroup, this.collectStar, null, this);
     this.physics.arcade.overlap(this._player.sprite, this.checkpointsGroup, this.onCheckpointCollide, null, this);
 
-    //this.physics.arcade.overlap(this._player.sprite, this._enemies , this.onKillPlayer , null, this);
+    this.physics.arcade.overlap(this._player.sprite, this._enemies , this.onKillPlayer , null, this);
 
     //Enemy actions
     this.physics.arcade.overlap(this._player.sprite, this._enemies , this.onKillPlayer , null, this);

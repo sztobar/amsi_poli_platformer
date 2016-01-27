@@ -94,7 +94,7 @@ PlayerSelection.prototype = {
     },
     loadGame : function(){
         this.game.stageSetup = {
-            level : 1,
+            level : 5,
             score : 0
         };
         this.game.currentSelectHero = playerTab[currentPosY][currentPosX];
