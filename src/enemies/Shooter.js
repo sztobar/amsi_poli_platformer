@@ -1,7 +1,9 @@
 /**
  * Created by mmitis on 23.01.16.
  */
-var IMAGES = require('./../config').images;
+var config = require('./../config');
+var IMAGES = config.images;
+var SOUNDS = config.sounds;
 
 export default class Shooter {
 
@@ -32,6 +34,7 @@ export default class Shooter {
 
         var deathAnimation = this.sprite.animations.add('death', [4, 9, 10, 11], 10);
         deathAnimation.onComplete.add(this.afterDeath.bind(this), this);
+        this.shootSound = game.add.audio(SOUNDS.ENEMY_SHOOT, 0.1);
     };
 
     getSprite(){
@@ -58,7 +61,9 @@ export default class Shooter {
         } else {
             projectile.body.velocity.x = 160;
         }
+        this.shootSound.play();
     }
+
     updateMovement(player, physics, onHit) {
         physics.arcade.overlap(this.projectilesGroup, player , onHit , null, this);
 

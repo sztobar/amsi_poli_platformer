@@ -1,6 +1,8 @@
 /* global PIXI */
 /* global Phaser */
-var IMAGES = require('./../config').images;
+var config = require('./../config');
+var IMAGES = config.images;
+var SOUNDS = config.sounds;
 var path = '../../assets/images/';
 
 var GAME_WIDTH = exports.GAME_WIDTH = 640;
@@ -19,7 +21,7 @@ Preloader.prototype = {
         this.stage.backgroundColor = '#B4D9E7';
         this.preloadBar = this.add.sprite((GAME_WIDTH-311)/2, (GAME_HEIGHT-27)/2, 'preloaderBar');
         this.load.setPreloadSprite(this.preloadBar);
-		
+
 		// players
         this.load.spritesheet(IMAGES.PLAYER_1, path + 'wippler.png', 32, 48);
         this.load.spritesheet(IMAGES.PLAYER_2, path + 'macierewicz.png', 32, 48);
@@ -29,13 +31,22 @@ Preloader.prototype = {
 		//stuff
         this.load.image(IMAGES.PROJECTILE, path + 'projectile.png');
         this.load.image(IMAGES.STAR, path + 'glos.png');
-		
+
 		//hud
         this.load.image(IMAGES.HEART, path + 'heart.png');
-        this.load.spritesheet(IMAGES.SCORE, path + 'score.png');			
+        this.load.spritesheet(IMAGES.SCORE, path + 'score.png');
         this.load.spritesheet(IMAGES.SPEAKER, path + 'speaker.png', 100, 100);
         this.load.spritesheet(IMAGES.TILES_PROPS, './../../assets/images/tiles-props.png', 32, 32);
 		//this.load.image('tiles-props', './../../assets/images/tiles-props.png');						<--- tu był powod wyswietlania calego png z chorogiewka
+
+        this.load.audio(SOUNDS.JUMP, ['./../../assets/sound/jump.wav']);
+        this.load.audio(SOUNDS.DAMAGE, ['./../../assets/sound/damage.wav']);
+        this.load.audio(SOUNDS.STAR, ['./../../assets/sound/star.wav']);
+        this.load.audio(SOUNDS.CHECKPOINT, ['./../../assets/sound/checkpoint.wav']);
+        this.load.audio(SOUNDS.SUCCESS, ['./../../assets/sound/success.wav']);
+        this.load.audio(SOUNDS.SHOOT, ['./../../assets/sound/shoot.mp3']);
+        this.load.audio(SOUNDS.ENEMY_DAMAGE, ['./../../assets/sound/enemy_damage.wav']);
+        this.load.audio(SOUNDS.ENEMY_SHOOT, ['./../../assets/sound/enemy_shoot.mp3']);
 
         switch(this.game.stageSetup.level){
 			case 1:
@@ -73,7 +84,7 @@ Preloader.prototype = {
 				this.load.spritesheet(IMAGES.JOURNALIST, path + 'journalist.png', 32, 48);
 				this.load.spritesheet(IMAGES.CORUPT, path + 'korupcja.png', 60, 36);
 				break;
-			
+
 			case 4:
                 console.log('Loaded 4 level');
                 this.load.tilemap('level4', './../../assets/mapa-euro/mapa-euro.json', null, Phaser.Tilemap.TILED_JSON);
@@ -85,7 +96,7 @@ Preloader.prototype = {
 				this.load.spritesheet(IMAGES.JUNCKER, path + 'juncker.png', 32, 48);
 				this.load.spritesheet(IMAGES.POPRAWNOSC, path + 'poprawnosc.png', 60, 36);
 				break;
-			
+
 			case 5:
                 console.log('Loaded 5 level');
                 this.load.tilemap('level5', './../../assets/mapa-boss/mapa-boss.json', null, Phaser.Tilemap.TILED_JSON);

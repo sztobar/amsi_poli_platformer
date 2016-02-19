@@ -12,24 +12,22 @@ var Speaker = require('../hud/speaker');
 
 var IMAGES = config.images;
 var TILES = config.tiles;
+var SOUNDS = config.sounds;
 
-function LevelRender(game) {
-	this._player = null;
-	this._platformsGroup = null;
-  this._obstaclesLayer = null;
-}
+class LevelRender {
 
-LevelRender.prototype = {
-  create: function() {
+  constructor(game) {
+  	this._player = null;
+  	this._platformsGroup = null;
+    this._obstaclesLayer = null;
+  }
+
+  create() {
     this.physics.startSystem(Phaser.Physics.ARCADE);
     this.tiledMap = new TiledLevel(this.game, this.game.stageSetup.level);
-    // window.player for debugging purpose
     window.player = this._player = new Player(this, this.tiledMap.levelStart.x, this.tiledMap.levelStart.y);
 
-
-//    this.game.sound.volume = 0.1;
     this.game.sound.play('background-music', 0.1, true);
-//    this.game.sound.loop = true;
     this.pointsGroup = this.tiledMap.createPointsGroup();
     this.checkpointsGroup = this.tiledMap.createCheckpointsGroup();
 
@@ -40,22 +38,25 @@ LevelRender.prototype = {
 
     this._enemies = this.game.add.physicsGroup();
     this._enemiesArray = [];
- 
-	for (let enemyIndex in this.enemiesFlyGroup.children){
+
+	  for (let enemyIndex in this.enemiesFlyGroup.children){
       let enemyObj = enemy.create(this, [ this.enemiesFlyGroup.children[enemyIndex].x, this.enemiesFlyGroup.children[enemyIndex].y-32 ], 'walk', this.game.stageSetup.level );
       this._enemies.add(enemyObj.getSprite());
       this._enemiesArray.push(enemyObj);
     }
+
     for (let enemyIndex in this.enemiesShootGroup.children){
       let enemyObj = enemy.create(this, [ this.enemiesShootGroup.children[enemyIndex].x, this.enemiesShootGroup.children[enemyIndex].y-32 ], 'shoot', this.game.stageSetup.level );
       this._enemies.add(enemyObj.getSprite());
       this._enemiesArray.push(enemyObj);
-    }   
-	for (let enemyIndex in this.enemiesBoss1Group.children){
+    }
+
+	  for (let enemyIndex in this.enemiesBoss1Group.children){
       let enemyObj = enemy.create(this, [ this.enemiesBoss1Group.children[enemyIndex].x, this.enemiesBoss1Group.children[enemyIndex].y-32 ], 'boss1', this.game.stageSetup.level );
       this._enemies.add(enemyObj.getSprite());
       this._enemiesArray.push(enemyObj);
     }
+
     for (let enemyIndex in this.enemiesWalkerGroup.children){
       let enemyObj = enemy.create(this, [ this.enemiesWalkerGroup.children[enemyIndex].x, this.enemiesWalkerGroup.children[enemyIndex].y-32 ], 'fly', this.game.stageSetup.level );
       this._enemies.add(enemyObj.getSprite());
@@ -88,16 +89,20 @@ LevelRender.prototype = {
 
     var spaceKey = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
     spaceKey.onUp.add(this.toggleDebugMode, this);
-  },
-  update: function() {
+
+    this.successSound = this.add.audio(SOUNDS.SUCCESS, 0.1);
+    this.enemyDamageSound = this.add.audio(SOUNDS.ENEMY_DAMAGE, 0.1);
+  }
+
+  update() {
     this.physics.arcade.collide(this._enemies, this.tiledMap.propsLayer, null, isObstacleTiles);
-    
-	this._enemiesArray.forEach(function(item){
+
+    this._enemiesArray.forEach(function(item){
       item.updateMovement(this._player.sprite, this.physics, this.onKillPlayer.bind(this));
-	  item.projectilesGroup && this.physics.arcade.collide(item.projectilesGroup, this.tiledMap.propsLayer, function(p) { p.kill(); }, isObstacleTiles);
+      item.projectilesGroup && this.physics.arcade.collide(item.projectilesGroup, this.tiledMap.propsLayer, function(p) { p.kill(); }, isObstacleTiles);
     }, this);
-    
-	this.physics.arcade.collide(this._enemies, this.blockGroup, this.directionEnemyChange, function(){ return true });
+
+    this.physics.arcade.collide(this._enemies, this.blockGroup, this.directionEnemyChange, function(){ return true });
 
     this.physics.arcade.collide(this._player.sprite, this.tiledMap.propsLayer, null, isObstacleTiles);
     this.physics.arcade.collide(this._player.projectilesGroup, this.tiledMap.propsLayer, function(p) { p.kill(); }, isObstacleTiles);
@@ -116,64 +121,81 @@ LevelRender.prototype = {
     this.physics.arcade.overlap(this._player.sprite, this.tiledMap.getEndPoint() , this.endLevel , null, this);
 
     this._player.update();
-  },
-  collectStar: function (playerSprite, star) {
+  }
+
+  collectStar(playerSprite, star) {
     // Removes the star from the screen
     star.kill();
     // update score
     this._score.inc(10);
-  },
-  render: function() {
+    this._player.starSound.play();
+  }
+
+  render() {
     if (this._debugMode) {
       this.game.debug.body(this._player.sprite);
       this.game.debug.text('Active Projectiles: ' + this._player.projectilesGroup.total, 32, 432);
       this.game.debug.text('DEBUG MODE', 32, 464);
     }
-  },
-  endLevel: function() {
-     this.game.stageSetup.score = this._score._counter;
-	 this.state.start('EndScore', true, true, this.game.stageSetup);
-  },
-  onTrapCollide: function() {
-    if (this._player.immovable) { return; }
-    var lifeCount = this._life.dec();
-    if (lifeCount === 0) {
-      // od dead reset life counter and subtract points
-      this._life.setCount(3);
-      this._score.dec(50);
-    }
-    this._player.die();
-  },
-  onKillPlayer : function (player, enemy) {
-	if (_.get(enemy, 'animations.currentAnim.name') === 'death' || this._player.immovable) { return; }
-    var lifeCount = this._life.dec();
-    if (lifeCount === 0) {
-      // od dead reset life counter and subtract points
-      this._life.setCount(3);
-      this._score.dec(50);
-    }
-    this._player.die();
-  },
-  onShotEnemy : function( bullet, enemy){
-      bullet.kill();
-      enemy.die();
-	  this._score.inc(5);
+  }
 
-  },
-  onCheckpointCollide: function(player, checkpoint) {
+  endLevel() {
+    this.game.stageSetup.score = this._score._counter;
+    this.successSound.play();
+	  this.state.start('EndScore', true, true, this.game.stageSetup);
+  }
+
+  onTrapCollide() {
+    if (this._player.immovable || this._player.invincible) { return; }
+    var lifeCount = this._life.dec();
+    if (lifeCount === 0) {
+      // od dead reset life counter and subtract points
+      this._life.setCount(3);
+      this._score.dec(50);
+    }
+    this._player.die();
+  }
+
+  onKillPlayer(player, enemy) {
+    if (_.get(enemy, 'animations.currentAnim.name') === 'death' || this._player.immovable || this._player.invincible) { return; }
+    var lifeCount = this._life.dec();
+    if (lifeCount === 0) {
+      // od dead reset life counter and subtract points
+      this._life.setCount(3);
+      this._score.dec(50);
+    }
+    this._player.die();
+
+    if (enemy.key === 'projectile') {
+      enemy.kill();
+    }
+  }
+
+  onShotEnemy(bullet, enemy){
+    if (_.get(enemy, 'animations.currentAnim.name') === 'death') { return; }
+    bullet.kill();
+    enemy.die();
+    this._score.inc(5);
+    this.enemyDamageSound.play();
+  }
+
+  onCheckpointCollide(player, checkpoint) {
     this._player.setCheckpoint(checkpoint.position.x, checkpoint.position.y + checkpoint.height);
     checkpoint.kill();
-  }, 
-  toggleDebugMode: function() {
+  }
+
+  toggleDebugMode() {
 	  this.endLevel();
     //this._debugMode = !this._debugMode;
     //this.tiledMap.propsLayer.visible = this._debugMode;
-  },
-  directionEnemyChange : function(enemySprite, tile){
+  }
+
+  directionEnemyChange(enemySprite, tile){
     if(enemySprite.colided){
       enemySprite.direction = !enemySprite.direction;
     }
   }
+
 };
 
 
