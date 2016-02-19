@@ -15980,9 +15980,7 @@ var _Boss = require('./enemies/Boss1');
 
 var _Boss2 = _interopRequireDefault(_Boss);
 
-function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : { default: obj };
-}
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var IMAGES = require('./config').images;
 var LevelSetups = require('./LevelSetups');
@@ -16267,31 +16265,29 @@ module.exports = {
         ENEMYFLY: 27,
         ENEMYBORDER: 28,
         ENEMYBOSS1: 29
+    },
+    sounds: {
+        DAMAGE: 'damage',
+        ENEMY_DAMAGE: 'enemy_damage',
+        ENEMY_SHOOT: 'enemy_shoot',
+        JUMP: 'jump',
+        SHOOT: ' shoot',
+        CHECKPOINT: 'checkpoint',
+        SUCCESS: 'success',
+        STAR: 'star'
     }
 };
 
 },{}],8:[function(require,module,exports){
 'use strict';
 
-var _createClass = function () {
-    function defineProperties(target, props) {
-        for (var i = 0; i < props.length; i++) {
-            var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
-        }
-    }return function (Constructor, protoProps, staticProps) {
-        if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
-    };
-}();
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-        throw new TypeError("Cannot call a class as a function");
-    }
-}
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /**
  * Created by mmitis on 23.01.16.
@@ -16537,7 +16533,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 /**
  * Created by mmitis on 23.01.16.
  */
-var IMAGES = require('./../config').images;
+var config = require('./../config');
+var IMAGES = config.images;
+var SOUNDS = config.sounds;
 
 var Shooter = function () {
     function Shooter(game, position, spriteMan, spriteBullet) {
@@ -16569,6 +16567,7 @@ var Shooter = function () {
 
         var deathAnimation = this.sprite.animations.add('death', [4, 9, 10, 11], 10);
         deathAnimation.onComplete.add(this.afterDeath.bind(this), this);
+        this.shootSound = game.add.audio(SOUNDS.ENEMY_SHOOT, 0.1);
     }
 
     _createClass(Shooter, [{
@@ -16599,6 +16598,7 @@ var Shooter = function () {
             } else {
                 projectile.body.velocity.x = 160;
             }
+            this.shootSound.play();
         }
     }, {
         key: 'updateMovement',
@@ -16908,182 +16908,241 @@ game.state.start('Boot');
 },{"./stages/Boot":17,"./stages/EndScore":18,"./stages/LevelRenderer":19,"./stages/MainMenu":20,"./stages/PlayerSelection":21,"./stages/Preloader":22,"./stages/Scoreboard":23}],16:[function(require,module,exports){
 'use strict';
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 /* global Phaser */
 /* global PIXI */
 var config = require('./config');
 var IMAGES = config.images;
+var SOUNDS = config.sounds;
 var DIRECTIONS = config.directions;
 var FIRE_RATE = 250;
 var VELOCITY = 250;
 var JUMP_SPEED = 300;
 var PROJECTILE_VELOCITY = VELOCITY * 2;
 
-function Player(game, x, y) {
-  this._game = game;
-  this._checkpoint = new Phaser.PIXI.Point(x, y);
-  // The playerSprite and its settings
-  console.log('Loaded', 'PLAYER_' + this._game.game.currentSelectHero);
-  this.sprite = game.add.sprite(x, y, IMAGES['PLAYER_' + this._game.game.currentSelectHero]);
+var Player = function () {
+  function Player(game, x, y) {
+    _classCallCheck(this, Player);
 
-  //  We need to enable physics on the playerSprite
-  game.physics.arcade.enable(this.sprite);
-  this.sprite.position.y -= this.sprite.height;
-  this.sprite.body.setSize(32, 48, 0, this.sprite.height - 48);
-  game.camera.follow(this.sprite);
+    this._game = game;
+    this._checkpoint = new Phaser.PIXI.Point(x, y);
+    this.sprite = game.add.sprite(x, y, IMAGES['PLAYER_' + this._game.game.currentSelectHero]);
 
-  //  playerSprite physics properties. Give the little guy a slight bounce.
-  this.sprite.body.bounce.y = 0;
-  this.sprite.body.gravity.y = 600;
-  this.sprite.body.collideWorldBounds = true;
+    //  We need to enable physics on the playerSprite
+    game.physics.arcade.enable(this.sprite);
+    this.sprite.position.y -= this.sprite.height;
+    this.sprite.body.setSize(32, 48, 0, this.sprite.height - 48);
+    game.camera.follow(this.sprite);
 
-  this.direction = DIRECTIONS.LEFT;
-  //  Our two animations, walking left and right.
-  this.sprite.animations.add('left', [0, 1, 2, 3], 10, true);
-  this.sprite.animations.add('right', [5, 6, 7, 8], 10, true);
+    //  playerSprite physics properties. Give the little guy a slight bounce.
+    this.sprite.body.bounce.y = 0;
+    this.sprite.body.gravity.y = 600;
+    this.sprite.body.collideWorldBounds = true;
 
-  this.sprite.animations.add('shootleft', [12], 5, true);
-  this.sprite.animations.add('shootright', [13], 5, true);
+    this.direction = DIRECTIONS.LEFT;
+    //  Our two animations, walking left and right.
+    this.sprite.animations.add('left', [0, 1, 2, 3], 10, true);
+    this.sprite.animations.add('right', [5, 6, 7, 8], 10, true);
 
-  var deathAnimation = this.sprite.animations.add('death', [9, 10, 9, 10, 11, 10, 11], 5);
-  deathAnimation.onComplete.add(this.afterDeath, this);
+    this.sprite.animations.add('shootleft', [12], 5, true);
+    this.sprite.animations.add('shootright', [13], 5, true);
 
-  this._jumpKey = game.input.keyboard.addKey(Phaser.KeyCode.X);
-  this._jumpKey.onDown.add(this.handleJumpKeyDown, this);
-  this._jumpKey.onUp.add(this.handleJumpKeyUp, this);
+    var deathAnimation = this.sprite.animations.add('death', [9, 10, 9, 10, 11, 10, 11], 5);
+    deathAnimation.onComplete.add(this.afterDeath, this);
 
-  this._shootKey = game.input.keyboard.addKey(Phaser.KeyCode.Z);
-  this._shootKey.onDown.add(this.handleShootKeyDown, this);
-  this._shootKey.onUp.add(this.handleShootKeyUp, this);
+    this._jumpKey = game.input.keyboard.addKey(Phaser.KeyCode.X);
+    this._jumpKey.onDown.add(this.handleJumpKeyDown, this);
+    this._jumpKey.onUp.add(this.handleJumpKeyUp, this);
 
-  this._leftKey = game.input.keyboard.addKey(Phaser.KeyCode.LEFT);
-  this._rightKey = game.input.keyboard.addKey(Phaser.KeyCode.RIGHT);
-  //  Stop the following keys from propagating up to the browser
-  game.input.keyboard.addKeyCapture([Phaser.Keyboard.LEFT, Phaser.Keyboard.RIGHT]);
+    this._shootKey = game.input.keyboard.addKey(Phaser.KeyCode.Z);
+    this._shootKey.onDown.add(this.handleShootKeyDown, this);
+    this._shootKey.onUp.add(this.handleShootKeyUp, this);
 
-  this._1Key = game.input.keyboard.addKey(Phaser.KeyCode.ONE);
-  this._2Key = game.input.keyboard.addKey(Phaser.KeyCode.TWO);
-  this._3Key = game.input.keyboard.addKey(Phaser.KeyCode.THREE);
-  this._4Key = game.input.keyboard.addKey(Phaser.KeyCode.FOUR);
+    this._leftKey = game.input.keyboard.addKey(Phaser.KeyCode.LEFT);
+    this._rightKey = game.input.keyboard.addKey(Phaser.KeyCode.RIGHT);
+    //  Stop the following keys from propagating up to the browser
+    game.input.keyboard.addKeyCapture([Phaser.Keyboard.LEFT, Phaser.Keyboard.RIGHT]);
 
-  this.projectilesGroup = game.add.group();
-  this.projectilesGroup.enableBody = true;
-  this.projectilesGroup.physicsBodyType = Phaser.Physics.ARCADE;
-  this.projectilesGroup.createMultiple(5, IMAGES.PROJECTILE);
-  this.projectilesGroup.setAll('anchor.x', 0.5);
-  this.projectilesGroup.setAll('anchor.y', 0.5);
-  this.projectilesGroup.setAll('outOfBoundsKill', true);
-  this.projectilesGroup.setAll('checkWorldBounds', true);
-  this._nextFire = 0;
-  this.immovable = false;
-}
+    this._1Key = game.input.keyboard.addKey(Phaser.KeyCode.ONE);
+    this._2Key = game.input.keyboard.addKey(Phaser.KeyCode.TWO);
+    this._3Key = game.input.keyboard.addKey(Phaser.KeyCode.THREE);
+    this._4Key = game.input.keyboard.addKey(Phaser.KeyCode.FOUR);
 
-Player.prototype = {
-  update: function update() {
+    this.projectilesGroup = game.add.group();
+    this.projectilesGroup.enableBody = true;
+    this.projectilesGroup.physicsBodyType = Phaser.Physics.ARCADE;
+    this.projectilesGroup.createMultiple(5, IMAGES.PROJECTILE);
+    this.projectilesGroup.setAll('anchor.x', 0.5);
+    this.projectilesGroup.setAll('anchor.y', 0.5);
+    this.projectilesGroup.setAll('outOfBoundsKill', true);
+    this.projectilesGroup.setAll('checkWorldBounds', true);
+    this._nextFire = 0;
+    this.immovable = false;
+    this.invincible = false;
 
-    //  Reset the players velocity (movement)
-    this.sprite.body.velocity.x = 0;
-
-    if (this.immovable) {
-      return;
-    }
-
-    if (this._leftKey.isDown) {
-      //  Move to the left
-      this.sprite.body.velocity.x = -VELOCITY;
-      this.sprite.animations.play('left');
-      this.direction = DIRECTIONS.LEFT;
-    } else if (this._rightKey.isDown) {
-      //  Move to the right
-      this.sprite.body.velocity.x = VELOCITY;
-      this.sprite.animations.play('right');
-      this.direction = DIRECTIONS.RIGHT;
-    } else if (this._shootKey.isDown && this.direction == DIRECTIONS.RIGHT) {
-      //  Move to the right
-      this.sprite.animations.play('shootright');
-    } else if (this._shootKey.isDown && this.direction == DIRECTIONS.LEFT) {
-      //  Move to the right
-      this.sprite.animations.play('shootleft');
-    } else {
-      //  Stand still
-      this.sprite.animations.stop();
-      this.sprite.frame = 4;
-    }
-
-    if (this.sprite.body.onFloor()) {
-      this._jumps = 2;
-    }
-
-    if (this._jumps > 0 && this._makeJump) {
-      this.sprite.body.velocity.y = -JUMP_SPEED;
-      this._makeJump = false;
-      this._jumps--;
-    }
-
-    if (this._makeShoot && this._game.time.now > this._nextFire && this.projectilesGroup.countDead() > 0) {
-      this._nextFire = this._game.time.now + FIRE_RATE;
-      this.sprite.animations.play('shootright');
-
-      var projectile = this.projectilesGroup.getFirstDead();
-
-      projectile.reset(this.sprite.position.x + this.sprite.width / 2, this.sprite.position.y + this.sprite.height / 2);
-      if (this.direction === DIRECTIONS.RIGHT) {
-        projectile.body.velocity.x = PROJECTILE_VELOCITY;
-      } else {
-        projectile.body.velocity.x = -PROJECTILE_VELOCITY;
-      }
-    }
-
-    var cameraView = this._game.world.camera.view;
-    this.projectilesGroup.children.forEach(function (projectile) {
-      if (projectile.alive && !cameraView.intersects(projectile)) {
-        projectile.kill();
-      }
-      projectile.rotation += 0.25;
-    });
-
-    if (this._1Key.isDown) {
-      this.sprite.loadTexture(IMAGES.PLAYER_1, this.sprite.frame);
-    }
-    if (this._2Key.isDown) {
-      this.sprite.loadTexture(IMAGES.PLAYER_2, this.sprite.frame);
-    }
-    if (this._3Key.isDown) {
-      this.sprite.loadTexture(IMAGES.PLAYER_3, this.sprite.frame);
-    }
-    if (this._4Key.isDown) {
-      this.sprite.loadTexture(IMAGES.PLAYER_4, this.sprite.frame);
-    }
-  },
-  handleJumpKeyDown: function handleJumpKeyDown() {
-    this._makeJump = true;
-  },
-  handleJumpKeyUp: function handleJumpKeyUp() {
-    this._makeJump = false;
-  },
-  handleShootKeyDown: function handleShootKeyDown() {
-    this._makeShoot = true;
-  },
-  handleShootKeyUp: function handleShootKeyUp() {
-    this._makeShoot = false;
-  },
-  resetToCheckpoint: function resetToCheckpoint() {
-    this.sprite.position.set(this._checkpoint.x, this._checkpoint.y - this.sprite.body.height - 5);
-    var that = this;
-    setTimeout(function () {
-      that.immovable = false;
-    });
-  },
-  setCheckpoint: function setCheckpoint(x, y) {
-    this._checkpoint.set(x, y);
-  },
-  die: function die() {
-    this.immovable = true;
-    this.sprite.animations.play('death');
-  },
-  afterDeath: function afterDeath() {
-    this.resetToCheckpoint();
+    this.jumpSound = this._game.add.audio(SOUNDS.JUMP, 0.1);
+    this.damageSound = this._game.add.audio(SOUNDS.DAMAGE, 0.1);
+    this.starSound = this._game.add.audio(SOUNDS.STAR, 0.1);
+    this.checkpointSound = this._game.add.audio(SOUNDS.CHECKPOINT, 0.1);
+    this.shootSound = this._game.add.audio(SOUNDS.SHOOT, 0.1);
   }
-};
+
+  _createClass(Player, [{
+    key: 'update',
+    value: function update() {
+
+      //  Reset the players velocity (movement)
+      this.sprite.body.velocity.x = 0;
+
+      if (this.immovable) {
+        return;
+      }
+
+      if (this._leftKey.isDown) {
+        //  Move to the left
+        this.sprite.body.velocity.x = -VELOCITY;
+        this.sprite.animations.play('left');
+        this.direction = DIRECTIONS.LEFT;
+      } else if (this._rightKey.isDown) {
+        //  Move to the right
+        this.sprite.body.velocity.x = VELOCITY;
+        this.sprite.animations.play('right');
+        this.direction = DIRECTIONS.RIGHT;
+      } else if (this._shootKey.isDown && this.direction == DIRECTIONS.RIGHT) {
+        //  Move to the right
+        this.sprite.animations.play('shootright');
+      } else if (this._shootKey.isDown && this.direction == DIRECTIONS.LEFT) {
+        //  Move to the right
+        this.sprite.animations.play('shootleft');
+      } else {
+        //  Stand still
+        this.sprite.animations.stop();
+        this.sprite.frame = 4;
+      }
+
+      if (this.sprite.body.onFloor()) {
+        this._jumps = 2;
+      }
+
+      if (this._jumps > 0 && this._makeJump) {
+        this.sprite.body.velocity.y = -JUMP_SPEED;
+        this._makeJump = false;
+        this._jumps--;
+        this.jumpSound.play();
+      }
+
+      if (this._makeShoot && this._game.time.now > this._nextFire && this.projectilesGroup.countDead() > 0) {
+        this._nextFire = this._game.time.now + FIRE_RATE;
+        this.sprite.animations.play('shootright');
+        this.shootSound.play();
+
+        var projectile = this.projectilesGroup.getFirstDead();
+
+        projectile.reset(this.sprite.position.x + this.sprite.width / 2, this.sprite.position.y + this.sprite.height / 2);
+        if (this.direction === DIRECTIONS.RIGHT) {
+          projectile.body.velocity.x = PROJECTILE_VELOCITY;
+        } else {
+          projectile.body.velocity.x = -PROJECTILE_VELOCITY;
+        }
+      }
+
+      var cameraView = this._game.world.camera.view;
+      this.projectilesGroup.children.forEach(function (projectile) {
+        if (projectile.alive && !cameraView.intersects(projectile)) {
+          projectile.kill();
+        }
+        projectile.rotation += 0.25;
+      });
+
+      // DEBUG PLAYER SPRITES
+      // if (this._1Key.isDown) {
+      //   this.sprite.loadTexture(IMAGES.PLAYER_1, this.sprite.frame);
+      // }
+      // if (this._2Key.isDown) {
+      //   this.sprite.loadTexture(IMAGES.PLAYER_2, this.sprite.frame);
+      // }
+      // if (this._3Key.isDown) {
+      //   this.sprite.loadTexture(IMAGES.PLAYER_3, this.sprite.frame);
+      // }
+      // if (this._4Key.isDown) {
+      //   this.sprite.loadTexture(IMAGES.PLAYER_4, this.sprite.frame);
+      // }
+    }
+  }, {
+    key: 'handleJumpKeyDown',
+    value: function handleJumpKeyDown() {
+      this._makeJump = true;
+    }
+  }, {
+    key: 'handleJumpKeyUp',
+    value: function handleJumpKeyUp() {
+      this._makeJump = false;
+    }
+  }, {
+    key: 'handleShootKeyDown',
+    value: function handleShootKeyDown() {
+      this._makeShoot = true;
+    }
+  }, {
+    key: 'handleShootKeyUp',
+    value: function handleShootKeyUp() {
+      this._makeShoot = false;
+    }
+  }, {
+    key: 'resetToCheckpoint',
+    value: function resetToCheckpoint() {
+      var _this = this;
+
+      this.sprite.position.set(this._checkpoint.x, this._checkpoint.y - this.sprite.body.height - 5);
+      setTimeout(function () {
+        _this.immovable = false;
+        _this.blink();
+      });
+    }
+  }, {
+    key: 'setCheckpoint',
+    value: function setCheckpoint(x, y) {
+      this._checkpoint.set(x, y);
+      this.checkpointSound.play();
+    }
+  }, {
+    key: 'die',
+    value: function die() {
+      this.immovable = true;
+      this.sprite.animations.play('death');
+      this.damageSound.play();
+    }
+  }, {
+    key: 'afterDeath',
+    value: function afterDeath() {
+      this.resetToCheckpoint();
+    }
+  }, {
+    key: 'blink',
+    value: function blink() {
+      var _this2 = this;
+
+      var timer = this._timer = this._game.time.create(true);
+      var i = 0;
+      this.invincible = true;
+      timer.repeat(100, 20, function () {
+        _this2.sprite.visible = !_this2.sprite.visible;
+        i++;
+        if (i === 20) {
+          _this2.invincible = false;
+        }
+      });
+      timer.start();
+    }
+  }]);
+
+  return Player;
+}();
+
+;
 
 module.exports = Player;
 
@@ -17267,6 +17326,10 @@ EndScore.prototype = {
 },{"./../config":7}],19:[function(require,module,exports){
 'use strict';
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 /* global _ */
 /* global PIXI */
 /* global Phaser */
@@ -17281,177 +17344,220 @@ var Speaker = require('../hud/speaker');
 
 var IMAGES = config.images;
 var TILES = config.tiles;
+var SOUNDS = config.sounds;
 
-function LevelRender(game) {
-  this._player = null;
-  this._platformsGroup = null;
-  this._obstaclesLayer = null;
-}
+var LevelRender = function () {
+  function LevelRender(game) {
+    _classCallCheck(this, LevelRender);
 
-LevelRender.prototype = {
-  create: function create() {
-    this.physics.startSystem(Phaser.Physics.ARCADE);
-    this.tiledMap = new TiledLevel(this.game, this.game.stageSetup.level);
-    // window.player for debugging purpose
-    window.player = this._player = new Player(this, this.tiledMap.levelStart.x, this.tiledMap.levelStart.y);
+    this._player = null;
+    this._platformsGroup = null;
+    this._obstaclesLayer = null;
+  }
 
-    //    this.game.sound.volume = 0.1;
-    this.game.sound.play('background-music', 0.1, true);
-    //    this.game.sound.loop = true;
-    this.pointsGroup = this.tiledMap.createPointsGroup();
-    this.checkpointsGroup = this.tiledMap.createCheckpointsGroup();
+  _createClass(LevelRender, [{
+    key: 'create',
+    value: function create() {
+      this.physics.startSystem(Phaser.Physics.ARCADE);
+      this.tiledMap = new TiledLevel(this.game, this.game.stageSetup.level);
+      window.player = this._player = new Player(this, this.tiledMap.levelStart.x, this.tiledMap.levelStart.y);
 
-    this.enemiesFlyGroup = this.tiledMap.createEnemiesFlyGroup();
-    this.enemiesShootGroup = this.tiledMap.createEnemiesShootGroup();
-    this.enemiesBoss1Group = this.tiledMap.createEnemiesBoss1Group();
-    this.enemiesWalkerGroup = this.tiledMap.createEnemiesWalkerGroup();
+      this.game.sound.play('background-music', 0.1, true);
+      this.pointsGroup = this.tiledMap.createPointsGroup();
+      this.checkpointsGroup = this.tiledMap.createCheckpointsGroup();
 
-    this._enemies = this.game.add.physicsGroup();
-    this._enemiesArray = [];
+      this.enemiesFlyGroup = this.tiledMap.createEnemiesFlyGroup();
+      this.enemiesShootGroup = this.tiledMap.createEnemiesShootGroup();
+      this.enemiesBoss1Group = this.tiledMap.createEnemiesBoss1Group();
+      this.enemiesWalkerGroup = this.tiledMap.createEnemiesWalkerGroup();
 
-    for (var enemyIndex in this.enemiesFlyGroup.children) {
-      var enemyObj = enemy.create(this, [this.enemiesFlyGroup.children[enemyIndex].x, this.enemiesFlyGroup.children[enemyIndex].y - 32], 'walk', this.game.stageSetup.level);
-      this._enemies.add(enemyObj.getSprite());
-      this._enemiesArray.push(enemyObj);
+      this._enemies = this.game.add.physicsGroup();
+      this._enemiesArray = [];
+
+      for (var enemyIndex in this.enemiesFlyGroup.children) {
+        var enemyObj = enemy.create(this, [this.enemiesFlyGroup.children[enemyIndex].x, this.enemiesFlyGroup.children[enemyIndex].y - 32], 'walk', this.game.stageSetup.level);
+        this._enemies.add(enemyObj.getSprite());
+        this._enemiesArray.push(enemyObj);
+      }
+
+      for (var enemyIndex in this.enemiesShootGroup.children) {
+        var enemyObj = enemy.create(this, [this.enemiesShootGroup.children[enemyIndex].x, this.enemiesShootGroup.children[enemyIndex].y - 32], 'shoot', this.game.stageSetup.level);
+        this._enemies.add(enemyObj.getSprite());
+        this._enemiesArray.push(enemyObj);
+      }
+
+      for (var enemyIndex in this.enemiesBoss1Group.children) {
+        var enemyObj = enemy.create(this, [this.enemiesBoss1Group.children[enemyIndex].x, this.enemiesBoss1Group.children[enemyIndex].y - 32], 'boss1', this.game.stageSetup.level);
+        this._enemies.add(enemyObj.getSprite());
+        this._enemiesArray.push(enemyObj);
+      }
+
+      for (var enemyIndex in this.enemiesWalkerGroup.children) {
+        var enemyObj = enemy.create(this, [this.enemiesWalkerGroup.children[enemyIndex].x, this.enemiesWalkerGroup.children[enemyIndex].y - 32], 'fly', this.game.stageSetup.level);
+        this._enemies.add(enemyObj.getSprite());
+        this._enemiesArray.push(enemyObj);
+      }
+
+      this.blockGroup = this.tiledMap.createBlockGroup();
+      for (var enemyBlock in this.blockGroup.children) {
+        this.blockGroup.children[enemyBlock].y = this.blockGroup.children[enemyBlock].y - 32;
+        this.game.physics.arcade.enable(this.blockGroup.children[enemyBlock]);
+        this.blockGroup.children[enemyBlock].body.collideWorldBounds = true;
+        this.blockGroup.children[enemyBlock].body.bounce.y = 0;
+        this.blockGroup.children[enemyBlock].body.gravity.y = 0;
+        this.blockGroup.children[enemyBlock].body.immovable = true;
+        this.blockGroup.children[enemyBlock].body.moves = false;
+        this.blockGroup.children[enemyBlock].alpha = 0;
+      }
+      //  The score
+      this._score = new Score(this, this.game.stageSetup.score);
+
+      //  Player life
+      this._life = new Life(this);
+      this.speaker = new Speaker(this);
+      this._debugMode = false;
+      //Pause handling
+      var pauseKey = this.input.keyboard.addKey(Phaser.KeyCode.P);
+      pauseKey.onUp.add(function () {
+        pauseUtils.pause(this.game);
+      }, this);
+
+      var spaceKey = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
+      spaceKey.onUp.add(this.toggleDebugMode, this);
+
+      this.successSound = this.add.audio(SOUNDS.SUCCESS, 0.1);
+      this.enemyDamageSound = this.add.audio(SOUNDS.ENEMY_DAMAGE, 0.1);
     }
-    for (var enemyIndex in this.enemiesShootGroup.children) {
-      var enemyObj = enemy.create(this, [this.enemiesShootGroup.children[enemyIndex].x, this.enemiesShootGroup.children[enemyIndex].y - 32], 'shoot', this.game.stageSetup.level);
-      this._enemies.add(enemyObj.getSprite());
-      this._enemiesArray.push(enemyObj);
-    }
-    for (var enemyIndex in this.enemiesBoss1Group.children) {
-      var enemyObj = enemy.create(this, [this.enemiesBoss1Group.children[enemyIndex].x, this.enemiesBoss1Group.children[enemyIndex].y - 32], 'boss1', this.game.stageSetup.level);
-      this._enemies.add(enemyObj.getSprite());
-      this._enemiesArray.push(enemyObj);
-    }
-    for (var enemyIndex in this.enemiesWalkerGroup.children) {
-      var enemyObj = enemy.create(this, [this.enemiesWalkerGroup.children[enemyIndex].x, this.enemiesWalkerGroup.children[enemyIndex].y - 32], 'fly', this.game.stageSetup.level);
-      this._enemies.add(enemyObj.getSprite());
-      this._enemiesArray.push(enemyObj);
-    }
+  }, {
+    key: 'update',
+    value: function update() {
+      this.physics.arcade.collide(this._enemies, this.tiledMap.propsLayer, null, isObstacleTiles);
 
-    this.blockGroup = this.tiledMap.createBlockGroup();
-    for (var enemyBlock in this.blockGroup.children) {
-      this.blockGroup.children[enemyBlock].y = this.blockGroup.children[enemyBlock].y - 32;
-      this.game.physics.arcade.enable(this.blockGroup.children[enemyBlock]);
-      this.blockGroup.children[enemyBlock].body.collideWorldBounds = true;
-      this.blockGroup.children[enemyBlock].body.bounce.y = 0;
-      this.blockGroup.children[enemyBlock].body.gravity.y = 0;
-      this.blockGroup.children[enemyBlock].body.immovable = true;
-      this.blockGroup.children[enemyBlock].body.moves = false;
-      this.blockGroup.children[enemyBlock].alpha = 0;
-    }
-    //  The score
-    this._score = new Score(this, this.game.stageSetup.score);
+      this._enemiesArray.forEach(function (item) {
+        item.updateMovement(this._player.sprite, this.physics, this.onKillPlayer.bind(this));
+        item.projectilesGroup && this.physics.arcade.collide(item.projectilesGroup, this.tiledMap.propsLayer, function (p) {
+          p.kill();
+        }, isObstacleTiles);
+      }, this);
 
-    //  Player life
-    this._life = new Life(this);
-    this.speaker = new Speaker(this);
-    this._debugMode = false;
-    //Pause handling
-    var pauseKey = this.input.keyboard.addKey(Phaser.KeyCode.P);
-    pauseKey.onUp.add(function () {
-      pauseUtils.pause(this.game);
-    }, this);
+      this.physics.arcade.collide(this._enemies, this.blockGroup, this.directionEnemyChange, function () {
+        return true;
+      });
 
-    var spaceKey = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
-    spaceKey.onUp.add(this.toggleDebugMode, this);
-  },
-  update: function update() {
-    this.physics.arcade.collide(this._enemies, this.tiledMap.propsLayer, null, isObstacleTiles);
-
-    this._enemiesArray.forEach(function (item) {
-      item.updateMovement(this._player.sprite, this.physics, this.onKillPlayer.bind(this));
-      item.projectilesGroup && this.physics.arcade.collide(item.projectilesGroup, this.tiledMap.propsLayer, function (p) {
+      this.physics.arcade.collide(this._player.sprite, this.tiledMap.propsLayer, null, isObstacleTiles);
+      this.physics.arcade.collide(this._player.projectilesGroup, this.tiledMap.propsLayer, function (p) {
         p.kill();
       }, isObstacleTiles);
-    }, this);
 
-    this.physics.arcade.collide(this._enemies, this.blockGroup, this.directionEnemyChange, function () {
-      return true;
-    });
+      this.physics.arcade.overlap(this._player.sprite, this.tiledMap.propsLayer, this.onTrapCollide, isTrapTiles, this);
 
-    this.physics.arcade.collide(this._player.sprite, this.tiledMap.propsLayer, null, isObstacleTiles);
-    this.physics.arcade.collide(this._player.projectilesGroup, this.tiledMap.propsLayer, function (p) {
-      p.kill();
-    }, isObstacleTiles);
+      this.physics.arcade.overlap(this._player.sprite, this.pointsGroup, this.collectStar, null, this);
+      this.physics.arcade.overlap(this._player.sprite, this.checkpointsGroup, this.onCheckpointCollide, null, this);
 
-    this.physics.arcade.overlap(this._player.sprite, this.tiledMap.propsLayer, this.onTrapCollide, isTrapTiles, this);
+      this.physics.arcade.overlap(this._player.sprite, this._enemies, this.onKillPlayer, null, this);
 
-    this.physics.arcade.overlap(this._player.sprite, this.pointsGroup, this.collectStar, null, this);
-    this.physics.arcade.overlap(this._player.sprite, this.checkpointsGroup, this.onCheckpointCollide, null, this);
+      //Enemy actions
+      this.physics.arcade.overlap(this._player.sprite, this._enemies, this.onKillPlayer, null, this);
+      this.physics.arcade.overlap(this._player.projectilesGroup, this._enemies, this.onShotEnemy, null, this);
+      //End level
+      this.physics.arcade.overlap(this._player.sprite, this.tiledMap.getEndPoint(), this.endLevel, null, this);
 
-    this.physics.arcade.overlap(this._player.sprite, this._enemies, this.onKillPlayer, null, this);
-
-    //Enemy actions
-    this.physics.arcade.overlap(this._player.sprite, this._enemies, this.onKillPlayer, null, this);
-    this.physics.arcade.overlap(this._player.projectilesGroup, this._enemies, this.onShotEnemy, null, this);
-    //End level
-    this.physics.arcade.overlap(this._player.sprite, this.tiledMap.getEndPoint(), this.endLevel, null, this);
-
-    this._player.update();
-  },
-  collectStar: function collectStar(playerSprite, star) {
-    // Removes the star from the screen
-    star.kill();
-    // update score
-    this._score.inc(10);
-  },
-  render: function render() {
-    if (this._debugMode) {
-      this.game.debug.body(this._player.sprite);
-      this.game.debug.text('Active Projectiles: ' + this._player.projectilesGroup.total, 32, 432);
-      this.game.debug.text('DEBUG MODE', 32, 464);
+      this._player.update();
     }
-  },
-  endLevel: function endLevel() {
-    this.game.stageSetup.score = this._score._counter;
-    this.state.start('EndScore', true, true, this.game.stageSetup);
-  },
-  onTrapCollide: function onTrapCollide() {
-    if (this._player.immovable) {
-      return;
+  }, {
+    key: 'collectStar',
+    value: function collectStar(playerSprite, star) {
+      // Removes the star from the screen
+      star.kill();
+      // update score
+      this._score.inc(10);
+      this._player.starSound.play();
     }
-    var lifeCount = this._life.dec();
-    if (lifeCount === 0) {
-      // od dead reset life counter and subtract points
-      this._life.setCount(3);
-      this._score.dec(50);
+  }, {
+    key: 'render',
+    value: function render() {
+      if (this._debugMode) {
+        this.game.debug.body(this._player.sprite);
+        this.game.debug.text('Active Projectiles: ' + this._player.projectilesGroup.total, 32, 432);
+        this.game.debug.text('DEBUG MODE', 32, 464);
+      }
     }
-    this._player.die();
-  },
-  onKillPlayer: function onKillPlayer(player, enemy) {
-    if (_.get(enemy, 'animations.currentAnim.name') === 'death' || this._player.immovable) {
-      return;
+  }, {
+    key: 'endLevel',
+    value: function endLevel() {
+      this.game.stageSetup.score = this._score._counter;
+      this.successSound.play();
+      this.state.start('EndScore', true, true, this.game.stageSetup);
     }
-    var lifeCount = this._life.dec();
-    if (lifeCount === 0) {
-      // od dead reset life counter and subtract points
-      this._life.setCount(3);
-      this._score.dec(50);
+  }, {
+    key: 'onTrapCollide',
+    value: function onTrapCollide() {
+      if (this._player.immovable || this._player.invincible) {
+        return;
+      }
+      var lifeCount = this._life.dec();
+      if (lifeCount === 0) {
+        // od dead reset life counter and subtract points
+        this._life.setCount(3);
+        this._score.dec(50);
+      }
+      this._player.die();
     }
-    this._player.die();
-  },
-  onShotEnemy: function onShotEnemy(bullet, enemy) {
-    bullet.kill();
-    enemy.die();
-    this._score.inc(5);
-  },
-  onCheckpointCollide: function onCheckpointCollide(player, checkpoint) {
-    this._player.setCheckpoint(checkpoint.position.x, checkpoint.position.y + checkpoint.height);
-    checkpoint.kill();
-  },
-  toggleDebugMode: function toggleDebugMode() {
-    this.endLevel();
-    //this._debugMode = !this._debugMode;
-    //this.tiledMap.propsLayer.visible = this._debugMode;
-  },
-  directionEnemyChange: function directionEnemyChange(enemySprite, tile) {
-    if (enemySprite.colided) {
-      enemySprite.direction = !enemySprite.direction;
+  }, {
+    key: 'onKillPlayer',
+    value: function onKillPlayer(player, enemy) {
+      if (_.get(enemy, 'animations.currentAnim.name') === 'death' || this._player.immovable || this._player.invincible) {
+        return;
+      }
+      var lifeCount = this._life.dec();
+      if (lifeCount === 0) {
+        // od dead reset life counter and subtract points
+        this._life.setCount(3);
+        this._score.dec(50);
+      }
+      this._player.die();
+
+      if (enemy.key === 'projectile') {
+        enemy.kill();
+      }
     }
-  }
-};
+  }, {
+    key: 'onShotEnemy',
+    value: function onShotEnemy(bullet, enemy) {
+      if (_.get(enemy, 'animations.currentAnim.name') === 'death') {
+        return;
+      }
+      bullet.kill();
+      enemy.die();
+      this._score.inc(5);
+      this.enemyDamageSound.play();
+    }
+  }, {
+    key: 'onCheckpointCollide',
+    value: function onCheckpointCollide(player, checkpoint) {
+      this._player.setCheckpoint(checkpoint.position.x, checkpoint.position.y + checkpoint.height);
+      checkpoint.kill();
+    }
+  }, {
+    key: 'toggleDebugMode',
+    value: function toggleDebugMode() {
+      this.endLevel();
+      //this._debugMode = !this._debugMode;
+      //this.tiledMap.propsLayer.visible = this._debugMode;
+    }
+  }, {
+    key: 'directionEnemyChange',
+    value: function directionEnemyChange(enemySprite, tile) {
+      if (enemySprite.colided) {
+        enemySprite.direction = !enemySprite.direction;
+      }
+    }
+  }]);
+
+  return LevelRender;
+}();
+
+;
 
 module.exports = LevelRender;
 
@@ -17641,7 +17747,7 @@ PlayerSelection.prototype = {
     },
     loadGame: function loadGame() {
         this.game.stageSetup = {
-            level: 5,
+            level: 1,
             score: 0
         };
         this.game.currentSelectHero = playerTab[currentPosY][currentPosX];
@@ -17654,7 +17760,9 @@ PlayerSelection.prototype = {
 
 /* global PIXI */
 /* global Phaser */
-var IMAGES = require('./../config').images;
+var config = require('./../config');
+var IMAGES = config.images;
+var SOUNDS = config.sounds;
 var path = '../../assets/images/';
 
 var GAME_WIDTH = exports.GAME_WIDTH = 640;
@@ -17690,6 +17798,15 @@ Preloader.prototype = {
         this.load.spritesheet(IMAGES.SPEAKER, path + 'speaker.png', 100, 100);
         this.load.spritesheet(IMAGES.TILES_PROPS, './../../assets/images/tiles-props.png', 32, 32);
         //this.load.image('tiles-props', './../../assets/images/tiles-props.png');						<--- tu był powod wyswietlania calego png z chorogiewka
+
+        this.load.audio(SOUNDS.JUMP, ['./../../assets/sound/jump.wav']);
+        this.load.audio(SOUNDS.DAMAGE, ['./../../assets/sound/damage.wav']);
+        this.load.audio(SOUNDS.STAR, ['./../../assets/sound/star.wav']);
+        this.load.audio(SOUNDS.CHECKPOINT, ['./../../assets/sound/checkpoint.wav']);
+        this.load.audio(SOUNDS.SUCCESS, ['./../../assets/sound/success.wav']);
+        this.load.audio(SOUNDS.SHOOT, ['./../../assets/sound/shoot.mp3']);
+        this.load.audio(SOUNDS.ENEMY_DAMAGE, ['./../../assets/sound/enemy_damage.wav']);
+        this.load.audio(SOUNDS.ENEMY_SHOOT, ['./../../assets/sound/enemy_shoot.mp3']);
 
         switch (this.game.stageSetup.level) {
             case 1:

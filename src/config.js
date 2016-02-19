@@ -54,5 +54,15 @@ module.exports =
 		ENEMYFLY: 27,
 		ENEMYBORDER: 28,
 		ENEMYBOSS1: 29
+    },
+    sounds: {
+        DAMAGE: 'damage',
+        ENEMY_DAMAGE: 'enemy_damage',
+        ENEMY_SHOOT: 'enemy_shoot',
+        JUMP: 'jump',
+        SHOOT: ' shoot',
+        CHECKPOINT: 'checkpoint',
+        SUCCESS: 'success',
+        STAR: 'star'
     }
 };
