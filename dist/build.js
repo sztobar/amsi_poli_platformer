@@ -16285,9 +16285,21 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var _createClass = function () {
+    function defineProperties(target, props) {
+        for (var i = 0; i < props.length; i++) {
+            var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+        }
+    }return function (Constructor, protoProps, staticProps) {
+        if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+    };
+}();
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+        throw new TypeError("Cannot call a class as a function");
+    }
+}
 
 /**
  * Created by mmitis on 23.01.16.
@@ -16299,6 +16311,7 @@ var Boss1 = function () {
     function Boss1(game, position, spriteMan, spriteBullet) {
         _classCallCheck(this, Boss1);
 
+        this.hp = 1; //20;
         this.game = game;
         this.sprite = game.add.sprite(32, 48, spriteMan);
         this.right = false;
@@ -16309,6 +16322,7 @@ var Boss1 = function () {
         this.sprite.animations.add('shotLeft', [2, 12], 14, true);
         this.sprite.animations.add('shotRight', [7, 13], 14, true);
         this.sprite.die = this.die.bind(this);
+        this.sprite.boss = true;
         this.sprite.x = position[0];
         this.sprite.y = position[1];
         this.death = false;
@@ -16335,9 +16349,12 @@ var Boss1 = function () {
     }, {
         key: 'die',
         value: function die() {
-            this.death = true;
-            this.sprite.body.velocity.x = 0;
-            this.sprite.animations.play('death');
+            this.hp--;
+            if (this.hp <= 0) {
+                this.death = true;
+                this.sprite.body.velocity.x = 0;
+                this.sprite.animations.play('death');
+            }
         }
     }, {
         key: 'afterDeath',
@@ -17223,7 +17240,7 @@ EndScore.prototype = {
         this.game.add.tileSprite(0, 0, 640, 480, IMAGES.MAINMENU);
 
         var texts = {};
-        if (this.game.stageSetup.level == 4) {
+        if (this.game.stageSetup.level == 5) {
             texts = {
                 title: 'Gra ukończona',
                 score: 'Wynik końcowy:' + this.stageSetup.levelScore
@@ -17350,9 +17367,21 @@ EndScore.prototype = {
 },{"../config":7,"../hud/speaker":14}],19:[function(require,module,exports){
 'use strict';
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var _createClass = function () {
+  function defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }return function (Constructor, protoProps, staticProps) {
+    if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+  };
+}();
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
 
 /* global _ */
 /* global PIXI */
@@ -17552,6 +17581,10 @@ var LevelRender = function () {
       enemy.die();
       this._score.inc(5);
       this.enemyDamageSound.play();
+
+      if (_.get(enemy, 'animations.currentAnim.name') === 'death' && enemy.boss) {
+        this.endLevel();
+      }
     }
   }, {
     key: 'onCheckpointCollide',

@@ -25,7 +25,7 @@ class LevelRender {
   create() {
     this.physics.startSystem(Phaser.Physics.ARCADE);
     this.tiledMap = new TiledLevel(this.game, this.game.stageSetup.level);
-    window.player = this._player = new Player(this, this.tiledMap.levelStart.x, this.tiledMap.levelStart.y);
+    this._player = new Player(this, this.tiledMap.levelStart.x, this.tiledMap.levelStart.y);
 
     this.game.sound.play('background-music', 0.1, true);
     this.pointsGroup = this.tiledMap.createPointsGroup();
@@ -174,6 +174,10 @@ class LevelRender {
     enemy.die();
     this._score.inc(5);
     this.enemyDamageSound.play();
+	
+	if (_.get(enemy, 'animations.currentAnim.name') === 'death' && enemy.boss) {
+	  this.endLevel();
+	}
   }
 
   onCheckpointCollide(player, checkpoint) {

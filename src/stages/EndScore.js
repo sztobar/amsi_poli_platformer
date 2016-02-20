@@ -46,7 +46,7 @@ EndScore.prototype = {
         this.game.add.tileSprite(0, 0, 640, 480, IMAGES.MAINMENU);
 
         var texts = {};
-        if (this.game.stageSetup.level == 4) {
+        if (this.game.stageSetup.level == 5) {
             texts = {
                 title: 'Gra ukończona',
                 score: 'Wynik końcowy:' + this.stageSetup.levelScore
