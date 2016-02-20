@@ -28,7 +28,6 @@ EndScore.prototype = {
         this.load.audio(SOUNDS.SUCCESS, ['./../../assets/sound/success.wav']);
 	},
     create: function () {
-
         this.game.backgroundMusic = this.sound.play('menu-music', 0.1, true);
 
         this.successSound = this.add.audio(SOUNDS.SUCCESS, 0.1);
@@ -47,20 +46,20 @@ EndScore.prototype = {
         this.game.add.tileSprite(0, 0, 640, 480, IMAGES.MAINMENU);
 
         var texts = {};
-        if (this.game.stageSetup.level == 4) {
+        if (this.game.stageSetup.level == 5) {
             texts = {
                 title: 'Gra ukończona',
-                score: 'Wynik końcowy:' + this.stageSetup.score
+                score: 'Wynik końcowy:' + this.stageSetup.levelScore
             };
             menu = [
                 ['Do menu!', 330, this.toMainMenu],
-                ['Zagraj jeszcze raz', 370, this.repeatGame]
+                ['Powtórz poziom', 370, this.repeatGame]
             ];
-            this.saveScore(this.game.currentSelectHero, this.stageSetup.score);
+            this.saveScore(this.game.currentSelectHero, this.stageSetup.levelScore);
         } else {
             texts = {
                 title: 'Poziom ukończony',
-                score: 'Aktualny Wynik:' + this.stageSetup.score
+                score: 'Aktualny Wynik:' + this.stageSetup.levelScore
             };
             menu = [
                 ['Kolejny poziom', 330, this.nextLevel],
@@ -85,6 +84,7 @@ EndScore.prototype = {
 
 
 
+        menuTexts = [];
         for (var menuPos in menu) {
             if (menu.hasOwnProperty(menuPos)) {
                 var mn = menu[menuPos],
@@ -159,7 +159,7 @@ EndScore.prototype = {
     repeatLevel: function () {
         var self = this;
         this.game.stageSetup = {
-            level: 1,
+            level: self.game.stageSetup.level,
             score: self.game.stageSetup.score
         };
 
@@ -171,7 +171,7 @@ EndScore.prototype = {
         var self = this;
         this.game.stageSetup = {
             level: self.game.stageSetup.level + 1,
-            score: self.game.stageSetup.score
+            score: self.game.stageSetup.levelScore
         };
 
         this.game.sound.remove(this.game.backgroundMusic);

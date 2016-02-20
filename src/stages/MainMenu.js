@@ -34,9 +34,9 @@ MainMenu.prototype = {
         //Defined Menu
         var menu = [
             ['Start', 250, this.openPlayerSelection],
-            ['Tablica wyników', 290, this.openScoreBoard],
+            ['Tablica wyników', 290, this.openScoreBoard]//,
             /*['Twórcy', 330, this.openCredits],*/
-            ['Wyjście', 370, function(){}]
+            //['Wyjście', 370, function(){}]
         ];
 
         /*this.game.add.text(320,  100 , "PoliticAmsi" ,{ font: "bold 80px Arial", fill: "#2c3e50", boundsAlignH: "center", boundsAlignV: "middle" }
@@ -44,6 +44,7 @@ MainMenu.prototype = {
         this.game.add.tileSprite(320, 100, 267, 58, IMAGES.MENUTITLE).anchor.set(0.5);
 
         this.game.stage.backgroundColor = '#1abc9c';
+        menuTexts = [];
         for(var menuPos in menu){
             if(menu.hasOwnProperty(menuPos)){
                 var mn = menu[menuPos],

@@ -206,10 +206,12 @@ class Player {
     const timer = this._timer = this._game.time.create(true);
     let i = 0;
     this.invincible = true;
-    timer.repeat(100, 20, () => {
-      this.sprite.visible = !this.sprite.visible;
+    const repeats = 20;
+    timer.repeat(100, repeats, () => {
+      this.sprite.alpha = this.sprite.alpha === 1 ? 0.1 : 1;
       i++;
-      if (i === 20) {
+      if (i === repeats) {
+        this.sprite.alpha = 1;
         this.invincible = false;
       }
     });

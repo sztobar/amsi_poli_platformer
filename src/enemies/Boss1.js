@@ -6,6 +6,7 @@ var JUMP_SPEED = 300;
 export default class Boss1 {
 
     constructor(game, position, spriteMan, spriteBullet){
+		this.hp = 20;
         this.game = game;
         this.sprite = game.add.sprite(32, 48, spriteMan);
         this.right = false;
@@ -16,6 +17,7 @@ export default class Boss1 {
         this.sprite.animations.add('shotLeft', [2,12], 14, true);
         this.sprite.animations.add('shotRight', [7,13], 14, true);
         this.sprite.die = this.die.bind(this);
+		this.sprite.boss = true;
         this.sprite.x = position[0];
         this.sprite.y = position[1];
         this.death = false;
@@ -39,10 +41,13 @@ export default class Boss1 {
     }
 
     die() {
-        this.death = true;
-        this.sprite.body.velocity.x = 0;
-        this.sprite.animations.play('death');
-    }
+		this.hp--;
+		if (this.hp <= 0) {
+			this.death = true;
+			this.sprite.body.velocity.x = 0;
+			this.sprite.animations.play('death');
+		}
+	}
 
     afterDeath(){
         this.sprite.kill();

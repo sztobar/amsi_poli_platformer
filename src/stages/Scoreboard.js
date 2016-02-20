@@ -26,7 +26,7 @@ Scoreboard.prototype = {
                 if (scores.hasOwnProperty(score) && index < 6) {
                     var mn = scores[score],
                         textbox = this.game.add.text(40, 160 + (index * 50), index + '. ' + mn.name, style),
-                        textbox_date = this.game.add.text(300, 160 + (index * 50), moment(mn.date).format('DD/MM H:m'), style),
+                        textbox_date = this.game.add.text(300, 160 + (index * 50), moment(mn.date).format('DD/MM H:mm'), style),
                         textbox_points = this.game.add.text(530, 160 + (index * 50), mn.score, style);
                     index++;
                 }
