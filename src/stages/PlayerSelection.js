@@ -98,6 +98,7 @@ PlayerSelection.prototype = {
             score : 0
         };
         this.game.currentSelectHero = playerTab[currentPosY][currentPosX];
+        this.game.sound.remove(this.game.backgroundMusic);
         this.game.state.start('Preloader');
     }
 };

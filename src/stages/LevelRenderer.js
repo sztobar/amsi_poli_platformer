@@ -89,8 +89,6 @@ class LevelRender {
 
     var spaceKey = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
     spaceKey.onUp.add(this.toggleDebugMode, this);
-
-    this.successSound = this.add.audio(SOUNDS.SUCCESS, 0.1);
     this.enemyDamageSound = this.add.audio(SOUNDS.ENEMY_DAMAGE, 0.1);
   }
 
@@ -141,7 +139,6 @@ class LevelRender {
 
   endLevel() {
     this.game.stageSetup.score = this._score._counter;
-    this.successSound.play();
 	  this.state.start('EndScore', true, true, this.game.stageSetup);
   }
 

@@ -17176,15 +17176,22 @@ module.exports = Boot;
 'use strict';
 
 module.exports = EndScore;
-var IMAGES = require('./../config').images;
+var config = require('../config');
 var path = '../../assets/images/';
+var Speaker = require('../hud/speaker');
+
+var SOUNDS = config.sounds;
+var IMAGES = config.images;
+
 function EndScore(game) {
     this.game = game;
     this.currentlySelected = -1;
 };
+
 var style = { font: "bold 32px Arial", fill: "#ecf0f1", boundsAlignH: "center", boundsAlignV: "middle" };
 var selectedStyle = { font: "bold 32px Arial", fill: "#ff3333", boundsAlignH: "center", boundsAlignV: "middle" };
 var menuTexts = [];
+
 EndScore.prototype = {
     init: function init(stageSetup) {
         this.stageSetup = stageSetup;
@@ -17192,8 +17199,17 @@ EndScore.prototype = {
     preload: function preload() {
         this.load.spritesheet(IMAGES.MAINMENU, path + 'menu-tlo.png', 640, 480);
         this.load.spritesheet(IMAGES.MENUTITLE, path + 'menu-title.png', 267, 58);
+        this.load.spritesheet(IMAGES.SPEAKER, path + 'speaker.png', 100, 100);
+
+        this.load.audio('menu-music', ['./../../assets/music/muzyka-end.mp3']);
+        this.load.audio(SOUNDS.SUCCESS, ['./../../assets/sound/success.wav']);
     },
     create: function create() {
+
+        this.game.backgroundMusic = this.sound.play('menu-music', 0.1, true);
+
+        this.successSound = this.add.audio(SOUNDS.SUCCESS, 0.1);
+        this.successSound.play();
         this._upKey = this.game.input.keyboard.addKey(Phaser.Keyboard.UP);
         this._downKey = this.game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
         this._acceptKey = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
@@ -17251,6 +17267,8 @@ EndScore.prototype = {
 
         menuTexts[0].setStyle(selectedStyle);
         this.currentlySelected = 0;
+
+        this.speaker = new Speaker(this);
     },
 
     saveScore: function saveScore(hero, score) {
@@ -17296,6 +17314,8 @@ EndScore.prototype = {
             level: self.game.stageSetup.level,
             score: self.game.stageSetup.score
         };
+
+        this.game.sound.remove(this.game.backgroundMusic);
         this.state.start('Preloader');
     },
 
@@ -17305,6 +17325,8 @@ EndScore.prototype = {
             level: 1,
             score: self.game.stageSetup.score
         };
+
+        this.game.sound.remove(this.game.backgroundMusic);
         this.state.start('Preloader');
     },
 
@@ -17314,6 +17336,8 @@ EndScore.prototype = {
             level: self.game.stageSetup.level + 1,
             score: self.game.stageSetup.score
         };
+
+        this.game.sound.remove(this.game.backgroundMusic);
         this.state.start('Preloader');
     },
 
@@ -17323,12 +17347,24 @@ EndScore.prototype = {
 
 };
 
-},{"./../config":7}],19:[function(require,module,exports){
+},{"../config":7,"../hud/speaker":14}],19:[function(require,module,exports){
 'use strict';
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var _createClass = function () {
+  function defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }return function (Constructor, protoProps, staticProps) {
+    if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+  };
+}();
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
 
 /* global _ */
 /* global PIXI */
@@ -17424,8 +17460,6 @@ var LevelRender = function () {
 
       var spaceKey = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
       spaceKey.onUp.add(this.toggleDebugMode, this);
-
-      this.successSound = this.add.audio(SOUNDS.SUCCESS, 0.1);
       this.enemyDamageSound = this.add.audio(SOUNDS.ENEMY_DAMAGE, 0.1);
     }
   }, {
@@ -17486,7 +17520,6 @@ var LevelRender = function () {
     key: 'endLevel',
     value: function endLevel() {
       this.game.stageSetup.score = this._score._counter;
-      this.successSound.play();
       this.state.start('EndScore', true, true, this.game.stageSetup);
     }
   }, {
@@ -17590,10 +17623,13 @@ MainMenu.prototype = {
         this.load.spritesheet(IMAGES.MENUTITLE, path + 'menu-title.png', 267, 58);
 
         this.load.spritesheet(IMAGES.SPEAKER, path + 'speaker.png', 100, 100);
+
+        this.load.audio('menu-music', ['./../../assets/music/menu-loop.mp3']);
     },
 
     create: function create() {
 
+        this.game.backgroundMusic = this.sound.play('menu-music', 0.1, true);
         this._upKey = this.game.input.keyboard.addKey(Phaser.Keyboard.UP);
         this._downKey = this.game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
         this._acceptKey = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
@@ -17751,6 +17787,7 @@ PlayerSelection.prototype = {
             score: 0
         };
         this.game.currentSelectHero = playerTab[currentPosY][currentPosX];
+        this.game.sound.remove(this.game.backgroundMusic);
         this.game.state.start('Preloader');
     }
 };
@@ -17760,6 +17797,7 @@ PlayerSelection.prototype = {
 
 /* global PIXI */
 /* global Phaser */
+
 var config = require('./../config');
 var IMAGES = config.images;
 var SOUNDS = config.sounds;
@@ -17803,7 +17841,6 @@ Preloader.prototype = {
         this.load.audio(SOUNDS.DAMAGE, ['./../../assets/sound/damage.wav']);
         this.load.audio(SOUNDS.STAR, ['./../../assets/sound/star.wav']);
         this.load.audio(SOUNDS.CHECKPOINT, ['./../../assets/sound/checkpoint.wav']);
-        this.load.audio(SOUNDS.SUCCESS, ['./../../assets/sound/success.wav']);
         this.load.audio(SOUNDS.SHOOT, ['./../../assets/sound/shoot.mp3']);
         this.load.audio(SOUNDS.ENEMY_DAMAGE, ['./../../assets/sound/enemy_damage.wav']);
         this.load.audio(SOUNDS.ENEMY_SHOOT, ['./../../assets/sound/enemy_shoot.mp3']);

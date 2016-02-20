@@ -17,11 +17,13 @@ MainMenu.prototype = {
 
         this.load.spritesheet(IMAGES.SPEAKER, path + 'speaker.png', 100, 100);
 
+        this.load.audio('menu-music', ['./../../assets/music/menu-loop.mp3']);
 
     },
 
     create: function() {
 
+        this.game.backgroundMusic = this.sound.play('menu-music', 0.1, true);
         this._upKey = this.game.input.keyboard.addKey(Phaser.Keyboard.UP);
         this._downKey = this.game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
         this._acceptKey = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);

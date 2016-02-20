@@ -1,13 +1,20 @@
 module.exports = EndScore;
-var IMAGES = require('./../config').images;
+var config = require('../config');
 var path = '../../assets/images/';
+var Speaker = require('../hud/speaker');
+
+var SOUNDS = config.sounds;
+var IMAGES = config.images;
+
 function EndScore(game) {
     this.game = game;
     this.currentlySelected = -1;
 };
+
 var style = {font: "bold 32px Arial", fill: "#ecf0f1", boundsAlignH: "center", boundsAlignV: "middle"};
 var selectedStyle = {font: "bold 32px Arial", fill: "#ff3333", boundsAlignH: "center", boundsAlignV: "middle"};
 var menuTexts = [];
+
 EndScore.prototype = {
     init: function (stageSetup) {
         this.stageSetup = stageSetup;
@@ -15,8 +22,17 @@ EndScore.prototype = {
 	preload: function() {
         this.load.spritesheet(IMAGES.MAINMENU, path + 'menu-tlo.png', 640, 480);
         this.load.spritesheet(IMAGES.MENUTITLE, path + 'menu-title.png', 267, 58);
+        this.load.spritesheet(IMAGES.SPEAKER, path + 'speaker.png', 100, 100);
+
+        this.load.audio('menu-music', ['./../../assets/music/muzyka-end.mp3']);
+        this.load.audio(SOUNDS.SUCCESS, ['./../../assets/sound/success.wav']);
 	},
     create: function () {
+
+        this.game.backgroundMusic = this.sound.play('menu-music', 0.1, true);
+
+        this.successSound = this.add.audio(SOUNDS.SUCCESS, 0.1);
+        this.successSound.play();
         this._upKey = this.game.input.keyboard.addKey(Phaser.Keyboard.UP);
         this._downKey = this.game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
         this._acceptKey = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
@@ -85,6 +101,8 @@ EndScore.prototype = {
         menuTexts[0].setStyle(selectedStyle);
         this.currentlySelected = 0;
 
+        this.speaker = new Speaker(this);
+
 
     },
 
@@ -133,6 +151,8 @@ EndScore.prototype = {
             level: self.game.stageSetup.level,
             score: self.game.stageSetup.score
         };
+
+        this.game.sound.remove(this.game.backgroundMusic);
         this.state.start('Preloader');
     }
     ,
@@ -142,6 +162,8 @@ EndScore.prototype = {
             level: 1,
             score: self.game.stageSetup.score
         };
+
+        this.game.sound.remove(this.game.backgroundMusic);
         this.state.start('Preloader');
     }
     ,
@@ -151,6 +173,8 @@ EndScore.prototype = {
             level: self.game.stageSetup.level + 1,
             score: self.game.stageSetup.score
         };
+
+        this.game.sound.remove(this.game.backgroundMusic);
         this.state.start('Preloader');
     }
     ,

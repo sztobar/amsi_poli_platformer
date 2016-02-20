@@ -43,7 +43,6 @@ Preloader.prototype = {
         this.load.audio(SOUNDS.DAMAGE, ['./../../assets/sound/damage.wav']);
         this.load.audio(SOUNDS.STAR, ['./../../assets/sound/star.wav']);
         this.load.audio(SOUNDS.CHECKPOINT, ['./../../assets/sound/checkpoint.wav']);
-        this.load.audio(SOUNDS.SUCCESS, ['./../../assets/sound/success.wav']);
         this.load.audio(SOUNDS.SHOOT, ['./../../assets/sound/shoot.mp3']);
         this.load.audio(SOUNDS.ENEMY_DAMAGE, ['./../../assets/sound/enemy_damage.wav']);
         this.load.audio(SOUNDS.ENEMY_SHOOT, ['./../../assets/sound/enemy_shoot.mp3']);
