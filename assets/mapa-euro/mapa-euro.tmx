@@ -6,7 +6,7 @@
  <tileset firstgid="17" name="tiles-props" tilewidth="32" tileheight="32" tilecount="16">
   <image source="../images/tiles-props.png" trans="ffffff" width="128" height="128"/>
  </tileset>
- <imagelayer name="background">
+ <imagelayer name="background" visible="0">
   <image source="euro-tlo.png"/>
  </imagelayer>
  <layer name="tileset" width="240" height="40">
