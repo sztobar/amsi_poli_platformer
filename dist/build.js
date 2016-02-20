@@ -12356,7 +12356,7 @@
 
 },{}],2:[function(require,module,exports){
 //! moment.js
-//! version : 2.11.1
+//! version : 2.11.2
 //! authors : Tim Wood, Iskren Chernev, Moment.js contributors
 //! license : MIT
 //! momentjs.com
@@ -14173,7 +14173,7 @@
     }
 
     // ASP.NET json date format regex
-    var aspNetRegex = /(\-)?(?:(\d*)[. ])?(\d+)\:(\d+)(?:\:(\d+)\.?(\d{3})?)?/;
+    var aspNetRegex = /^(\-)?(?:(\d*)[. ])?(\d+)\:(\d+)(?:\:(\d+)\.?(\d{3})?\d*)?$/;
 
     // from http://docs.closure-library.googlecode.com/git/closure_goog_date_date.js.source.html
     // somewhat more in line with 4.4.3.2 2004 spec, but allows decimal anywhere
@@ -15928,7 +15928,7 @@
     // Side effect imports
 
 
-    utils_hooks__hooks.version = '2.11.1';
+    utils_hooks__hooks.version = '2.11.2';
 
     setHookCallback(local__createLocal);
 
@@ -16281,11 +16281,11 @@ module.exports = {
 },{}],8:[function(require,module,exports){
 'use strict';
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -16424,11 +16424,11 @@ exports.default = Boss1;
 },{"./../config":7}],9:[function(require,module,exports){
 'use strict';
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -16522,11 +16522,11 @@ exports.default = Cloud;
 },{"./../config":7}],10:[function(require,module,exports){
 'use strict';
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -16655,11 +16655,11 @@ exports.default = Shooter;
 },{"./../config":7}],11:[function(require,module,exports){
 'use strict';
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -17205,7 +17205,6 @@ EndScore.prototype = {
         this.load.audio(SOUNDS.SUCCESS, ['./../../assets/sound/success.wav']);
     },
     create: function create() {
-
         this.game.backgroundMusic = this.sound.play('menu-music', 0.1, true);
 
         this.successSound = this.add.audio(SOUNDS.SUCCESS, 0.1);
@@ -17227,14 +17226,14 @@ EndScore.prototype = {
         if (this.game.stageSetup.level == 4) {
             texts = {
                 title: 'Gra ukończona',
-                score: 'Wynik końcowy:' + this.stageSetup.score
+                score: 'Wynik końcowy:' + this.stageSetup.levelScore
             };
-            menu = [['Do menu!', 330, this.toMainMenu], ['Zagraj jeszcze raz', 370, this.repeatGame]];
-            this.saveScore(this.game.currentSelectHero, this.stageSetup.score);
+            menu = [['Do menu!', 330, this.toMainMenu], ['Powtórz poziom', 370, this.repeatGame]];
+            this.saveScore(this.game.currentSelectHero, this.stageSetup.levelScore);
         } else {
             texts = {
                 title: 'Poziom ukończony',
-                score: 'Aktualny Wynik:' + this.stageSetup.score
+                score: 'Aktualny Wynik:' + this.stageSetup.levelScore
             };
             menu = [['Kolejny poziom', 330, this.nextLevel], ['Powtórz poziom', 370, this.repeatLevel]];
         }
@@ -17252,6 +17251,7 @@ EndScore.prototype = {
             boundsAlignV: "middle"
         }).anchor.set(0.5);
 
+        menuTexts = [];
         for (var menuPos in menu) {
             if (menu.hasOwnProperty(menuPos)) {
                 var mn = menu[menuPos],
@@ -17322,7 +17322,7 @@ EndScore.prototype = {
     repeatLevel: function repeatLevel() {
         var self = this;
         this.game.stageSetup = {
-            level: 1,
+            level: self.game.stageSetup.level,
             score: self.game.stageSetup.score
         };
 
@@ -17334,7 +17334,7 @@ EndScore.prototype = {
         var self = this;
         this.game.stageSetup = {
             level: self.game.stageSetup.level + 1,
-            score: self.game.stageSetup.score
+            score: self.game.stageSetup.levelScore
         };
 
         this.game.sound.remove(this.game.backgroundMusic);
@@ -17350,9 +17350,21 @@ EndScore.prototype = {
 },{"../config":7,"../hud/speaker":14}],19:[function(require,module,exports){
 'use strict';
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var _createClass = function () {
+  function defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }return function (Constructor, protoProps, staticProps) {
+    if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+  };
+}();
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
 
 /* global _ */
 /* global PIXI */
@@ -17507,7 +17519,7 @@ var LevelRender = function () {
   }, {
     key: 'endLevel',
     value: function endLevel() {
-      this.game.stageSetup.score = this._score._counter;
+      this.game.stageSetup.levelScore = this._score._counter;
       this.state.start('EndScore', true, true, this.game.stageSetup);
     }
   }, {
@@ -17635,6 +17647,7 @@ MainMenu.prototype = {
         this.game.add.tileSprite(320, 100, 267, 58, IMAGES.MENUTITLE).anchor.set(0.5);
 
         this.game.stage.backgroundColor = '#1abc9c';
+        menuTexts = [];
         for (var menuPos in menu) {
             if (menu.hasOwnProperty(menuPos)) {
                 var mn = menu[menuPos],
@@ -17929,7 +17942,7 @@ Scoreboard.prototype = {
                 if (scores.hasOwnProperty(score) && index < 6) {
                     var mn = scores[score],
                         textbox = this.game.add.text(40, 160 + index * 50, index + '. ' + mn.name, style),
-                        textbox_date = this.game.add.text(300, 160 + index * 50, moment(mn.date).format('DD/MM H:m'), style),
+                        textbox_date = this.game.add.text(300, 160 + index * 50, moment(mn.date).format('DD/MM H:mm'), style),
                         textbox_points = this.game.add.text(530, 160 + index * 50, mn.score, style);
                     index++;
                 }

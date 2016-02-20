@@ -44,6 +44,7 @@ MainMenu.prototype = {
         this.game.add.tileSprite(320, 100, 267, 58, IMAGES.MENUTITLE).anchor.set(0.5);
 
         this.game.stage.backgroundColor = '#1abc9c';
+        menuTexts = [];
         for(var menuPos in menu){
             if(menu.hasOwnProperty(menuPos)){
                 var mn = menu[menuPos],

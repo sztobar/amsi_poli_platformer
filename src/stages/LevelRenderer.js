@@ -138,7 +138,7 @@ class LevelRender {
   }
 
   endLevel() {
-    this.game.stageSetup.score = this._score._counter;
+    this.game.stageSetup.levelScore = this._score._counter;
 	  this.state.start('EndScore', true, true, this.game.stageSetup);
   }
 
